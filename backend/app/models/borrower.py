@@ -21,8 +21,16 @@ class Borrower(BaseMixin, Base):
         nullable=True
     )
 
-    first_name = Column(String, nullable=False)
-    last_name = Column(String, nullable=False)
+    borrower_type = Column(
+        String,
+        nullable=False,
+        default="INDIVIDUAL"
+    )
+
+    first_name = Column(String)
+    last_name = Column(String)
+
+    business_name = Column(String)
 
     phone = Column(String)
     email = Column(String)

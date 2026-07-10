@@ -16,6 +16,11 @@ import app.models.branch
 import app.models.account
 import app.models.journal_entry
 import app.models.journal_line
+import app.models.guarantor
+import app.models.collateral
+import app.models.savings_product
+import app.models.savings_account
+import app.models.savings_transaction
 import app.models.audit_log
 config = context.config
 

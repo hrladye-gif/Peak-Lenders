@@ -1,6 +1,7 @@
 from sqlalchemy import Column
 from sqlalchemy import String
 from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
 
 from app.db.database import Base
 from app.models.base import BaseMixin
@@ -15,5 +16,12 @@ class Branch(BaseMixin, Base):
     )
 
     name = Column(String, nullable=False)
+
     code = Column(String, nullable=False)
+
     address = Column(String)
+
+    tenant = relationship(
+        "Tenant",
+        back_populates="branches"
+    )
