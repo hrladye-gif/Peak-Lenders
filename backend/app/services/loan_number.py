@@ -1,5 +1,13 @@
 from datetime import datetime
 
-def generate_loan_number(sequence: int):
-    year = datetime.now().year
-    return f"LN-{year}-{sequence:06d}"
+
+def generate_loan_number():
+
+    timestamp = datetime.now()
+
+    return (
+        f"LN-{timestamp.year}"
+        f"{timestamp.month:02d}"
+        f"{timestamp.day:02d}"
+        f"-{timestamp.microsecond}"
+    )
