@@ -2,12 +2,16 @@ from sqlalchemy import Column
 from sqlalchemy import String
 from sqlalchemy import ForeignKey
 from sqlalchemy import Date
+from sqlalchemy.orm import relationship
 
 from app.db.database import Base
 from app.models.base import BaseMixin
 
+
 class Borrower(BaseMixin, Base):
+
     __tablename__ = "borrowers"
+
 
     tenant_id = Column(
         String,
@@ -15,11 +19,13 @@ class Borrower(BaseMixin, Base):
         nullable=False
     )
 
+
     branch_id = Column(
         String,
         ForeignKey("branches.id"),
         nullable=True
     )
+
 
     borrower_type = Column(
         String,
@@ -27,12 +33,15 @@ class Borrower(BaseMixin, Base):
         default="INDIVIDUAL"
     )
 
+
     first_name = Column(String)
+
     last_name = Column(String)
 
     business_name = Column(String)
 
     phone = Column(String)
+
     email = Column(String)
 
     national_id = Column(String)
@@ -42,3 +51,15 @@ class Borrower(BaseMixin, Base):
     gender = Column(String)
 
     address = Column(String)
+
+
+    tenant = relationship(
+        "Tenant",
+        back_populates="borrowers"
+    )
+
+
+    branch = relationship(
+        "Branch",
+        back_populates="borrowers"
+    )
