@@ -1,0 +1,261 @@
+import { Outlet } from "react-router-dom";
+
+import {
+  Bell,
+  Building2,
+  Users,
+  CreditCard,
+  PiggyBank,
+  Landmark,
+  FileBarChart,
+  Settings,
+  Home,
+  ChevronDown,
+  Menu,
+  Shield
+} from "lucide-react";
+
+export default function MainLayout() {
+  return (
+    <div className="app">
+
+      <aside className="sidebar">
+
+        <div className="logo">
+          <Shield size={24} />
+          <h2>Peak Lenders</h2>
+        </div>
+
+        <nav>
+
+          <a href="#" className="active">
+            <Home size={18} />
+            Dashboard
+          </a>
+
+          <div className="menu-section">
+
+                <div className="menu-title">
+                    Organization
+                    <ChevronDown size={16} />
+                </div>
+
+                <a href="#">
+                    <Building2 size={18}/>
+                    Tenants
+                </a>
+
+                <a href="#">
+                    <Building2 size={18}/>
+                    Branches
+                </a>
+
+            </div>
+            <div className="submenu">
+              <a href="#">
+                <Building2 size={18}/>
+                Tenants
+              </a>
+
+              <a href="#">
+                <Building2 size={18}/>
+                Branches
+              </a>
+            </div>
+
+          </div>
+
+          <div className="menu-section">
+
+            <div className="menu-title">
+              <span>Clients</span>
+              <ChevronDown size={16} />
+            </div>
+
+            <div className="submenu">
+
+              <a href="#">
+                <Users size={18}/>
+                Borrowers
+              </a>
+
+              <a href="#">
+                <Users size={18}/>
+                Guarantors
+              </a>
+
+            </div>
+
+          </div>
+
+          <div className="menu-section">
+
+            <div className="menu-title">
+              <span>Lending</span>
+              <ChevronDown size={16} />
+            </div>
+
+            <div className="submenu">
+
+              <a href="#">
+                <CreditCard size={18}/>
+                Loan Applications
+              </a>
+
+              <a href="#">
+                <CreditCard size={18}/>
+                Loans
+              </a>
+
+              <a href="#">
+                <CreditCard size={18}/>
+                Repayments
+              </a>
+
+              <a href="#">
+                <CreditCard size={18}/>
+                Collections
+              </a>
+
+            </div>
+
+          </div>
+
+          <div className="menu-section">
+
+            <div className="menu-title">
+              <span>Savings</span>
+              <ChevronDown size={16} />
+            </div>
+
+            <div className="submenu">
+
+              <a href="#">
+                <PiggyBank size={18}/>
+                Savings Accounts
+              </a>
+
+              <a href="#">
+                <PiggyBank size={18}/>
+                Deposits
+              </a>
+
+              <a href="#">
+                <PiggyBank size={18}/>
+                Withdrawals
+              </a>
+
+            </div>
+
+          </div>
+
+          <div className="menu-section">
+
+            <div className="menu-title">
+              <span>Accounting</span>
+              <ChevronDown size={16} />
+            </div>
+
+            <div className="submenu">
+
+              <a href="#">
+                <Landmark size={18}/>
+                Chart of Accounts
+              </a>
+
+              <a href="#">
+                <Landmark size={18}/>
+                Journal Entries
+              </a>
+
+              <a href="#">
+                <Landmark size={18}/>
+                General Ledger
+              </a>
+
+              <a href="#">
+                <Landmark size={18}/>
+                Trial Balance
+              </a>
+
+            </div>
+
+          </div>
+
+          <div className="menu-section">
+
+            <div className="menu-title">
+              <span>Reports</span>
+              <ChevronDown size={16} />
+            </div>
+
+            <div className="submenu">
+
+              <a href="#">
+                <FileBarChart size={18}/>
+                Reports
+              </a>
+
+            </div>
+
+          </div>
+
+          <div className="menu-section">
+
+            <div className="menu-title">
+              <span>Settings</span>
+              <ChevronDown size={16} />
+            </div>
+
+            <div className="submenu">
+
+              <a href="#">
+                <Settings size={18}/>
+                Settings
+              </a>
+
+            </div>
+
+          </div>
+
+        </nav>
+
+      </aside>
+
+      <div className="content">
+
+        <header className="topbar">
+
+          <div className="topbar-left">
+
+            <Menu size={18} />
+
+            <h2>Dashboard</h2>
+
+          </div>
+
+          <div className="topbar-right">
+
+            <Bell size={20} />
+
+            <div>
+
+              <strong>Administrator</strong>
+              <br />
+              <small>Super Admin</small>
+
+            </div>
+
+            <div className="avatar"></div>
+
+          </div>
+
+        </header>
+
+        <Outlet />
+
+      </div>
+
+    </div>
+  );
+}
