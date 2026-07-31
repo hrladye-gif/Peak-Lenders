@@ -1,21 +1,61 @@
 import { useState } from 'react';
 import { Sidebar } from '../components/layout/Sidebar';
 import * as Lucide from 'lucide-react';
-
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  CartesianGrid,
+  Tooltip,
+  XAxis,
+  YAxis,
+  BarChart,
+  Bar
+} from "recharts";
 const hasNotifications = true;
 
 const KPICard = ({ title, value, icon: Icon, color }: any) => (
-  <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
-    <div className={`p-3 rounded-2xl ${color}`}>
-      <Icon className="text-white" size={24} />
+  <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-5 hover:shadow-md transition-all">
+    
+    <div className="flex items-center justify-between mb-4">
+
+      <div
+        className={`w-12 h-12 rounded-2xl flex items-center justify-center ${color}`}
+      >
+        <Icon size={22} className="text-white" />
+      </div>
+
+      <Lucide.ArrowUpRight size={18} className="text-slate-300" />
+
     </div>
-    <div>
-      <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">{title}</p>
-      <h3 className="text-xl font-bold text-[#1a2e23]">{value}</h3>
-    </div>
+
+    <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold">
+      {title}
+    </p>
+
+    <h3 className="text-2xl font-bold text-slate-900 mt-2">
+      {value}
+    </h3>
+
   </div>
 );
+const portfolioData = [
+  { month: "Jan", amount: 1200000 },
+  { month: "Feb", amount: 1800000 },
+  { month: "Mar", amount: 2400000 },
+  { month: "Apr", amount: 2800000 },
+  { month: "May", amount: 3500000 },
+  { month: "Jun", amount: 4250000 },
+];
 
+const collectionData = [
+  { month: "Jan", amount: 320000 },
+  { month: "Feb", amount: 420000 },
+  { month: "Mar", amount: 510000 },
+  { month: "Apr", amount: 630000 },
+  { month: "May", amount: 710000 },
+  { month: "Jun", amount: 840000 },
+];
 export const Dashboard = () => {
   const [currency, setCurrency] = useState('KES');
   
@@ -59,45 +99,229 @@ export const Dashboard = () => {
 
         {/* Main Content Area */}
         <main className="flex-1 p-6 overflow-y-auto space-y-8">
-          
-          {/* PHASE 1: KPI Cards & Quick Actions */}
+        
+          {/* KPI SECTION */}
           <section>
-            <div className="grid grid-cols-4 gap-6 mb-6">
-              <div className="bg-[#1a2e23] text-white p-6 rounded-3xl col-span-2 flex flex-col justify-center">
-                <p className="text-emerald-400 font-medium text-sm uppercase">Total Portfolio</p>
-                <h2 className="text-3xl font-bold">{formatCurrency(4250000)}</h2>
+        
+            <div className="grid grid-cols-4 gap-5 mb-8">
+        
+              <div className="bg-gradient-to-r from-[#166534] to-[#1f7a4c] text-white p-7 rounded-3xl col-span-2 shadow-sm">
+        
+                <p className="text-emerald-200 uppercase text-xs font-semibold tracking-wider">
+                  Total Portfolio
+                </p>
+        
+                <h2 className="text-4xl font-bold mt-2">
+                  {formatCurrency(4250000)}
+                </h2>
+        
+                <p className="text-emerald-100 text-sm mt-2">
+                  Across all active loans
+                </p>
+        
               </div>
-              <KPICard title="Active Loans" value="1,240" icon={Lucide.HandCoins} color="bg-blue-500" />
-              <KPICard title="Collections" value={formatCurrency(840000)} icon={Lucide.TrendingUp} color="bg-emerald-500" />
+        
+              <KPICard
+                title="Active Loans"
+                value="1,240"
+                icon={Lucide.HandCoins}
+                color="bg-blue-600"
+              />
+        
+              <KPICard
+                title="Collections"
+                value={formatCurrency(840000)}
+                icon={Lucide.TrendingUp}
+                color="bg-emerald-600"
+              />
+        
             </div>
-            <div className="flex gap-4">
+        
+            <div className="grid grid-cols-4 gap-5">
+        
+              <KPICard
+                title="Borrowers"
+                value="3,284"
+                icon={Lucide.Users}
+                color="bg-indigo-600"
+              />
+        
+              <KPICard
+                title="Savings Accounts"
+                value="2,912"
+                icon={Lucide.PiggyBank}
+                color="bg-amber-500"
+              />
+        
+              <KPICard
+                title="PAR 30"
+                value="4.2%"
+                icon={Lucide.AlertTriangle}
+                color="bg-red-500"
+              />
+        
+              <KPICard
+                title="Branches"
+                value="12"
+                icon={Lucide.Building2}
+                color="bg-cyan-600"
+              />
+        
+            </div>
+        
+            <div className="flex flex-wrap gap-3 mt-6">
+        
               <button className="bg-[#166534] text-white px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2">
-                <Lucide.Plus size={16} /> New Loan
+                <Lucide.Plus size={16} />
+                New Loan
               </button>
+        
               <button className="bg-white border border-slate-200 px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2">
-                <Lucide.FileText size={16} /> View Reports
+                <Lucide.FileText size={16} />
+                View Reports
               </button>
+        
+              <button className="bg-white border border-slate-200 px-5 py-2 rounded-full text-sm font-semibold flex items-center gap-2 hover:bg-slate-50">
+                <Lucide.Users size={16} />
+                Add Borrower
+              </button>
+        
+              <button className="bg-white border border-slate-200 px-5 py-2 rounded-full text-sm font-semibold flex items-center gap-2 hover:bg-slate-50">
+                <Lucide.PiggyBank size={16} />
+                Open Account
+              </button>
+        
             </div>
+        
           </section>
-
-          {/* PHASE 2: Charts & Queue */}
+        
+          {/* CHARTS SECTION */}
+        
           <section className="grid grid-cols-3 gap-6">
+        
             <div className="col-span-2 grid grid-cols-2 gap-6">
-              <div className="bg-white p-6 rounded-3xl border border-slate-100 h-64 shadow-sm">Portfolio Trend</div>
-              <div className="bg-white p-6 rounded-3xl border border-slate-100 h-64 shadow-sm">Collections Chart</div>
+        
+              {/* Portfolio Trend */}
+        
+              <div className="bg-white p-6 rounded-3xl border border-slate-100 h-80 shadow-sm">
+        
+                <h3 className="font-semibold mb-4">
+                  Portfolio Trend
+                </h3>
+        
+                <ResponsiveContainer width="100%" height="90%">
+                  <LineChart data={portfolioData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+        
+                    <Line
+                      type="monotone"
+                      dataKey="amount"
+                      stroke="#166534"
+                      strokeWidth={3}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+        
+              </div>
+        
+              {/* Collections */}
+        
+              <div className="bg-white p-6 rounded-3xl border border-slate-100 h-80 shadow-sm">
+        
+                <h3 className="font-semibold mb-4">
+                  Collections
+                </h3>
+        
+                <ResponsiveContainer width="100%" height="90%">
+                  <BarChart data={collectionData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+        
+                    <Bar
+                      dataKey="amount"
+                      fill="#3EB489"
+                      radius={[8, 8, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+        
+              </div>
+        
             </div>
-            <div className="bg-white p-6 rounded-3xl border border-slate-100 h-64 shadow-sm">Approval Queue</div>
+        
+            {/* Approval Queue */}
+        
+            <div className="bg-white p-6 rounded-3xl border border-slate-100 h-80 shadow-sm">
+        
+              <h3 className="font-semibold mb-4">
+                Approval Queue
+              </h3>
+        
+              <div className="space-y-3">
+        
+                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200">
+                  Loan #LN-1001
+                </div>
+        
+                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200">
+                  Loan #LN-1002
+                </div>
+        
+                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200">
+                  Loan #LN-1003
+                </div>
+        
+              </div>
+        
+            </div>
+        
           </section>
-
-          {/* PHASE 3: Advanced Analytics */}
+        
+          {/* ANALYTICS SECTION */}
+        
           <section className="grid grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-3xl border border-slate-100 h-48 shadow-sm">PAR Dashboard</div>
-            <div className="bg-white p-6 rounded-3xl border border-slate-100 h-48 shadow-sm">Branch Performance</div>
-            <div className="bg-white p-6 rounded-3xl border border-slate-100 h-48 shadow-sm">Exec Analytics</div>
+        
+            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+        
+              <p className="text-slate-500 text-sm">
+                PAR 30
+              </p>
+        
+              <h2 className="text-3xl font-bold text-red-600 mt-2">
+                4.2%
+              </h2>
+        
+            </div>
+        
+            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+        
+              <p className="text-slate-500 text-sm">
+                Best Branch
+              </p>
+        
+              <h2 className="text-3xl font-bold mt-2">
+                Kampala
+              </h2>
+        
+            </div>
+        
+            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+        
+              <p className="text-slate-500 text-sm">
+                Collection Rate
+              </p>
+        
+              <h2 className="text-3xl font-bold text-emerald-600 mt-2">
+                96%
+              </h2>
+        
+            </div>
+        
           </section>
-
+        
         </main>
-      </div>
-    </div>
-  );
-};
