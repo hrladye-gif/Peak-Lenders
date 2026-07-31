@@ -1,79 +1,247 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import * as Lucide from 'lucide-react';
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import * as Lucide from "lucide-react";
 
 export const Sidebar = () => {
-  const [open, setOpen] = useState<Record<string, boolean>>({ Dashboard: true });
-  const [activeItem, setActiveItem] = useState<string>('Dashboard');
+  const location = useLocation();
+
   const [logo, setLogo] = useState<string | null>(null);
 
-  const toggle = (m: string) => setOpen(prev => ({ ...prev, [m]: !prev[m] }));
+  const [open, setOpen] = useState<Record<string, boolean>>({
+    Dashboard: true,
+    Organization: true,
+    Clients: true,
+    Loans: true,
+    Savings: false,
+    Accounting: false,
+    Reports: false,
+    Settings: false,
+  });
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
+  const toggle = (menu: string) => {
+    setOpen((prev) => ({
+      ...prev,
+      [menu]: !prev[menu],
+    }));
+  };
+
+  const handleLogoUpload = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (e.target.files?.[0]) {
       setLogo(URL.createObjectURL(e.target.files[0]));
     }
   };
 
   const menu = [
-    { title: 'Dashboard', icon: 'LayoutDashboard', items: ['Dashboard', 'Notifications', 'Activity Feed'] },
-    { title: 'Organization', icon: 'Building2', items: ['Tenants', 'Branches', 'Users'] },
-    { title: 'Clients', icon: 'Users', items: ['Borrowers', 'Groups', 'Guarantors'] },
-    { title: 'Loans', icon: 'HandCoins', items: ['Applications', 'Active Loans', 'Repayments', 'Collections', 'Write-Offs'] },
-    { title: 'Savings', icon: 'PiggyBank', items: ['Products', 'Accounts', 'Deposits', 'Withdrawals'] },
-    { title: 'Accounting', icon: 'Calculator', items: ['Chart of Accounts', 'Journal Entries', 'General Ledger', 'Trial Balance', 'Income Statement', 'Balance Sheet'] },
-    { title: 'Reports', icon: 'FileText', items: ['Portfolio Reports', 'Financial Reports', 'Branch Reports'] },
-    { title: 'Settings', icon: 'Settings', items: ['Institution', 'Users & Roles', 'System Settings'] },
+    {
+      title: "Dashboard",
+      icon: "LayoutDashboard",
+      items: ["Dashboard", "Notifications", "Activity Feed"],
+    },
+    {
+      title: "Organization",
+      icon: "Building2",
+      items: ["Tenants", "Branches", "Users"],
+    },
+    {
+      title: "Clients",
+      icon: "Users",
+      items: ["Borrowers", "Groups", "Guarantors"],
+    },
+    {
+      title: "Loans",
+      icon: "HandCoins",
+      items: [
+        "Applications",
+        "Active Loans",
+        "Repayments",
+        "Collections",
+        "Write-Offs",
+      ],
+    },
+    {
+      title: "Savings",
+      icon: "PiggyBank",
+      items: [
+        "Products",
+        "Accounts",
+        "Deposits",
+        "Withdrawals",
+      ],
+    },
+    {
+      title: "Accounting",
+      icon: "Calculator",
+      items: [
+        "Chart of Accounts",
+        "Journal Entries",
+        "General Ledger",
+        "Trial Balance",
+        "Income Statement",
+        "Balance Sheet",
+      ],
+    },
+    {
+      title: "Reports",
+      icon: "FileText",
+      items: [
+        "Portfolio Reports",
+        "Financial Reports",
+        "Branch Reports",
+      ],
+    },
+    {
+      title: "Settings",
+      icon: "Settings",
+      items: [
+        "Institution",
+        "Users & Roles",
+        "System Settings",
+      ],
+    },
   ];
 
   return (
-    <aside className="w-64 bg-[#e6f4ea] p-6 h-screen border-r border-slate-200 flex flex-col justify-between">
-      <div className="overflow-y-auto">
-        <div className="mb-10 flex items-center gap-3">
+    <aside className="w-72 bg-white border-r border-slate-200 h-screen flex flex-col shadow-sm">
+
+      {/* Header */}
+
+      <div className="p-6 border-b border-slate-100">
+
+        <div className="flex items-center gap-3">
+
           <label className="cursor-pointer">
-            <input type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} />
-            <div className="w-10 h-10 bg-white rounded-full border border-slate-200 flex items-center justify-center overflow-hidden">
-              {logo ? <img src={logo} alt="Logo" className="w-full h-full object-cover" /> : <span className="text-[10px] text-slate-400">Upload</span>}
+
+            <input
+              type="file"
+              className="hidden"
+              accept="image/*"
+              onChange={handleLogoUpload}
+            />
+
+            <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 flex items-center justify-center">
+
+              {logo ? (
+                <img
+                  src={logo}
+                  alt="Logo"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <Lucide.Building2
+                  size={22}
+                  className="text-slate-500"
+                />
+              )}
+
             </div>
+
           </label>
-          <h1 className="font-bold text-xl text-[#1a2e23]">PEAK-LENDERS</h1>
+
+          <div>
+            <h1 className="font-bold text-lg text-slate-900">
+              Peak Lenders
+            </h1>
+
+            <p className="text-xs text-slate-500">
+              Microfinance Platform
+            </p>
+          </div>
+
         </div>
 
-        <nav className="space-y-4">
-          {menu.map((m) => {
-            const Icon = (Lucide as any)[m.icon];
+      </div>
+
+      {/* Menu */}
+
+      <div className="flex-1 overflow-y-auto p-4">
+
+        <nav className="space-y-5">
+
+          {menu.map((section) => {
+            const Icon = (Lucide as any)[section.icon];
+
             return (
-              <div key={m.title}>
-                <button onClick={() => toggle(m.title)} className="w-full font-bold text-[#1a2e23] flex justify-between items-center text-sm uppercase tracking-wider">
-                  <span className="flex items-center gap-2"><Icon size={16} /> {m.title}</span>
-                  <span>{open[m.title] ? '−' : '+'}</span>
+              <div key={section.title}>
+
+                <button
+                  onClick={() => toggle(section.title)}
+                  className="w-full flex items-center justify-between text-slate-700 hover:text-emerald-700 transition"
+                >
+                  <span className="flex items-center gap-3 font-semibold text-sm uppercase tracking-wide">
+
+                    <Icon size={16} />
+
+                    {section.title}
+
+                  </span>
+
+                  <Lucide.ChevronDown
+                    size={16}
+                    className={`transition-transform duration-300 ${
+                      open[section.title]
+                        ? "rotate-180"
+                        : ""
+                    }`}
+                  />
                 </button>
-                {open[m.title] && (
-                  <ul className="mt-2 space-y-1 ml-2 text-sm text-slate-700">
-                    {m.items.map((i) => {
-                      const path = i === 'Dashboard' ? '/' : `/${i.toLowerCase().replace(/\s+/g, '-')}`;
+
+                {open[section.title] && (
+                  <ul className="mt-3 ml-2 space-y-1">
+
+                    {section.items.map((item) => {
+                      const path =
+                        item === "Dashboard"
+                          ? "/"
+                          : `/${item
+                              .toLowerCase()
+                              .replace(/\s+/g, "-")
+                              .replace(/&/g, "")}`;
+
+                      const active =
+                        location.pathname === path;
+
                       return (
-                        <li key={i} onClick={() => setActiveItem(i)}>
-                          <Link 
+                        <li key={item}>
+
+                          <Link
                             to={path}
-                            className={`block px-3 py-2 rounded-lg transition-colors ${activeItem === i ? 'bg-[#3EB489]/20 text-[#3EB489] font-bold border-l-4 border-[#3EB489]' : 'hover:text-[#166534] hover:font-medium'}`}
+                            className={`flex items-center px-4 py-2.5 rounded-xl text-sm transition-all ${
+                              active
+                                ? "bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200"
+                                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                            }`}
                           >
-                            {i}
+                            {item}
                           </Link>
+
                         </li>
                       );
                     })}
+
                   </ul>
                 )}
+
               </div>
             );
           })}
+
         </nav>
+
       </div>
 
-      <button className="flex items-center gap-2 text-red-600 font-bold hover:text-red-700 mt-6 pt-6 border-t border-slate-200">
-        <Lucide.LogOut size={18} /> Log Out
-      </button>
+      {/* Footer */}
+
+      <div className="p-4 border-t border-slate-200">
+
+        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition font-medium">
+          <Lucide.LogOut size={18} />
+          Log Out
+        </button>
+
+      </div>
+
     </aside>
   );
 };
