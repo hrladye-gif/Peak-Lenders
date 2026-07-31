@@ -36,7 +36,7 @@ export const Borrowers = () => {
       <div className="flex-1 p-6 overflow-y-auto">
         <header className="flex justify-between items-center mb-6">
           <h1 className="text-xl font-bold">Borrowers</h1>
-          <button onClick={() => setShowModal(true)} className="bg-[#166534] text-white px-4 py-2 rounded-full font-bold text-sm flex items-center gap-2">
+          <button onClick={() => setShowModal(true)} className="bg-primary text-white px-4 py-2 rounded-full font-bold text-sm flex items-center gap-2">
             <Lucide.Plus size={16} /> Add Borrower
           </button>
         </header>
@@ -112,7 +112,7 @@ export const Borrowers = () => {
 
                 <input onChange={(e) => setForm({...form, salary: e.target.value})} className="w-full p-3 border rounded-xl" placeholder="Monthly Salary (KES)" />
 
-                <button onClick={handleNext} className="w-full bg-[#166534] text-white py-3 rounded-xl font-bold mt-4">Next</button>
+                <button onClick={handleNext} className="w-full bg-primary text-white py-3 rounded-xl font-bold mt-4">Next</button>
               </div>
             )}
 
@@ -151,7 +151,7 @@ export const Borrowers = () => {
                 
                 <div className="flex gap-3 mt-6">
                   <button onClick={handleBack} className="flex-1 py-3 font-bold text-slate-500">Back</button>
-                  <button onClick={handleNext} className="flex-1 bg-[#166534] text-white py-3 rounded-xl font-bold">Next</button>
+                  <button onClick={handleNext} className="flex-1 bg-primary text-white py-3 rounded-xl font-bold">Next</button>
                 </div>
               </div>
             )}
@@ -185,7 +185,7 @@ export const Borrowers = () => {
 
                 <div className="flex gap-3 mt-6">
                   <button onClick={handleBack} className="flex-1 py-3 font-bold text-slate-500">Back</button>
-                  <button onClick={handleNext} className="flex-1 bg-[#166534] text-white py-3 rounded-xl font-bold">Next</button>
+                  <button onClick={handleNext} className="flex-1 bg-primary text-white py-3 rounded-xl font-bold">Next</button>
                 </div>
               </div>
             )}
@@ -216,7 +216,7 @@ export const Borrowers = () => {
 
                 <div className="flex gap-3 mt-6">
                   <button onClick={handleBack} className="flex-1 py-3 font-bold text-slate-500">Back</button>
-                  <button onClick={handleNext} className="flex-1 bg-[#166534] text-white py-3 rounded-xl font-bold">Confirm & Submit</button>
+                  <button onClick={handleNext} className="flex-1 bg-primary text-white py-3 rounded-xl font-bold">Confirm & Submit</button>
                 </div>
               </div>
             )}
@@ -226,7 +226,7 @@ export const Borrowers = () => {
               <div className="text-center py-6">
                 <Lucide.CheckCircle className="mx-auto text-green-600 mb-4" size={48} />
                 <p className="font-bold">Borrower Successfully Registered!</p>
-                <button onClick={() => {setShowModal(false); setStep(1);}} className="mt-6 w-full bg-[#166534] text-white py-3 rounded-xl font-bold">Done</button>
+                <button onClick={() => {setShowModal(false); setStep(1);}} className="mt-6 w-full bg-primary text-white py-3 rounded-xl font-bold">Done</button>
               </div>
             )}
           </div>
