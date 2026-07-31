@@ -9,13 +9,12 @@ export const Sidebar = () => {
 
   const [open, setOpen] = useState<Record<string, boolean>>({
     Dashboard: true,
-    Organization: true,
-    Clients: true,
-    Loans: true,
+    Customers: true,
+    Lending: true,
     Savings: false,
     Accounting: false,
     Reports: false,
-    Settings: false,
+    Administration: false,
   });
 
   const toggle = (menu: string) => {
