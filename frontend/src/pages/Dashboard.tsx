@@ -125,14 +125,14 @@ export const Dashboard = () => {
                 title="Active Loans"
                 value="1,240"
                 icon={Lucide.HandCoins}
-                color="bg-blue-600"
+                color=" bg-blue-600"
               />
         
               <KPICard
                 title="Collections"
                 value={formatCurrency(840000)}
                 icon={Lucide.TrendingUp}
-                color="bg-emerald-600"
+                color="bg-cyan-600"
               />
         
             </div>
@@ -150,7 +150,7 @@ export const Dashboard = () => {
                 title="Savings Accounts"
                 value="2,912"
                 icon={Lucide.PiggyBank}
-                color="bg-amber-500"
+                color="bg-violet-600"
               />
         
               <KPICard
@@ -164,7 +164,7 @@ export const Dashboard = () => {
                 title="Branches"
                 value="12"
                 icon={Lucide.Building2}
-                color="bg-cyan-600"
+                color="bg-slate-700"
               />
         
             </div>
