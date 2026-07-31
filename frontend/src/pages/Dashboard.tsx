@@ -14,26 +14,46 @@ import {
 } from "recharts";
 const hasNotifications = true;
 
-const KPICard = ({ title, value, icon: Icon, color }: any) => (
-  <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-5 hover:shadow-md transition-all">
-    
-    <div className="flex items-center justify-between mb-4">
+const KPICard = ({
+  title,
+  value,
+  icon: Icon,
+  color,
+}: any) => (
+  <div className="card p-5 group">
+
+    <div className="flex items-center justify-between mb-5">
 
       <div
-        className={`w-12 h-12 rounded-2xl flex items-center justify-center ${color}`}
+        className={`
+          w-12
+          h-12
+          rounded-2xl
+          flex
+          items-center
+          justify-center
+          shadow-sm
+          ${color}
+        `}
       >
-        <Icon size={22} className="text-white" />
+        <Icon
+          size={22}
+          className="text-white"
+        />
       </div>
 
-      <Lucide.ArrowUpRight size={18} className="text-slate-300" />
+      <Lucide.ArrowUpRight
+        size={18}
+        className="text-slate-400 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1"
+      />
 
     </div>
 
-    <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold">
+    <p className="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold">
       {title}
     </p>
 
-    <h3 className="text-2xl font-bold text-slate-900 mt-2">
+    <h3 className="text-3xl font-bold text-slate-900 mt-2">
       {value}
     </h3>
 
@@ -97,25 +117,30 @@ export const Dashboard = () => {
           </div>
         </header>
 
-        {/* Main Content Area */}
-        <main className="flex-1 p-6 overflow-y-auto space-y-8">
+       {/* Main Content Area */}
+        <main className="flex-1 overflow-y-auto bg-slate-50 p-6 space-y-8">
         
-          {/* KPI SECTION */}
+          {/* ================================================= */}
+          {/* PORTFOLIO OVERVIEW */}
+          {/* ================================================= */}
+        
           <section>
         
             <div className="grid grid-cols-4 gap-5 mb-8">
         
-              <div className="bg-gradient-to-r from-[#166534] to-[#1f7a4c] text-white p-7 rounded-3xl col-span-2 shadow-sm">
+              {/* Hero Card */}
         
-                <p className="text-emerald-200 uppercase text-xs font-semibold tracking-wider">
+              <div className="col-span-2 rounded-3xl bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 p-8 text-white shadow-lg">
+        
+                <p className="text-blue-100 uppercase tracking-[0.2em] text-xs font-semibold">
                   Total Portfolio
                 </p>
         
-                <h2 className="text-4xl font-bold mt-2">
+                <h2 className="text-5xl font-black mt-3">
                   {formatCurrency(4250000)}
                 </h2>
         
-                <p className="text-emerald-100 text-sm mt-2">
+                <p className="text-blue-100 mt-3">
                   Across all active loans
                 </p>
         
@@ -125,7 +150,7 @@ export const Dashboard = () => {
                 title="Active Loans"
                 value="1,240"
                 icon={Lucide.HandCoins}
-                color=" bg-blue-600"
+                color="bg-brand"
               />
         
               <KPICard
@@ -169,25 +194,27 @@ export const Dashboard = () => {
         
             </div>
         
-            <div className="flex flex-wrap gap-3 mt-6">
+            {/* Quick Actions */}
         
-              <button className="bg-[#166534] text-white px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2">
-                <Lucide.Plus size={16} />
+            <div className="flex flex-wrap gap-3 mt-8">
+        
+              <button className="btn-primary">
+                <Lucide.Plus size={18} />
                 New Loan
               </button>
         
-              <button className="bg-white border border-slate-200 px-6 py-2 rounded-full text-sm font-bold flex items-center gap-2">
-                <Lucide.FileText size={16} />
+              <button className="btn-secondary">
+                <Lucide.FileText size={18} />
                 View Reports
               </button>
         
-              <button className="bg-white border border-slate-200 px-5 py-2 rounded-full text-sm font-semibold flex items-center gap-2 hover:bg-slate-50">
-                <Lucide.Users size={16} />
+              <button className="btn-secondary">
+                <Lucide.Users size={18} />
                 Add Borrower
               </button>
         
-              <button className="bg-white border border-slate-200 px-5 py-2 rounded-full text-sm font-semibold flex items-center gap-2 hover:bg-slate-50">
-                <Lucide.PiggyBank size={16} />
+              <button className="btn-secondary">
+                <Lucide.PiggyBank size={18} />
                 Open Account
               </button>
         
@@ -195,18 +222,20 @@ export const Dashboard = () => {
         
           </section>
         
-          {/* CHARTS SECTION */}
+          {/* ================================================= */}
+          {/* CHARTS */}
+          {/* ================================================= */}
         
           <section className="grid grid-cols-3 gap-6">
         
             <div className="col-span-2 grid grid-cols-2 gap-6">
         
-              {/* Portfolio Trend */}
+              {/* Portfolio */}
         
-              <div className="bg-white p-6 rounded-3xl border border-slate-100 h-80 shadow-sm">
+              <div className="card p-6 h-80">
         
-                <h3 className="font-semibold mb-4">
-                  Portfolio Trend
+                <h3 className="section-title mb-4">
+                  Portfolio Growth
                 </h3>
         
                 <ResponsiveContainer width="100%" height="90%">
@@ -219,9 +248,10 @@ export const Dashboard = () => {
                     <Line
                       type="monotone"
                       dataKey="amount"
-                      stroke="#166534"
+                      stroke="#2563EB"
                       strokeWidth={3}
                     />
+        
                   </LineChart>
                 </ResponsiveContainer>
         
@@ -229,10 +259,10 @@ export const Dashboard = () => {
         
               {/* Collections */}
         
-              <div className="bg-white p-6 rounded-3xl border border-slate-100 h-80 shadow-sm">
+              <div className="card p-6 h-80">
         
-                <h3 className="font-semibold mb-4">
-                  Collections
+                <h3 className="section-title mb-4">
+                  Monthly Collections
                 </h3>
         
                 <ResponsiveContainer width="100%" height="90%">
@@ -244,9 +274,10 @@ export const Dashboard = () => {
         
                     <Bar
                       dataKey="amount"
-                      fill="#3EB489"
-                      radius={[8, 8, 0, 0]}
+                      fill="#2563EB"
+                      radius={[8,8,0,0]}
                     />
+        
                   </BarChart>
                 </ResponsiveContainer>
         
@@ -256,25 +287,47 @@ export const Dashboard = () => {
         
             {/* Approval Queue */}
         
-            <div className="bg-white p-6 rounded-3xl border border-slate-100 h-80 shadow-sm">
+            <div className="card p-6 h-80">
         
-              <h3 className="font-semibold mb-4">
-                Approval Queue
-              </h3>
+              <div className="flex items-center justify-between mb-5">
         
-              <div className="space-y-3">
+                <h3 className="section-title">
+                  Approval Queue
+                </h3>
         
-                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200">
-                  Loan #LN-1001
-                </div>
+                <Lucide.Clock3 className="text-amber-500" />
         
-                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200">
-                  Loan #LN-1002
-                </div>
+              </div>
         
-                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200">
-                  Loan #LN-1003
-                </div>
+              <div className="space-y-4">
+        
+                {["LN-1001","LN-1002","LN-1003"].map((loan) => (
+        
+                  <div
+                    key={loan}
+                    className="rounded-2xl border border-amber-200 bg-amber-50 p-4 flex items-center justify-between"
+                  >
+        
+                    <div>
+        
+                      <p className="font-semibold">
+                        Loan #{loan}
+                      </p>
+        
+                      <p className="text-sm text-slate-500">
+                        Awaiting approval
+                      </p>
+        
+                    </div>
+        
+                    <Lucide.ChevronRight
+                      size={18}
+                      className="text-slate-400"
+                    />
+        
+                  </div>
+        
+                ))}
         
               </div>
         
@@ -282,41 +335,43 @@ export const Dashboard = () => {
         
           </section>
         
-          {/* ANALYTICS SECTION */}
+          {/* ================================================= */}
+          {/* BUSINESS INSIGHTS */}
+          {/* ================================================= */}
         
           <section className="grid grid-cols-3 gap-6">
         
-            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+            <div className="card p-6">
         
-              <p className="text-slate-500 text-sm">
+              <p className="text-sm text-slate-500">
                 PAR 30
               </p>
         
-              <h2 className="text-3xl font-bold text-red-600 mt-2">
+              <h2 className="mt-3 text-4xl font-black text-red-500">
                 4.2%
               </h2>
         
             </div>
         
-            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+            <div className="card p-6">
         
-              <p className="text-slate-500 text-sm">
-                Best Branch
+              <p className="text-sm text-slate-500">
+                Best Performing Branch
               </p>
         
-              <h2 className="text-3xl font-bold mt-2">
+              <h2 className="mt-3 text-4xl font-black">
                 Kampala
               </h2>
         
             </div>
         
-            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+            <div className="card p-6">
         
-              <p className="text-slate-500 text-sm">
+              <p className="text-sm text-slate-500">
                 Collection Rate
               </p>
         
-              <h2 className="text-3xl font-bold text-emerald-600 mt-2">
+              <h2 className="mt-3 text-4xl font-black text-green-600">
                 96%
               </h2>
         
