@@ -128,7 +128,7 @@ export const Borrowers = () => {
                       className="hidden" 
                       onChange={(e) => console.log("File selected:", e.target.files?.[0]?.name)} 
                     />
-                    <label htmlFor="frontId" className="cursor-pointer flex flex-col items-center text-[#166534]">
+                    <label htmlFor="frontId" className="cursor-pointer flex flex-col items-center text-primary">
                       <Lucide.Upload size={24} />
                       <span className="text-xs font-bold mt-2">Front of ID</span>
                     </label>
@@ -142,7 +142,7 @@ export const Borrowers = () => {
                       className="hidden" 
                       onChange={(e) => console.log("File selected:", e.target.files?.[0]?.name)} 
                     />
-                    <label htmlFor="backId" className="cursor-pointer flex flex-col items-center text-[#166534]">
+                    <label htmlFor="backId" className="cursor-pointer flex flex-col items-center text-primary">
                       <Lucide.Upload size={24} />
                       <span className="text-xs font-bold mt-2">Back of ID</span>
                     </label>
