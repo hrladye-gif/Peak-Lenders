@@ -36,20 +36,24 @@ export const Sidebar = () => {
     {
       title: "Dashboard",
       icon: "LayoutDashboard",
-      items: ["Dashboard", "Notifications", "Activity Feed"],
+      items: [
+        "Dashboard",
+        "Notifications",
+        "Activity Feed",
+      ],
     },
+
     {
-      title: "Organization",
-      icon: "Building2",
-      items: ["Tenants", "Branches", "Users"],
-    },
-    {
-      title: "Clients",
+      title: "Customers",
       icon: "Users",
-      items: ["Borrowers", "Groups", "Guarantors"],
+      items: [
+        "Borrowers",
+        "Groups",
+      ],
     },
+
     {
-      title: "Loans",
+      title: "Lending",
       icon: "HandCoins",
       items: [
         "Applications",
@@ -59,6 +63,7 @@ export const Sidebar = () => {
         "Write-Offs",
       ],
     },
+
     {
       title: "Savings",
       icon: "PiggyBank",
@@ -69,6 +74,7 @@ export const Sidebar = () => {
         "Withdrawals",
       ],
     },
+
     {
       title: "Accounting",
       icon: "Calculator",
@@ -81,6 +87,7 @@ export const Sidebar = () => {
         "Balance Sheet",
       ],
     },
+
     {
       title: "Reports",
       icon: "FileText",
@@ -90,71 +97,74 @@ export const Sidebar = () => {
         "Branch Reports",
       ],
     },
+
     {
-      title: "Settings",
-      icon: "Settings",
+      title: "Administration",
+      icon: "ShieldCheck",
       items: [
         "Institution",
-        "Users & Roles",
+        "Branches",
+        "Tenants",
+        "Users",
+        "Roles & Permissions",
+        "Audit Trail",
         "System Settings",
       ],
     },
   ];
 
   return (
-    <aside className="w-72 bg-white border-r border-slate-200 h-screen flex flex-col shadow-sm">
+    <aside className="w-72 bg-white border-r border-slate-200 flex flex-col h-screen shadow-sm">
 
-      {/* Header */}
+      {/* Logo */}
 
       <div className="p-6 border-b border-slate-100">
 
-        <div className="flex items-center gap-3">
+        <label className="flex items-center gap-3 cursor-pointer">
 
-          <label className="cursor-pointer">
+          <input
+            type="file"
+            hidden
+            accept="image/*"
+            onChange={handleLogoUpload}
+          />
 
-            <input
-              type="file"
-              className="hidden"
-              accept="image/*"
-              onChange={handleLogoUpload}
-            />
+          <div className="w-12 h-12 rounded-2xl overflow-hidden bg-blue-50 border border-blue-100 flex items-center justify-center">
 
-            <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 flex items-center justify-center">
+            {logo ? (
+              <img
+                src={logo}
+                alt="Logo"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <Lucide.Building2
+                size={22}
+                className="text-blue-600"
+              />
+            )}
 
-              {logo ? (
-                <img
-                  src={logo}
-                  alt="Logo"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <Lucide.Building2
-                  size={22}
-                  className="text-slate-500"
-                />
-              )}
-
-            </div>
-
-          </label>
-
-          <div>
-            <h1 className="font-bold text-lg text-slate-900">
-              Peak Lenders
-            </h1>
-
-            <p className="text-xs text-slate-500">
-              Microfinance Platform
-            </p>
           </div>
 
-        </div>
+          <div>
+
+            <h2 className="font-bold text-lg text-slate-900">
+              Peak Lenders
+            </h2>
+
+            <p className="text-xs text-slate-500">
+              Digital Microfinance
+            </p>
+
+          </div>
+
+        </label>
 
       </div>
 
       {/* Menu */}
 
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto px-4 py-5">
 
         <nav className="space-y-5">
 
@@ -166,30 +176,34 @@ export const Sidebar = () => {
 
                 <button
                   onClick={() => toggle(section.title)}
-                  className="w-full flex items-center justify-between text-slate-700 hover:text-emerald-700 transition"
+                  className="flex items-center justify-between w-full text-slate-700 hover:text-blue-600 transition"
                 >
-                  <span className="flex items-center gap-3 font-semibold text-sm uppercase tracking-wide">
 
-                    <Icon size={16} />
+                  <div className="flex items-center gap-3 uppercase tracking-wide text-xs font-bold">
+
+                    <Icon size={17} />
 
                     {section.title}
 
-                  </span>
+                  </div>
 
                   <Lucide.ChevronDown
                     size={16}
-                    className={`transition-transform duration-300 ${
+                    className={`transition ${
                       open[section.title]
                         ? "rotate-180"
                         : ""
                     }`}
                   />
+
                 </button>
 
                 {open[section.title] && (
-                  <ul className="mt-3 ml-2 space-y-1">
+
+                  <ul className="mt-3 ml-3 space-y-1">
 
                     {section.items.map((item) => {
+
                       const path =
                         item === "Dashboard"
                           ? "/"
@@ -202,13 +216,14 @@ export const Sidebar = () => {
                         location.pathname === path;
 
                       return (
+
                         <li key={item}>
 
                           <Link
                             to={path}
-                            className={`flex items-center px-4 py-2.5 rounded-xl text-sm transition-all ${
+                            className={`flex items-center px-4 py-2.5 rounded-xl text-sm transition-all duration-200 ${
                               active
-                                ? "bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200"
+                                ? "bg-blue-50 text-blue-700 border border-blue-200 font-semibold shadow-sm"
                                 : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                             }`}
                           >
@@ -216,10 +231,13 @@ export const Sidebar = () => {
                           </Link>
 
                         </li>
+
                       );
+
                     })}
 
                   </ul>
+
                 )}
 
               </div>
@@ -232,11 +250,14 @@ export const Sidebar = () => {
 
       {/* Footer */}
 
-      <div className="p-4 border-t border-slate-200">
+      <div className="border-t border-slate-200 p-4">
 
-        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition font-medium">
+        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition">
+
           <Lucide.LogOut size={18} />
+
           Log Out
+
         </button>
 
       </div>
