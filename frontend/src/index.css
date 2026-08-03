@@ -108,170 +108,120 @@
    COMPONENTS
    ========================================================== */
 
-@layer components {
+/* ---------- Cards ---------- */
 
-  /* ---------- Cards ---------- */
+@utility card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.2s ease-in-out;
 
-  .card{
-
-    background:var(--color-card);
-
-    border:1px solid var(--color-border);
-
-    border-radius:var(--radius-card);
-
-    box-shadow:var(--shadow-card);
-
+  &:hover {
+    box-shadow: var(--shadow-card-hover);
   }
+}
 
-  .card:hover{
+/* ---------- Primary Button ---------- */
 
-    box-shadow:var(--shadow-card-hover);
+@utility btn-primary {
+  @apply
+    inline-flex
+    items-center
+    justify-center
+    gap-2
+    px-5
+    py-3
+    text-white
+    font-semibold;
 
+  background: var(--color-primary);
+  border-radius: var(--radius-button);
+
+  &:hover {
+    background: var(--color-primary-hover);
   }
+}
 
+/* ---------- Secondary Button ---------- */
 
-  /* ---------- Primary Button ---------- */
+@utility btn-secondary {
+  @apply
+    inline-flex
+    items-center
+    justify-center
+    gap-2
+    px-5
+    py-3
+    font-semibold;
 
-  .btn-primary{
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-button);
 
-    @apply
-      inline-flex
-      items-center
-      justify-center
-      gap-2
-      px-5
-      py-3
-      text-white
-      font-semibold;
-
-    background:var(--color-primary);
-
-    border-radius:var(--radius-button);
-
+  &:hover {
+    background: #F8FAFC;
   }
+}
 
-  .btn-primary:hover{
+/* ---------- Inputs ---------- */
 
-    background:var(--color-primary-hover);
+@utility input {
+  @apply
+    w-full
+    px-4
+    py-3
+    outline-none;
 
+  border-radius: var(--radius-input);
+  border: 1px solid var(--color-border);
+  background: white;
+
+  &:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px rgb(37 99 235 / .12);
   }
+}
 
+/* ---------- Section Title ---------- */
 
-  /* ---------- Secondary Button ---------- */
+@utility section-title {
+  @apply
+    text-xl
+    font-bold;
 
-  .btn-secondary{
+  color: var(--color-text);
+}
 
-    @apply
-      inline-flex
-      items-center
-      justify-center
-      gap-2
-      px-5
-      py-3
-      font-semibold;
+/* ---------- KPI Card ---------- */
 
-    background:white;
+@utility kpi {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  @apply p-5;
+}
 
-    border:1px solid var(--color-border);
+/* ---------- Table ---------- */
 
-    border-radius:var(--radius-button);
+@utility table {
+  @apply w-full;
 
-  }
-
-  .btn-secondary:hover{
-
-    background:#F8FAFC;
-
-  }
-
-
-  /* ---------- Inputs ---------- */
-
-  .input{
-
-    @apply
-      w-full
-      px-4
-      py-3
-      outline-none;
-
-    border-radius:var(--radius-input);
-
-    border:1px solid var(--color-border);
-
-    background:white;
-
-  }
-
-  .input:focus{
-
-    border-color:var(--color-primary);
-
-    box-shadow:0 0 0 4px rgb(37 99 235 / .12);
-
-  }
-
-
-  /* ---------- Section Title ---------- */
-
-  .section-title{
-
-    @apply
-      text-xl
-      font-bold;
-
-    color:var(--color-text);
-
-  }
-
-
-  /* ---------- KPI Card ---------- */
-
-  .kpi{
-
-     background:var(--color-card);
-   
-     border:1px solid var(--color-border);
-   
-     border-radius:var(--radius-card);
-   
-     box-shadow:var(--shadow-card);
-   
-     @apply p-5;
-
- }
-
-
-  /* ---------- Table ---------- */
-
-  .table{
-
-    @apply
-      w-full;
-
-  }
-
-  .table th{
-
+  & th {
     @apply
       text-left
       font-semibold
       text-sm
       py-4;
 
-    color:var(--color-text-light);
-
+    color: var(--color-text-light);
   }
 
-  .table td{
-
+  & td {
     @apply py-4;
-
-    border-top:1px solid var(--color-border-light);
-
+    border-top: 1px solid var(--color-border-light);
   }
-
 }
 
 
@@ -279,26 +229,22 @@
    UTILITIES
    ========================================================== */
 
-@layer utilities {
+@utility bg-brand {
+  background: var(--color-primary);
+}
 
-  .bg-brand{
-    background:var(--color-primary);
-  }
+@utility text-brand {
+  color: var(--color-primary);
+}
 
-  .text-brand{
-    color:var(--color-primary);
-  }
+@utility border-brand {
+  border-color: var(--color-primary);
+}
 
-  .border-brand{
-    border-color:var(--color-primary);
-  }
+@utility bg-sidebar {
+  background: var(--color-sidebar);
+}
 
-  .bg-sidebar{
-    background:var(--color-sidebar);
-  }
-
-  .text-sidebar{
-    color:var(--color-sidebar-text);
-  }
-
+@utility text-sidebar {
+  color: var(--color-sidebar-text);
 }
