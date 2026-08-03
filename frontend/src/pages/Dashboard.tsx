@@ -379,4 +379,11 @@ export const Dashboard = () => {
         
           </section>
         
-        </main>
+         </main>
+
+      </div>
+
+    </div>
+
+  );
+};
