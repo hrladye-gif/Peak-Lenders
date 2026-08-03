@@ -1,250 +1,217 @@
 @import "tailwindcss";
 
+
 /* ==========================================================
    PEAK LENDERS DESIGN SYSTEM
    ========================================================== */
 
+
 @theme {
 
-  /* ---------- Brand ---------- */
 
-  --color-primary: #2563EB;
-  --color-primary-hover: #1D4ED8;
-  --color-primary-light: #DBEAFE;
+--color-primary:#2563EB;
+--color-primary-hover:#1D4ED8;
+--color-primary-light:#DBEAFE;
 
-  --color-secondary: #0F172A;
-  --color-secondary-light: #334155;
 
-  /* ---------- Background ---------- */
+--color-background:#F8FAFC;
+--color-surface:#FFFFFF;
 
-  --color-background: #F8FAFC;
-  --color-surface: #FFFFFF;
-  --color-card-bg: #FFFFFF; /* 👈 RENAMED FROM --color-card TO AVOID CONFLICT */
 
-  /* ---------- Text ---------- */
+--color-text:#0F172A;
+--color-text-light:#475569;
+--color-text-muted:#94A3B8;
 
-  --color-text: #0F172A;
-  --color-text-light: #475569;
-  --color-text-muted: #94A3B8;
 
-  /* ---------- Borders ---------- */
+--color-border:#E2E8F0;
 
-  --color-border: #E2E8F0;
-  --color-border-light: #F1F5F9;
 
-  /* ---------- Sidebar ---------- */
+--color-sidebar:#0F172A;
+--color-sidebar-hover:#1E293B;
+--color-sidebar-text:#CBD5E1;
 
-  --color-sidebar: #0F172A;
-  --color-sidebar-hover: #1E293B;
-  --color-sidebar-active: #2563EB;
-  --color-sidebar-text: #CBD5E1;
 
-  /* ---------- Status ---------- */
+--color-success:#10B981;
+--color-warning:#F59E0B;
+--color-danger:#EF4444;
 
-  --color-success: #10B981;
-  --color-warning: #F59E0B;
-  --color-danger: #EF4444;
-  --color-info: #3B82F6;
 
-  /* ---------- Charts ---------- */
+--shadow-card:
+0 1px 3px rgba(15,23,42,.06),
+0 10px 25px rgba(15,23,42,.05);
 
-  --color-chart-1: #2563EB;
-  --color-chart-2: #3B82F6;
-  --color-chart-3: #06B6D4;
-  --color-chart-4: #6366F1;
-  --color-chart-5: #10B981;
 
-  /* ---------- Shadows ---------- */
+--radius-card:24px;
+--radius-button:14px;
+--radius-input:14px;
 
-  --shadow-card:
-    0 1px 3px rgba(15,23,42,.05),
-    0 8px 24px rgba(15,23,42,.04);
-
-  --shadow-card-hover:
-    0 8px 24px rgba(15,23,42,.08);
-
-  /* ---------- Radius ---------- */
-
-  --radius-card: 24px;
-  --radius-button: 14px;
-  --radius-input: 14px;
 
 }
+
 
 
 /* ==========================================================
    BASE
    ========================================================== */
 
+
 @layer base {
 
-  *{
-    @apply border-slate-200;
-  }
 
-  html{
-    scroll-behavior:smooth;
-  }
+*{
+@apply border-slate-200;
+}
 
-  body{
-    @apply antialiased;
-    background:var(--color-background);
-    color:var(--color-text);
-    font-family:
-      Inter,
-      ui-sans-serif,
-      system-ui,
-      sans-serif;
-  }
 
-  button{
-    @apply transition-all duration-200 cursor-pointer;
-  }
+body{
+
+@apply antialiased;
+
+background:
+var(--color-background);
+
+color:
+var(--color-text);
+
+font-family:
+Inter,
+ui-sans-serif,
+system-ui,
+sans-serif;
 
 }
 
 
+button{
+
+@apply cursor-pointer transition-all duration-200;
+
+}
+
+
+}
+
+
+
 /* ==========================================================
-   COMPONENTS
+   COMPONENT UTILITIES
    ========================================================== */
 
-/* ---------- Cards ---------- */
 
 @utility card {
-  background: var(--color-card-bg); /* 👈 UPDATED HERE */
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
-  transition: box-shadow 0.2s ease-in-out;
 
-  &:hover {
-    box-shadow: var(--shadow-card-hover);
-  }
+
+background:
+var(--color-surface);
+
+
+border:
+1px solid var(--color-border);
+
+
+border-radius:
+var(--radius-card);
+
+
+box-shadow:
+var(--shadow-card);
+
+
 }
 
-/* ---------- Primary Button ---------- */
+
 
 @utility btn-primary {
-  @apply
-    inline-flex
-    items-center
-    justify-center
-    gap-2
-    px-5
-    py-3
-    text-white
-    font-semibold;
 
-  background: var(--color-primary);
-  border-radius: var(--radius-button);
 
-  &:hover {
-    background: var(--color-primary-hover);
-  }
+@apply
+inline-flex
+items-center
+justify-center
+gap-2
+px-5
+py-3
+font-semibold
+text-white;
+
+
+background:
+var(--color-primary);
+
+
+border-radius:
+var(--radius-button);
+
+
+&:hover{
+
+background:
+var(--color-primary-hover);
+
 }
 
-/* ---------- Secondary Button ---------- */
 
-@utility btn-secondary {
-  @apply
-    inline-flex
-    items-center
-    justify-center
-    gap-2
-    px-5
-    py-3
-    font-semibold;
-
-  background: white;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-button);
-
-  &:hover {
-    background: #F8FAFC;
-  }
 }
 
-/* ---------- Inputs ---------- */
+
 
 @utility input {
-  @apply
-    w-full
-    px-4
-    py-3
-    outline-none;
 
-  border-radius: var(--radius-input);
-  border: 1px solid var(--color-border);
-  background: white;
 
-  &:focus {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 4px rgb(37 99 235 / .12);
-  }
-}
+@apply
+w-full
+px-4
+py-3
+outline-none;
 
-/* ---------- Section Title ---------- */
 
-@utility section-title {
-  @apply
-    text-xl
-    font-bold;
+background:white;
 
-  color: var(--color-text);
-}
 
-/* ---------- KPI Card ---------- */
+border:
+1px solid var(--color-border);
 
-@utility kpi {
-  background: var(--color-card-bg); /* 👈 UPDATED HERE TOO */
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-card);
-  @apply p-5;
-}
 
-/* ---------- Table ---------- */
+border-radius:
+var(--radius-input);
 
-@utility table {
-  @apply w-full;
 
-  & th {
-    @apply
-      text-left
-      font-semibold
-      text-sm
-      py-4;
-
-    color: var(--color-text-light);
-  }
-
-  & td {
-    @apply py-4;
-    border-top: 1px solid var(--color-border-light);
-  }
 }
 
 
-/* ==========================================================
-   UTILITIES
-   ========================================================== */
-
-@utility bg-brand {
-  background: var(--color-primary);
-}
 
 @utility text-brand {
-  color: var(--color-primary);
+
+color:
+var(--color-primary);
+
 }
 
-@utility border-brand {
-  border-color: var(--color-primary);
+
+
+@utility bg-brand {
+
+background:
+var(--color-primary);
+
 }
+
+
 
 @utility bg-sidebar {
-  background: var(--color-sidebar);
+
+background:
+var(--color-sidebar);
+
 }
 
+
+
 @utility text-sidebar {
-  color: var(--color-sidebar-text);
+
+color:
+var(--color-sidebar-text);
+
 }
+
+

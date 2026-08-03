@@ -1,375 +1,472 @@
-import { useState } from 'react';
-import { Sidebar } from '../components/layout/Sidebar';
-import * as Lucide from 'lucide-react';
-import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  CartesianGrid,
-  Tooltip,
-  XAxis,
-  YAxis,
-  BarChart,
-  Bar
-} from "recharts";
+import { Sidebar } from "../components/layout/Sidebar";
+import * as Lucide from "lucide-react";
 
-const hasNotifications = true;
-
-const KPICard = ({
-  title,
-  value,
-  icon: Icon,
-  color,
-}: any) => (
-  <div className="card p-5 group">
-    <div className="flex items-center justify-between mb-5">
-      <div
-        className={`
-          w-12
-          h-12
-          rounded-2xl
-          flex
-          items-center
-          justify-center
-          shadow-sm
-          ${color}
-        `}
-      >
-        <Icon
-          size={22}
-          className="text-white"
-        />
-      </div>
-
-      <Lucide.ArrowUpRight
-        size={18}
-        className="text-slate-400 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1"
-      />
-    </div>
-
-    <p className="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold">
-      {title}
-    </p>
-
-    <h3 className="text-3xl font-bold text-slate-900 mt-2">
-      {value}
-    </h3>
-  </div>
-);
-
-const portfolioData = [
-  { month: "Jan", amount: 1200000 },
-  { month: "Feb", amount: 1800000 },
-  { month: "Mar", amount: 2400000 },
-  { month: "Apr", amount: 2800000 },
-  { month: "May", amount: 3500000 },
-  { month: "Jun", amount: 4250000 },
-];
-
-const collectionData = [
-  { month: "Jan", amount: 320000 },
-  { month: "Feb", amount: 420000 },
-  { month: "Mar", amount: 510000 },
-  { month: "Apr", amount: 630000 },
-  { month: "May", amount: 710000 },
-  { month: "Jun", amount: 840000 },
-];
 
 export const Dashboard = () => {
-  const [currency, setCurrency] = useState('KES');
-  
-  const formatCurrency = (amount: number) => {
-    const symbols: Record<string, string> = { KES: 'KES ', UGX: 'USh ', TZS: 'TSh ', RWF: 'FRw ', BIF: 'FBu ' };
-    return symbols[currency] + amount.toLocaleString();
-  };
 
-  return (
-    <div className="flex h-screen bg-[#f8f9f9] text-[#1a2e23]">
-      <Sidebar />
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        
-        {/* Top Header */}
-        <header className="h-16 bg-white border-b border-slate-100 flex items-center justify-between px-6">
-          <h1 className="text-xl font-bold">Dashboard</h1>
-          <div className="flex items-center gap-6">
-            <select 
-              value={currency} 
-              onChange={(e) => setCurrency(e.target.value)}
-              className="bg-[#f1f5f9] px-3 py-2 rounded-full text-sm font-bold cursor-pointer outline-none"
-            >
-              <option value="KES">KES</option>
-              <option value="UGX">UGX</option>
-              <option value="TZS">TZS</option>
-              <option value="RWF">RWF</option>
-              <option value="BIF">BIF</option>
-            </select>
 
-            <div className="relative cursor-pointer">
-              <span className="text-xl">🔔</span>
-              {hasNotifications && <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white"></span>}
-            </div>
+return (
 
-            <div className="flex items-center gap-3">
-              <span className="font-medium text-sm">Andrew Forbist</span>
-              <img src="/logo.png" alt="Client Logo" className="w-8 h-8 rounded-full border border-slate-200" />
-            </div>
-          </div>
-        </header>
+<div className="flex h-screen bg-slate-50">
 
-        {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto bg-slate-50 p-6 space-y-8">
-        
-          {/* ================================================= */}
-          {/* PORTFOLIO OVERVIEW */}
-          {/* ================================================= */}
-        
-          <section>
-            <div className="grid grid-cols-4 gap-5 mb-8">
-        
-              {/* Hero Card */}
-              <div className="col-span-2 rounded-3xl bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 p-8 text-white shadow-lg">
-                <p className="text-blue-100 uppercase tracking-[0.2em] text-xs font-semibold">
-                  Total Portfolio
-                </p>
-                <h2 className="text-5xl font-black mt-3">
-                  {formatCurrency(4250000)}
-                </h2>
-                <p className="text-blue-100 mt-3">
-                  Across all active loans
-                </p>
-              </div>
-              
-              <KPICard
-                title="Active Loans"
-                value="1,240"
-                icon={Lucide.HandCoins}
-                color="bg-brand"
-              />
-        
-              <KPICard
-                title="Collections"
-                value={formatCurrency(840000)}
-                icon={Lucide.TrendingUp}
-                color="bg-cyan-600"
-              />
-        
-            </div>
-        
-            <div className="grid grid-cols-4 gap-5">
-        
-              <KPICard
-                title="Borrowers"
-                value="3,284"
-                icon={Lucide.Users}
-                color="bg-indigo-600"
-              />
-        
-              <KPICard
-                title="Savings Accounts"
-                value="2,912"
-                icon={Lucide.PiggyBank}
-                color="bg-violet-600"
-              />
-        
-              <KPICard
-                title="PAR 30"
-                value="4.2%"
-                icon={Lucide.AlertTriangle}
-                color="bg-red-500"
-              />
-        
-              <KPICard
-                title="Branches"
-                value="12"
-                icon={Lucide.Building2}
-                color="bg-slate-700"
-              />
-        
-            </div>
-        
-            {/* Quick Actions */}
-        
-            <div className="flex flex-wrap gap-3 mt-8">
-        
-              <button className="btn-primary">
-                <Lucide.Plus size={18} />
-                New Loan
-              </button>
-        
-              <button className="btn-secondary">
-                <Lucide.FileText size={18} />
-                View Reports
-              </button>
-        
-              <button className="btn-secondary">
-                <Lucide.Users size={18} />
-                Add Borrower
-              </button>
-        
-              <button className="btn-secondary">
-                <Lucide.PiggyBank size={18} />
-                Open Account
-              </button>
-        
-            </div>
-        
-          </section>
-        
-          {/* ================================================= */}
-          {/* CHARTS */}
-          {/* ================================================= */}
-        
-          <section className="grid grid-cols-3 gap-6">
-        
-            <div className="col-span-2 grid grid-cols-2 gap-6">
-        
-              {/* Portfolio */}
-        
-              <div className="card p-6 h-80">
-        
-                <h3 className="section-title mb-4">
-                  Portfolio Growth
-                </h3>
-        
-                <ResponsiveContainer width="100%" height="90%">
-                  <LineChart data={portfolioData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-        
-                    <Line
-                      type="monotone"
-                      dataKey="amount"
-                      stroke="#2563EB"
-                      strokeWidth={3}
-                    />
-        
-                  </LineChart>
-                </ResponsiveContainer>
-        
-              </div>
-        
-              {/* Collections */}
-        
-              <div className="card p-6 h-80">
-        
-                <h3 className="section-title mb-4">
-                  Monthly Collections
-                </h3>
-        
-                <ResponsiveContainer width="100%" height="90%">
-                  <BarChart data={collectionData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-        
-                    <Bar
-                      dataKey="amount"
-                      fill="#2563EB"
-                      radius={[8,8,0,0]}
-                    />
-        
-                  </BarChart>
-                </ResponsiveContainer>
-        
-              </div>
-        
-            </div>
-        
-            {/* Approval Queue */}
-        
-            <div className="card p-6 h-80">
-        
-              <div className="flex items-center justify-between mb-5">
-        
-                <h3 className="section-title">
-                  Approval Queue
-                </h3>
-        
-                <Lucide.Clock3 className="text-amber-500" />
-        
-              </div>
-        
-              <div className="space-y-4">
-        
-                {["LN-1001","LN-1002","LN-1003"].map((loan) => (
-        
-                  <div
-                    key={loan}
-                    className="rounded-2xl border border-amber-200 bg-amber-50 p-4 flex items-center justify-between"
-                  >
-        
-                    <div>
-        
-                      <p className="font-semibold">
-                        Loan #{loan}
-                      </p>
-        
-                      <p className="text-sm text-slate-500">
-                        Awaiting approval
-                      </p>
-        
-                    </div>
-        
-                    <Lucide.ChevronRight
-                      size={18}
-                      className="text-slate-400"
-                    />
-        
-                  </div>
-        
-                ))}
-        
-              </div>
-        
-            </div>
-        
-          </section>
-        
-          {/* ================================================= */}
-          {/* BUSINESS INSIGHTS */}
-          {/* ================================================= */}
 
-          <section className="grid grid-cols-3 gap-6">
+<Sidebar />
 
-            <div className="card p-6">
-              <p className="text-sm text-slate-500">
-                PAR 30
-              </p>
 
-              <h2 className="mt-3 text-4xl font-black text-red-500">
-                4.2%
-              </h2>
-            </div>
+<div className="flex-1 p-8 overflow-y-auto">
 
-            <div className="card p-6">
-              <p className="text-sm text-slate-500">
-                Best Performing Branch
-              </p>
 
-              <h2 className="mt-3 text-4xl font-black">
-                Kampala
-              </h2>
-            </div>
 
-            <div className="card p-6">
-              <p className="text-sm text-slate-500">
-                Collection Rate
-              </p>
+{/* HEADER */}
 
-              <h2 className="mt-3 text-4xl font-black text-green-600">
-                96%
-              </h2>
-            </div>
+<div className="flex justify-between items-center mb-8">
 
-          </section>
 
-        </main>
-      </div>
-    </div>
-  );
+<div>
+
+<h1 className="text-3xl font-black text-slate-800">
+Dashboard
+</h1>
+
+<p className="text-slate-500 mt-1">
+Complete overview of your lending operations
+</p>
+
+</div>
+
+
+
+<button className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold flex gap-2 items-center">
+
+<Lucide.Plus size={18}/>
+
+New Loan
+
+</button>
+
+
+</div>
+
+
+
+
+
+{/* KPI CARDS */}
+
+
+<div className="grid grid-cols-4 gap-6 mb-8">
+
+
+<div className="card p-6">
+
+<div className="flex justify-between">
+
+<div>
+
+<p className="text-slate-500 text-sm">
+Total Portfolio
+</p>
+
+<h2 className="text-3xl font-black mt-3">
+UGX 2.4B
+</h2>
+
+</div>
+
+
+<div className="bg-blue-100 p-3 rounded-xl">
+
+<Lucide.Wallet className="text-blue-600"/>
+
+</div>
+
+</div>
+
+<p className="text-green-600 text-sm mt-4">
+↑ 12% this month
+</p>
+
+
+</div>
+
+
+
+
+
+<div className="card p-6">
+
+
+<div className="flex justify-between">
+
+
+<div>
+
+<p className="text-slate-500 text-sm">
+Active Loans
+</p>
+
+
+<h2 className="text-3xl font-black mt-3">
+1,248
+</h2>
+
+
+</div>
+
+
+<div className="bg-indigo-100 p-3 rounded-xl">
+
+<Lucide.FileText className="text-indigo-600"/>
+
+</div>
+
+
+</div>
+
+
+<p className="text-green-600 text-sm mt-4">
+94% performing
+</p>
+
+
+</div>
+
+
+
+
+
+
+<div className="card p-6">
+
+
+<div className="flex justify-between">
+
+
+<div>
+
+<p className="text-slate-500 text-sm">
+Collection Rate
+</p>
+
+
+<h2 className="text-3xl font-black mt-3">
+96.8%
+</h2>
+
+
+</div>
+
+
+<div className="bg-green-100 p-3 rounded-xl">
+
+<Lucide.CheckCircle className="text-green-600"/>
+
+</div>
+
+
+</div>
+
+
+<p className="text-green-600 text-sm mt-4">
+Excellent repayment
+</p>
+
+
+</div>
+
+
+
+
+
+
+
+<div className="card p-6">
+
+
+<div className="flex justify-between">
+
+
+<div>
+
+<p className="text-slate-500 text-sm">
+Risk Level
+</p>
+
+
+<h2 className="text-3xl font-black mt-3">
+Low
+</h2>
+
+
+</div>
+
+
+<div className="bg-yellow-100 p-3 rounded-xl">
+
+<Lucide.ShieldCheck className="text-yellow-600"/>
+
+</div>
+
+
+</div>
+
+
+<p className="text-yellow-600 text-sm mt-4">
+PAR 30: 2.1%
+</p>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+<div className="grid grid-cols-3 gap-6">
+
+
+
+
+
+{/* PORTFOLIO */}
+
+<div className="card p-6 col-span-2">
+
+
+<div className="flex justify-between mb-6">
+
+<h2 className="font-black text-xl">
+Portfolio Performance
+</h2>
+
+
+<span className="text-blue-600 text-sm font-bold">
+This Year
+</span>
+
+
+</div>
+
+
+
+<div className="grid grid-cols-3 gap-5">
+
+
+<div className="bg-blue-50 rounded-2xl p-5">
+
+<p className="text-slate-500">
+Disbursed
+</p>
+
+<h3 className="text-2xl font-black mt-2">
+UGX 5.8B
+</h3>
+
+</div>
+
+
+
+
+<div className="bg-green-50 rounded-2xl p-5">
+
+<p className="text-slate-500">
+Recovered
+</p>
+
+<h3 className="text-2xl font-black mt-2">
+UGX 4.9B
+</h3>
+
+</div>
+
+
+
+
+<div className="bg-red-50 rounded-2xl p-5">
+
+<p className="text-slate-500">
+Outstanding
+</p>
+
+<h3 className="text-2xl font-black mt-2">
+UGX 900M
+</h3>
+
+</div>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+{/* QUICK ACTIONS */}
+
+
+<div className="card p-6">
+
+
+<h2 className="font-black text-xl mb-5">
+Quick Actions
+</h2>
+
+
+
+<div className="space-y-3">
+
+
+<button className="w-full flex items-center gap-3 bg-blue-600 text-white p-4 rounded-xl font-bold">
+
+<Lucide.UserPlus/>
+
+Register Borrower
+
+</button>
+
+
+
+<button className="w-full flex items-center gap-3 border p-4 rounded-xl font-bold">
+
+<Lucide.HandCoins/>
+
+Create Loan
+
+</button>
+
+
+
+<button className="w-full flex items-center gap-3 border p-4 rounded-xl font-bold">
+
+<Lucide.BarChart3/>
+
+Reports
+
+</button>
+
+
+</div>
+
+
+</div>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+{/* BOTTOM SECTION */}
+
+
+<div className="grid grid-cols-2 gap-6 mt-6">
+
+
+<div className="card p-6">
+
+
+<h2 className="font-black text-xl mb-5">
+Branch Performance
+</h2>
+
+
+<div className="space-y-4">
+
+
+{[
+["Kampala Main","UGX 890M"],
+["Ntinda","UGX 560M"],
+["Mbarara","UGX 430M"]
+].map((x)=>(
+
+<div className="flex justify-between border-b pb-3" key={x[0]}>
+
+<span>{x[0]}</span>
+
+<strong>{x[1]}</strong>
+
+</div>
+
+))}
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+<div className="card p-6">
+
+
+<h2 className="font-black text-xl mb-5">
+Recent Activity
+</h2>
+
+
+
+<div className="space-y-4">
+
+
+<p>
+<span className="font-bold">
+John Doe
+</span>
+ received a new loan
+</p>
+
+
+<p>
+Loan repayment received from
+<span className="font-bold">
+ Sarah
+</span>
+</p>
+
+
+
+<p>
+New borrower registered
+</p>
+
+
+</div>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+</div>
+
+
+</div>
+
+);
+
+
 };
-
-export default Dashboard;
