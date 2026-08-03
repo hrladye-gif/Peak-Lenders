@@ -63,7 +63,12 @@ export const Groups = () => {
                   <tr key={g.id} className="border-b border-slate-50">
                     <td className="py-4 font-mono text-xs">{g.id}</td>
                     <td className="py-4 font-bold text-[#166534] hover:underline">
-                      <Link to={`/groups/${g.id}`}>{g.name}</Link>
+                      <Link
+                        to={`/groups/${g.id}`}
+                        className="text-blue-600 hover:underline font-bold"
+                      >
+                        {g.name}
+                      </Link>
                     </td>
                     <td className="py-4 text-sm">{g.members}</td>
                     <td className="py-4 text-sm">{g.contact}</td>
