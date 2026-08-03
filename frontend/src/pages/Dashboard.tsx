@@ -338,52 +338,45 @@ export const Dashboard = () => {
           {/* ================================================= */}
           {/* BUSINESS INSIGHTS */}
           {/* ================================================= */}
-        
+
           <section className="grid grid-cols-3 gap-6">
-        
+
             <div className="card p-6">
-        
               <p className="text-sm text-slate-500">
                 PAR 30
               </p>
-        
+
               <h2 className="mt-3 text-4xl font-black text-red-500">
                 4.2%
               </h2>
-        
             </div>
-        
+
             <div className="card p-6">
-        
               <p className="text-sm text-slate-500">
                 Best Performing Branch
               </p>
-        
+
               <h2 className="mt-3 text-4xl font-black">
                 Kampala
               </h2>
-        
             </div>
-        
+
             <div className="card p-6">
-        
               <p className="text-sm text-slate-500">
                 Collection Rate
               </p>
-        
+
               <h2 className="mt-3 text-4xl font-black text-green-600">
                 96%
               </h2>
-        
             </div>
-        
+
           </section>
-        
-         </main>
 
+        </main>
       </div>
-
     </div>
-
   );
 };
+
+export default Dashboard;
