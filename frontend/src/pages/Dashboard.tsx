@@ -12,6 +12,7 @@ import {
   BarChart,
   Bar
 } from "recharts";
+
 const hasNotifications = true;
 
 const KPICard = ({
@@ -21,9 +22,7 @@ const KPICard = ({
   color,
 }: any) => (
   <div className="card p-5 group">
-
     <div className="flex items-center justify-between mb-5">
-
       <div
         className={`
           w-12
@@ -46,7 +45,6 @@ const KPICard = ({
         size={18}
         className="text-slate-400 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1"
       />
-
     </div>
 
     <p className="text-xs uppercase tracking-[0.15em] text-slate-500 font-semibold">
@@ -56,9 +54,9 @@ const KPICard = ({
     <h3 className="text-3xl font-bold text-slate-900 mt-2">
       {value}
     </h3>
-
   </div>
 );
+
 const portfolioData = [
   { month: "Jan", amount: 1200000 },
   { month: "Feb", amount: 1800000 },
@@ -76,6 +74,7 @@ const collectionData = [
   { month: "May", amount: 710000 },
   { month: "Jun", amount: 840000 },
 ];
+
 export const Dashboard = () => {
   const [currency, setCurrency] = useState('KES');
   
@@ -117,7 +116,7 @@ export const Dashboard = () => {
           </div>
         </header>
 
-       {/* Main Content Area */}
+        {/* Main Content Area */}
         <main className="flex-1 overflow-y-auto bg-slate-50 p-6 space-y-8">
         
           {/* ================================================= */}
@@ -125,27 +124,21 @@ export const Dashboard = () => {
           {/* ================================================= */}
         
           <section>
-        
             <div className="grid grid-cols-4 gap-5 mb-8">
         
               {/* Hero Card */}
-        
               <div className="col-span-2 rounded-3xl bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 p-8 text-white shadow-lg">
-        
                 <p className="text-blue-100 uppercase tracking-[0.2em] text-xs font-semibold">
                   Total Portfolio
                 </p>
-        
                 <h2 className="text-5xl font-black mt-3">
                   {formatCurrency(4250000)}
                 </h2>
-        
                 <p className="text-blue-100 mt-3">
                   Across all active loans
                 </p>
-        
               </div>
-        
+              
               <KPICard
                 title="Active Loans"
                 value="1,240"
