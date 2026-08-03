@@ -1036,41 +1036,37 @@ export const Borrowers = () => {
             
                 {/* Declaration */}
                 <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 flex gap-3">
-            
                   <Lucide.ShieldCheck
-                    className="text-primary mt-1"
+                    className="text-primary mt-1 shrink-0"
                     size={20}
                   />
-            
-                  <p className="text-sm text-slate-700">
-                    I confirm that the information entered is accurate and all
-                    supporting documents have been verified before creating this
-                    borrower.
-                  </p>
-            
+                  <div>
+                    <h4 className="font-semibold text-blue-900">Declaration</h4>
+                    <p className="text-xs text-blue-700 mt-1">
+                      I confirm that all provided information and documents are accurate and authentic.
+                    </p>
+                  </div>
                 </div>
-            
-                {/* Footer */}
-                <div className="flex gap-3 pt-2">
-            
+
+                {/* Navigation */}
+                <div className="flex justify-between pt-6 border-t">
                   <button
                     onClick={handleBack}
-                    className="flex-1 border border-slate-200 py-3 rounded-xl font-semibold hover:bg-slate-50"
+                    className="px-6 py-3 rounded-xl border border-slate-300 font-semibold hover:bg-slate-50"
                   >
-                    Back
+                    ← Back
                   </button>
-            
+
                   <button
-                    onClick={handleRegister}
-                    className="flex-1 bg-primary text-white py-3 rounded-xl font-semibold"
+                    onClick={handleSubmit}
+                    className="px-8 py-3 rounded-xl bg-primary text-white font-semibold hover:opacity-90"
                   >
-                    Create Borrower
+                    Submit Form
                   </button>
-            
                 </div>
-            
               </div>
             )}
+          
 
             {/* STEP 5: Success */}
             {step === 5 && (
