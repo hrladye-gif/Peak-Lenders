@@ -595,124 +595,717 @@ export const Borrowers = () => {
             
             )}
 
-            {/* STEP 2: Documentation */}
             {step === 2 && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  {/* Front ID Upload */}
-                  <div className="border-2 border-dashed border-slate-200 p-6 rounded-2xl text-center">
-                    <input 
-                      type="file" 
-                      id="frontId" 
-                      className="hidden" 
-                      onChange={(e) => console.log("File selected:", e.target.files?.[0]?.name)} 
-                    />
-                    <label htmlFor="frontId" className="cursor-pointer flex flex-col items-center text-primary">
-                      <Lucide.Upload size={24} />
-                      <span className="text-xs font-bold mt-2">Front of ID</span>
-                    </label>
+              <div className="space-y-6">
+            
+                {/* Identity Documents */}
+            
+                <div>
+            
+                  <h3 className="font-semibold text-slate-800">
+                    Identity Documents
+                  </h3>
+            
+                  <p className="text-sm text-slate-500 mb-4">
+                    Upload clear copies of the borrower's identification documents.
+                  </p>
+            
+                  <div className="grid grid-cols-2 gap-4">
+            
+                    {/* Front ID */}
+            
+                    <div className="border-2 border-dashed border-slate-200 rounded-2xl p-6 hover:border-primary transition">
+            
+                      <input
+                        type="file"
+                        id="frontId"
+                        className="hidden"
+                        accept="image/*,.pdf"
+                        onChange={(e) =>
+                          console.log("Front ID:", e.target.files?.[0]?.name)
+                        }
+                      />
+            
+                      <label
+                        htmlFor="frontId"
+                        className="cursor-pointer flex flex-col items-center text-center"
+                      >
+            
+                        <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mb-3">
+                          <Lucide.Upload className="text-primary" size={24} />
+                        </div>
+            
+                        <h4 className="font-semibold">
+                          Front of National ID
+                        </h4>
+            
+                        <p className="text-xs text-slate-500 mt-1">
+                          JPG, PNG or PDF
+                        </p>
+            
+                      </label>
+            
+                    </div>
+            
+                    {/* Back ID */}
+            
+                    <div className="border-2 border-dashed border-slate-200 rounded-2xl p-6 hover:border-primary transition">
+            
+                      <input
+                        type="file"
+                        id="backId"
+                        className="hidden"
+                        accept="image/*,.pdf"
+                        onChange={(e) =>
+                          console.log("Back ID:", e.target.files?.[0]?.name)
+                        }
+                      />
+            
+                      <label
+                        htmlFor="backId"
+                        className="cursor-pointer flex flex-col items-center text-center"
+                      >
+            
+                        <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mb-3">
+                          <Lucide.Upload className="text-primary" size={24} />
+                        </div>
+            
+                        <h4 className="font-semibold">
+                          Back of National ID
+                        </h4>
+            
+                        <p className="text-xs text-slate-500 mt-1">
+                          JPG, PNG or PDF
+                        </p>
+            
+                      </label>
+            
+                    </div>
+            
                   </div>
-
-                  {/* Back ID Upload */}
-                  <div className="border-2 border-dashed border-slate-200 p-6 rounded-2xl text-center">
-                    <input 
-                      type="file" 
-                      id="backId" 
-                      className="hidden" 
-                      onChange={(e) => console.log("File selected:", e.target.files?.[0]?.name)} 
-                    />
-                    <label htmlFor="backId" className="cursor-pointer flex flex-col items-center text-primary">
-                      <Lucide.Upload size={24} />
-                      <span className="text-xs font-bold mt-2">Back of ID</span>
-                    </label>
+            
+                </div>
+            
+                {/* Additional Documents */}
+            
+                <div>
+            
+                  <h3 className="font-semibold text-slate-800">
+                    Supporting Documents
+                  </h3>
+            
+                  <p className="text-sm text-slate-500 mb-4">
+                    Upload optional documents for verification.
+                  </p>
+            
+                  <div className="grid grid-cols-3 gap-4">
+            
+                    {[
+                      "Passport Photo",
+                      "Proof of Residence",
+                      "Employment Letter",
+                    ].map((doc) => (
+            
+                      <div
+                        key={doc}
+                        className="border border-slate-200 rounded-2xl p-5 text-center hover:border-primary hover:bg-blue-50 transition"
+                      >
+            
+                        <Lucide.FileText
+                          className="mx-auto text-primary mb-3"
+                          size={26}
+                        />
+            
+                        <p className="font-medium text-sm">
+                          {doc}
+                        </p>
+            
+                        <label className="mt-3 inline-block cursor-pointer text-primary text-sm font-semibold">
+            
+                          Upload
+            
+                          <input
+                            type="file"
+                            className="hidden"
+                            accept="image/*,.pdf"
+                          />
+            
+                        </label>
+            
+                      </div>
+            
+                    ))}
+            
                   </div>
+            
                 </div>
-                
-                <div className="flex gap-3 mt-6">
-                  <button onClick={handleBack} className="flex-1 py-3 font-bold text-slate-500">Back</button>
-                  <button onClick={handleNext} className="flex-1 bg-primary text-white py-3 rounded-xl font-bold">Next</button>
+            
+                {/* Notes */}
+            
+                <div>
+            
+                  <label className="block text-sm font-medium mb-2">
+                    Notes
+                  </label>
+            
+                  <textarea
+                    rows={4}
+                    placeholder="Any remarks regarding verification..."
+                    className="w-full border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none resize-none"
+                  />
+            
                 </div>
+            
+                {/* Navigation */}
+            
+                <div className="flex justify-between pt-4 border-t border-slate-200">
+            
+                  <button
+                    onClick={handleBack}
+                    className="px-6 py-3 rounded-xl border border-slate-300 font-semibold hover:bg-slate-50"
+                  >
+                    ← Back
+                  </button>
+            
+                  <button
+                    onClick={handleNext}
+                    className="px-8 py-3 rounded-xl bg-primary text-white font-semibold hover:opacity-90"
+                  >
+                    Continue →
+                  </button>
+            
+                </div>
+            
               </div>
             )}
+            {/* STEP 3: Guarantors & Next of Kin */}
 
-            {/* STEP 3: Guarantor Information */}
             {step === 3 && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <input 
-                    onChange={(e) => setForm({...form, guarantorName: e.target.value})} 
-                    className="p-3 border rounded-xl" placeholder="Full Name" 
+            
+              <div className="space-y-6 max-h-[65vh] overflow-y-auto pr-2">
+            
+                {/* Guarantor */}
+            
+                <div>
+            
+                  <h3 className="font-semibold text-slate-800">
+                    Primary Guarantor
+                  </h3>
+            
+                  <p className="text-sm text-slate-500 mb-4">
+                    Every borrower should have at least one guarantor.
+                  </p>
+            
+                  <div className="grid grid-cols-2 gap-4">
+            
+                    <input
+                      placeholder="Full Name"
+                      className="p-3 border rounded-xl"
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          guarantorName: e.target.value,
+                        })
+                      }
+                    />
+            
+                    <input
+                      placeholder="Relationship"
+                      className="p-3 border rounded-xl"
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          guarantorRelationship: e.target.value,
+                        })
+                      }
+                    />
+            
+                  </div>
+            
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+            
+                    <input
+                      placeholder="Phone Number"
+                      className="p-3 border rounded-xl"
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          guarantorPhone: e.target.value,
+                        })
+                      }
+                    />
+            
+                    <input
+                      placeholder="National ID Number"
+                      className="p-3 border rounded-xl"
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          guarantorIdNo: e.target.value,
+                        })
+                      }
+                    />
+            
+                  </div>
+            
+                  <textarea
+                    rows={2}
+                    placeholder="Physical Address"
+                    className="w-full mt-4 p-3 border rounded-xl resize-none"
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        guarantorAddress: e.target.value,
+                      })
+                    }
                   />
-                  <input 
-                    onChange={(e) => setForm({...form, guarantorRelationship: e.target.value})} 
-                    className="p-3 border rounded-xl" placeholder="Relationship" 
+            
+                </div>
+            
+                {/* Next of Kin */}
+            
+                <div className="border-t pt-6">
+            
+                  <h3 className="font-semibold text-slate-800">
+                    Next of Kin
+                  </h3>
+            
+                  <p className="text-sm text-slate-500 mb-4">
+                    Person to contact in case of emergency.
+                  </p>
+            
+                  <div className="grid grid-cols-2 gap-4">
+            
+                    <input
+                      placeholder="Full Name"
+                      className="p-3 border rounded-xl"
+                    />
+            
+                    <input
+                      placeholder="Relationship"
+                      className="p-3 border rounded-xl"
+                    />
+            
+                  </div>
+            
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+            
+                    <input
+                      placeholder="Phone Number"
+                      className="p-3 border rounded-xl"
+                    />
+            
+                    <input
+                      placeholder="National ID Number"
+                      className="p-3 border rounded-xl"
+                    />
+            
+                  </div>
+            
+                  <textarea
+                    rows={2}
+                    placeholder="Physical Address"
+                    className="w-full mt-4 p-3 border rounded-xl resize-none"
                   />
+            
                 </div>
-                
-                <input 
-                  onChange={(e) => setForm({...form, guarantorPhone: e.target.value})} 
-                  className="w-full p-3 border rounded-xl" placeholder="Phone Number" 
-                />
-                <input 
-                  onChange={(e) => setForm({...form, guarantorIdNo: e.target.value})} 
-                  className="w-full p-3 border rounded-xl" placeholder="National ID Number" 
-                />
-                <input 
-                  onChange={(e) => setForm({...form, guarantorAddress: e.target.value})} 
-                  className="w-full p-3 border rounded-xl" placeholder="Physical Address" 
-                />
-
-                <div className="flex gap-3 mt-6">
-                  <button onClick={handleBack} className="flex-1 py-3 font-bold text-slate-500">Back</button>
-                  <button onClick={handleNext} className="flex-1 bg-primary text-white py-3 rounded-xl font-bold">Next</button>
+            
+                {/* Additional Guarantors */}
+            
+                <div className="border rounded-2xl p-5 bg-slate-50">
+            
+                  <div className="flex items-center justify-between">
+            
+                    <div>
+            
+                      <h4 className="font-semibold">
+                        Additional Guarantors
+                      </h4>
+            
+                      <p className="text-sm text-slate-500">
+                        Add another guarantor if required by the loan product.
+                      </p>
+            
+                    </div>
+            
+                    <button
+                      type="button"
+                      className="bg-primary text-white px-4 py-2 rounded-xl flex items-center gap-2"
+                    >
+                      <Lucide.Plus size={16} />
+                      Add Guarantor
+                    </button>
+            
+                  </div>
+            
                 </div>
+            
+                {/* Navigation */}
+            
+                <div className="flex justify-between pt-6 border-t">
+            
+                  <button
+                    onClick={handleBack}
+                    className="px-6 py-3 rounded-xl border border-slate-300 font-semibold hover:bg-slate-50"
+                  >
+                    ← Back
+                  </button>
+            
+                  <button
+                    onClick={handleNext}
+                    className="px-8 py-3 rounded-xl bg-primary text-white font-semibold"
+                  >
+                    Continue →
+                  </button>
+            
+                </div>
+            
               </div>
+            
             )}
 
-            {/* STEP 4: Preview Form */}
+            {/* STEP 4: Preview & Confirm */}
             {step === 4 && (
-              <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2">
-                <div className="space-y-2">
-                  <h3 className="text-sm font-bold text-slate-400 uppercase">Personal & Employment</h3>
-                  <div className="bg-slate-50 p-4 rounded-xl text-sm grid grid-cols-2 gap-y-2">
-                    <p><span className="text-slate-500">Name:</span> {form.name}</p>
-                    <p><span className="text-slate-500">Phone:</span> {form.phone}</p>
-                    <p><span className="text-slate-500">Employer:</span> {form.employer}</p>
-                    <p><span className="text-slate-500">Salary:</span> KES {form.salary}</p>
-                    <p className="col-span-2"><span className="text-slate-500">Address:</span> {form.address}</p>
+              <div className="space-y-6 max-h-[65vh] overflow-y-auto pr-2">
+            
+                {/* Personal Information */}
+                <div className="bg-slate-50 rounded-2xl p-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold flex items-center gap-2">
+                      <Lucide.User size={18} className="text-primary" />
+                      Personal Information
+                    </h3>
+            
+                    <button
+                      onClick={() => setStep(1)}
+                      className="text-primary text-sm font-medium"
+                    >
+                      Edit
+                    </button>
+                  </div>
+            
+                  <div className="grid grid-cols-2 gap-y-3 text-sm">
+            
+                    <p>
+                      <span className="text-slate-500">Full Name</span>
+                      <br />
+                      <strong>{form.name || "-"}</strong>
+                    </p>
+            
+                    <p>
+                      <span className="text-slate-500">Gender</span>
+                      <br />
+                      <strong>{form.gender || "-"}</strong>
+                    </p>
+            
+                    <p>
+                      <span className="text-slate-500">Date of Birth</span>
+                      <br />
+                      <strong>{form.dob || "-"}</strong>
+                    </p>
+            
+                    <p>
+                      <span className="text-slate-500">Phone</span>
+                      <br />
+                      <strong>{form.phone || "-"}</strong>
+                    </p>
+            
+                    <p>
+                      <span className="text-slate-500">Email</span>
+                      <br />
+                      <strong>{form.email || "-"}</strong>
+                    </p>
+            
+                    <p>
+                      <span className="text-slate-500">National ID</span>
+                      <br />
+                      <strong>{form.idNo || "-"}</strong>
+                    </p>
+            
+                    <p className="col-span-2">
+                      <span className="text-slate-500">Address</span>
+                      <br />
+                      <strong>{form.address || "-"}</strong>
+                    </p>
+            
                   </div>
                 </div>
-
-                <div className="space-y-2">
-                  <h3 className="text-sm font-bold text-slate-400 uppercase">Guarantor Details</h3>
-                  <div className="bg-slate-50 p-4 rounded-xl text-sm grid grid-cols-2 gap-y-2">
-                    <p><span className="text-slate-500">Name:</span> {form.guarantorName}</p>
-                    <p><span className="text-slate-500">Relation:</span> {form.guarantorRelationship}</p>
-                    <p><span className="text-slate-500">Phone:</span> {form.guarantorPhone}</p>
-                    <p><span className="text-slate-500">ID:</span> {form.guarantorIdNo}</p>
+            
+                {/* Employment */}
+                <div className="bg-slate-50 rounded-2xl p-5">
+                  <div className="flex items-center justify-between mb-4">
+            
+                    <h3 className="font-semibold flex items-center gap-2">
+                      <Lucide.Briefcase size={18} className="text-primary" />
+                      Employment Information
+                    </h3>
+            
+                    <button
+                      onClick={() => setStep(1)}
+                      className="text-primary text-sm font-medium"
+                    >
+                      Edit
+                    </button>
+            
+                  </div>
+            
+                  <div className="grid grid-cols-2 gap-y-3 text-sm">
+            
+                    <p>
+                      <span className="text-slate-500">Employer</span>
+                      <br />
+                      <strong>{form.employer || "-"}</strong>
+                    </p>
+            
+                    <p>
+                      <span className="text-slate-500">Occupation</span>
+                      <br />
+                      <strong>{form.occupation || "-"}</strong>
+                    </p>
+            
+                    <p>
+                      <span className="text-slate-500">Years Employed</span>
+                      <br />
+                      <strong>{form.yearsEmployed || "-"}</strong>
+                    </p>
+            
+                    <p>
+                      <span className="text-slate-500">Monthly Salary</span>
+                      <br />
+                      <strong>KES {form.salary || "0"}</strong>
+                    </p>
+            
                   </div>
                 </div>
-
-                <div className="flex gap-3 mt-6">
-                  <button onClick={handleBack} className="flex-1 py-3 font-bold text-slate-500">Back</button>
-                  <button onClick={handleNext} className="flex-1 bg-primary text-white py-3 rounded-xl font-bold">Confirm & Submit</button>
+            
+                {/* Documentation */}
+                <div className="bg-slate-50 rounded-2xl p-5">
+            
+                  <div className="flex items-center justify-between mb-4">
+            
+                    <h3 className="font-semibold flex items-center gap-2">
+                      <Lucide.FileCheck size={18} className="text-primary" />
+                      Documentation
+                    </h3>
+            
+                    <button
+                      onClick={() => setStep(2)}
+                      className="text-primary text-sm font-medium"
+                    >
+                      Edit
+                    </button>
+            
+                  </div>
+            
+                  <div className="space-y-2 text-sm">
+            
+                    <div className="flex justify-between">
+                      <span>Front ID</span>
+                      <span className="text-emerald-600 font-semibold">
+                        Uploaded
+                      </span>
+                    </div>
+            
+                    <div className="flex justify-between">
+                      <span>Back ID</span>
+                      <span className="text-emerald-600 font-semibold">
+                        Uploaded
+                      </span>
+                    </div>
+            
+                    <div className="flex justify-between">
+                      <span>Passport Photo</span>
+                      <span className="text-emerald-600 font-semibold">
+                        Uploaded
+                      </span>
+                    </div>
+            
+                  </div>
+            
                 </div>
+            
+                {/* Guarantor */}
+                <div className="bg-slate-50 rounded-2xl p-5">
+            
+                  <div className="flex items-center justify-between mb-4">
+            
+                    <h3 className="font-semibold flex items-center gap-2">
+                      <Lucide.Users size={18} className="text-primary" />
+                      Guarantor
+                    </h3>
+            
+                    <button
+                      onClick={() => setStep(3)}
+                      className="text-primary text-sm font-medium"
+                    >
+                      Edit
+                    </button>
+            
+                  </div>
+            
+                  <div className="grid grid-cols-2 gap-y-3 text-sm">
+            
+                    <p>
+                      <span className="text-slate-500">Full Name</span>
+                      <br />
+                      <strong>{form.guarantorName || "-"}</strong>
+                    </p>
+            
+                    <p>
+                      <span className="text-slate-500">Relationship</span>
+                      <br />
+                      <strong>{form.guarantorRelationship || "-"}</strong>
+                    </p>
+            
+                    <p>
+                      <span className="text-slate-500">Phone</span>
+                      <br />
+                      <strong>{form.guarantorPhone || "-"}</strong>
+                    </p>
+            
+                    <p>
+                      <span className="text-slate-500">National ID</span>
+                      <br />
+                      <strong>{form.guarantorIdNo || "-"}</strong>
+                    </p>
+            
+                    <p className="col-span-2">
+                      <span className="text-slate-500">Address</span>
+                      <br />
+                      <strong>{form.guarantorAddress || "-"}</strong>
+                    </p>
+            
+                  </div>
+            
+                </div>
+            
+                {/* Declaration */}
+                <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 flex gap-3">
+            
+                  <Lucide.ShieldCheck
+                    className="text-primary mt-1"
+                    size={20}
+                  />
+            
+                  <p className="text-sm text-slate-700">
+                    I confirm that the information entered is accurate and all
+                    supporting documents have been verified before creating this
+                    borrower.
+                  </p>
+            
+                </div>
+            
+                {/* Footer */}
+                <div className="flex gap-3 pt-2">
+            
+                  <button
+                    onClick={handleBack}
+                    className="flex-1 border border-slate-200 py-3 rounded-xl font-semibold hover:bg-slate-50"
+                  >
+                    Back
+                  </button>
+            
+                  <button
+                    onClick={handleRegister}
+                    className="flex-1 bg-primary text-white py-3 rounded-xl font-semibold"
+                  >
+                    Create Borrower
+                  </button>
+            
+                </div>
+            
               </div>
             )}
 
-            {/* STEP 5: Success/Finish */}
+            {/* STEP 5: Success */}
             {step === 5 && (
-              <div className="text-center py-6">
-                <Lucide.CheckCircle className="mx-auto text-green-600 mb-4" size={48} />
-                <p className="font-bold">Borrower Successfully Registered!</p>
-                <button onClick={() => {setShowModal(false); setStep(1);}} className="mt-6 w-full bg-primary text-white py-3 rounded-xl font-bold">Done</button>
+              <div className="py-8 text-center">
+            
+                <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-6">
+                  <Lucide.CheckCircle2
+                    size={42}
+                    className="text-primary"
+                  />
+                </div>
+            
+                <h2 className="text-2xl font-bold text-slate-900">
+                  Borrower Registered Successfully
+                </h2>
+            
+                <p className="text-slate-500 mt-3 max-w-sm mx-auto">
+                  The borrower profile has been created successfully and is now
+                  available for loan applications, savings accounts and other
+                  transactions.
+                </p>
+            
+                <div className="bg-slate-50 rounded-2xl p-5 mt-8 text-left space-y-3">
+            
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">
+                      Borrower
+                    </span>
+            
+                    <span className="font-semibold">
+                      {form.name}
+                    </span>
+                  </div>
+            
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">
+                      Phone
+                    </span>
+            
+                    <span className="font-semibold">
+                      {form.phone}
+                    </span>
+                  </div>
+            
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">
+                      Employer
+                    </span>
+            
+                    <span className="font-semibold">
+                      {form.employer}
+                    </span>
+                  </div>
+            
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">
+                      Guarantor
+                    </span>
+            
+                    <span className="font-semibold">
+                      {form.guarantorName || "-"}
+                    </span>
+                  </div>
+            
+                </div>
+            
+                <div className="grid grid-cols-2 gap-4 mt-8">
+            
+                  <button
+                    onClick={() => {
+                      handleRegister();
+                      setShowModal(false);
+                      setStep(1);
+                    }}
+                    className="py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition"
+                  >
+                    Finish
+                  </button>
+            
+                  <button
+                    onClick={() => {
+                      handleRegister();
+                      setStep(1);
+                    }}
+                    className="py-3 rounded-xl border border-slate-200 font-semibold hover:bg-slate-50 transition"
+                  >
+                    Register Another
+                  </button>
+            
+                </div>
+            
               </div>
             )}
-          </div>
-        </div>
-      )}
-          </div>
-        </div>
-      </div>
-  );
-};
