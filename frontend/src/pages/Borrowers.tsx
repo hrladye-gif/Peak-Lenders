@@ -1075,70 +1075,48 @@ export const Borrowers = () => {
             {/* STEP 5: Success */}
             {step === 5 && (
               <div className="py-8 text-center">
-            
                 <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-6">
                   <Lucide.CheckCircle2
                     size={42}
                     className="text-primary"
                   />
                 </div>
-            
+
                 <h2 className="text-2xl font-bold text-slate-900">
                   Borrower Registered Successfully
                 </h2>
-            
+
                 <p className="text-slate-500 mt-3 max-w-sm mx-auto">
                   The borrower profile has been created successfully and is now
                   available for loan applications, savings accounts and other
                   transactions.
                 </p>
-            
+
                 <div className="bg-slate-50 rounded-2xl p-5 mt-8 text-left space-y-3">
-            
                   <div className="flex justify-between">
-                    <span className="text-slate-500">
-                      Borrower
-                    </span>
-            
-                    <span className="font-semibold">
-                      {form.name}
-                    </span>
+                    <span className="text-slate-500">Borrower</span>
+                    <span className="font-semibold">{form.name}</span>
                   </div>
-            
+
                   <div className="flex justify-between">
-                    <span className="text-slate-500">
-                      Phone
-                    </span>
-            
-                    <span className="font-semibold">
-                      {form.phone}
-                    </span>
+                    <span className="text-slate-500">Phone</span>
+                    <span className="font-semibold">{form.phone}</span>
                   </div>
-            
+
                   <div className="flex justify-between">
-                    <span className="text-slate-500">
-                      Employer
-                    </span>
-            
-                    <span className="font-semibold">
-                      {form.employer}
-                    </span>
+                    <span className="text-slate-500">Employer</span>
+                    <span className="font-semibold">{form.employer}</span>
                   </div>
-            
+
                   <div className="flex justify-between">
-                    <span className="text-slate-500">
-                      Guarantor
-                    </span>
-            
+                    <span className="text-slate-500">Guarantor</span>
                     <span className="font-semibold">
                       {form.guarantorName || "-"}
                     </span>
                   </div>
-            
                 </div>
-            
+
                 <div className="grid grid-cols-2 gap-4 mt-8">
-            
                   <button
                     onClick={() => {
                       handleRegister();
@@ -1149,7 +1127,7 @@ export const Borrowers = () => {
                   >
                     Finish
                   </button>
-            
+
                   <button
                     onClick={() => {
                       handleRegister();
@@ -1159,15 +1137,14 @@ export const Borrowers = () => {
                   >
                     Register Another
                   </button>
-            
                 </div>
-            
               </div>
             )}
           </div>
         </div>
       )}
-
     </div>
   );
 };
+
+export default Borrowers;
