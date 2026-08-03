@@ -356,11 +356,13 @@ export const Borrowers = () => {
     {showModal && (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
         <div className="bg-white p-8 rounded-3xl w-[900px] max-h-[90vh] overflow-y-auto shadow-xl">
+    
           {/* Stepper */}
           <div className="flex justify-between mb-8">
             {['Personal', 'Documents', 'Guarantors', 'Preview'].map(
               (label, index) => {
                 const current = index + 1;
+    
                 return (
                   <div
                     key={label}
@@ -375,13 +377,14 @@ export const Borrowers = () => {
                     >
                       {current}
                     </div>
+    
                     <p className="text-xs mt-2">{label}</p>
                   </div>
                 );
               }
             )}
           </div>
-
+    
           <h2 className="text-xl font-bold mb-6">
             Step {step}:{' '}
             {step === 1
