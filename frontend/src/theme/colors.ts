@@ -1,40 +1,50 @@
-export const COLORS = {
-  // Primary Brand
-  primary: "#2563EB",        // Royal Blue
-  primaryDark: "#1D4ED8",    // Deep Blue
-  primaryLight: "#DBEAFE",   // Soft Blue
+@import "tailwindcss";
 
-  // Accent
-  secondary: "#0F172A",      // Navy
-  secondaryLight: "#334155",
+@theme {
+  /* Primary Brand */
+  --color-primary: #2563eb;
+  --color-primary-dark: #1d4ed8;
+  --color-primary-light: #dbeafe;
 
-  // Status
-  success: "#10B981",
-  warning: "#F59E0B",
-  danger: "#EF4444",
-  info: "#3B82F6",
+  /* Accent */
+  --color-secondary: #0f172a;
+  --color-secondary-light: #334155;
 
-  // Neutrals
-  text: "#0F172A",
-  muted: "#64748B",
-  border: "#E2E8F0",
-  background: "#F8FAFC",
-  surface: "#FFFFFF",
+  /* Status */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #3b82f6;
 
-  // Sidebar
-  sidebar: "#0F172A",
-  sidebarHover: "#1E293B",
-  sidebarActive: "#2563EB",
-  sidebarText: "#CBD5E1",
+  /* Neutrals */
+  --color-text: #0f172a;
+  --color-muted: #64748b;
+  --color-border: #e2e8f0;
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
 
-  // Cards
-  card: "#FFFFFF",
-  cardBorder: "#E2E8F0",
+  /* Sidebar */
+  --color-sidebar: #0f172a;
+  --color-sidebar-hover: #1e293b;
+  --color-sidebar-active: #2563eb;
+  --color-sidebar-text: #cbd5e1;
 
-  // Charts
-  chart1: "#2563EB",
-  chart2: "#38BDF8",
-  chart3: "#06B6D4",
-  chart4: "#6366F1",
-  chart5: "#10B981",
-};
+  /* Cards */
+  --color-card: #ffffff;
+  --color-card-border: #e2e8f0;
+
+  /* Charts */
+  --color-chart-1: #2563eb;
+  --color-chart-2: #38bdf8;
+  --color-chart-3: #06b6d4;
+  --color-chart-4: #6366f1;
+  --color-chart-5: #10b981;
+}
+
+/* If you want a custom `.card` utility class to use directly in JSX */
+@utility card {
+  background-color: var(--color-card);
+  border: 1px solid var(--color-card-border);
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
