@@ -1,111 +1,457 @@
-import { useState, useEffect } from 'react';
-import { Sidebar } from '../components/layout/Sidebar';
-import * as Lucide from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { Sidebar } from "../components/layout/Sidebar";
+import * as Lucide from "lucide-react";
+import { Link } from "react-router-dom";
+
 
 export const Groups = () => {
-  const [showModal, setShowModal] = useState(false);
-  
-  // 1. Initialize from localStorage
-  const [groups, setGroups] = useState(() => {
-    const saved = localStorage.getItem('groups');
-    return saved ? JSON.parse(saved) : [
-      { id: 'GRP-001', name: 'Kampala Market Traders', members: 12, contact: '+256 700000000', status: 'Active' },
-    ];
-  });
 
-  // 2. Sync to localStorage
-  useEffect(() => {
-    localStorage.setItem('groups', JSON.stringify(groups));
-  }, [groups]);
+const [showModal,setShowModal] = useState(false);
 
-  const [form, setForm] = useState({ name: '', members: '', code: '+256', phone: '' });
 
-  const handleRegister = () => {
-    if (form.name && form.phone) {
-      setGroups([...groups, { 
-        id: 'GRP-' + Math.floor(Math.random() * 1000), 
-        name: form.name, 
-        members: parseInt(form.members) || 0, 
-        contact: form.code + ' ' + form.phone, 
-        status: 'Active' 
-      }]);
-      setShowModal(false);
-      setForm({ name: '', members: '', code: '+256', phone: '' });
-    }
-  };
+const [groups,setGroups] = useState(()=>{
 
-  return (
-    <div className="flex h-screen bg-[#f8f9f9] text-[#1a2e23]">
-      <Sidebar />
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <header className="h-16 bg-white border-b border-slate-100 flex items-center justify-between px-6">
-          <h1 className="text-xl font-bold">Groups</h1>
-          <button onClick={() => setShowModal(true)} className="bg-[#166534] text-white px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2">
-            <Lucide.Plus size={16} /> Add Group
-          </button>
-        </header>
+const saved = localStorage.getItem("groups");
 
-        <main className="flex-1 p-6 overflow-y-auto">
-          <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="text-slate-400 text-xs uppercase font-bold border-b border-slate-100">
-                  <th className="pb-4">Group ID</th>
-                  <th className="pb-4">Group Name</th>
-                  <th className="pb-4">Members</th>
-                  <th className="pb-4">Contact</th>
-                  <th className="pb-4">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {groups.map((g: any) => (
-                  <tr key={g.id} className="border-b border-slate-50">
-                    <td className="py-4 font-mono text-xs">{g.id}</td>
-                    <td className="py-4 font-bold text-[#166534] hover:underline">
-                      <Link
-                        to={`/groups/${g.id}`}
-                        className="text-blue-600 hover:underline font-bold"
-                      >
-                        {g.name}
-                      </Link>
-                    </td>
-                    <td className="py-4 text-sm">{g.members}</td>
-                    <td className="py-4 text-sm">{g.contact}</td>
-                    <td className="py-4">
-                      <span className="px-2 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">
-                        {g.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </main>
-      </div>
+return saved ? JSON.parse(saved) : [
 
-      {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-3xl w-[450px] shadow-xl">
-            <h2 className="text-xl font-bold mb-4">Register Group</h2>
-            <div className="space-y-4">
-              <input onChange={(e) => setForm({...form, name: e.target.value})} type="text" placeholder="Group Name" className="w-full p-3 border border-slate-200 rounded-xl" />
-              <input onChange={(e) => setForm({...form, members: e.target.value})} type="number" placeholder="Number of Members" className="w-full p-3 border border-slate-200 rounded-xl" />
-              <div className="flex gap-2">
-                <select onChange={(e) => setForm({...form, code: e.target.value})} className="p-3 border border-slate-200 rounded-xl bg-transparent">
-                  <option>+256</option><option>+254</option><option>+255</option><option>+250</option>
-                </select>
-                <input onChange={(e) => setForm({...form, phone: e.target.value})} type="text" placeholder="Phone Number" className="flex-1 p-3 border border-slate-200 rounded-xl" />
-              </div>
-              <div className="flex gap-3 mt-6">
-                <button onClick={() => setShowModal(false)} className="flex-1 py-2 rounded-full font-bold text-slate-500">Cancel</button>
-                <button onClick={handleRegister} className="flex-1 bg-[#166534] text-white py-2 rounded-full font-bold">Register</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+{
+id:"GRP-001",
+name:"Kampala Market Traders",
+leader:"Sarah Namusoke",
+phone:"+256700000000",
+branch:"Kampala Branch",
+members:12,
+loans:8,
+portfolio:"UGX 45,000,000",
+status:"Active"
+}
+
+];
+
+});
+
+
+useEffect(()=>{
+
+localStorage.setItem(
+"groups",
+JSON.stringify(groups)
+);
+
+},[groups]);
+
+
+
+const [form,setForm]=useState({
+
+name:"",
+leader:"",
+phone:"",
+branch:"",
+members:""
+
+});
+
+
+
+const registerGroup=()=>{
+
+
+const newGroup={
+
+id:"GRP-"+Math.floor(Math.random()*9000),
+
+name:form.name,
+
+leader:form.leader,
+
+phone:form.phone,
+
+branch:form.branch,
+
+members:Number(form.members),
+
+loans:0,
+
+portfolio:"0",
+
+status:"Active"
+
+};
+
+
+setGroups([
+...groups,
+newGroup
+]);
+
+
+setShowModal(false);
+
+
+setForm({
+
+name:"",
+leader:"",
+phone:"",
+branch:"",
+members:""
+
+});
+
+
+};
+
+
+
+return (
+
+<div className="flex h-screen bg-slate-50 text-slate-800">
+
+
+<Sidebar />
+
+
+
+<div className="flex-1 overflow-y-auto">
+
+
+<header className="bg-white border-b px-8 py-6 flex justify-between items-center">
+
+
+<div>
+
+<h1 className="text-3xl font-black text-slate-900">
+Groups
+</h1>
+
+<p className="text-slate-500">
+Manage group borrowers and collective lending operations
+</p>
+
+</div>
+
+
+
+<button
+
+onClick={()=>setShowModal(true)}
+
+className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold flex gap-2 items-center"
+
+>
+
+<Lucide.Plus size={18}/>
+
+Create Group
+
+</button>
+
+
+</header>
+
+
+
+<main className="p-8">
+
+
+
+<div className="grid grid-cols-3 gap-6 mb-8">
+
+
+<div className="bg-white rounded-3xl border p-6">
+
+<p className="text-xs uppercase font-bold text-slate-400">
+Total Groups
+</p>
+
+<h2 className="text-4xl font-black mt-3">
+{groups.length}
+</h2>
+
+</div>
+
+
+
+<div className="bg-white rounded-3xl border p-6">
+
+<p className="text-xs uppercase font-bold text-slate-400">
+Total Members
+</p>
+
+<h2 className="text-4xl font-black mt-3 text-blue-600">
+
+{groups.reduce(
+(sum,g)=>sum+g.members,0
+)}
+
+</h2>
+
+</div>
+
+
+
+
+<div className="bg-white rounded-3xl border p-6">
+
+<p className="text-xs uppercase font-bold text-slate-400">
+Active Loans
+</p>
+
+<h2 className="text-4xl font-black mt-3 text-indigo-600">
+
+{groups.reduce(
+(sum,g)=>sum+g.loans,0
+)}
+
+</h2>
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+<div className="bg-white rounded-3xl border shadow-sm overflow-hidden">
+
+
+<div className="px-8 py-6 border-b">
+
+<h2 className="font-black text-xl">
+Group Register
+</h2>
+
+<p className="text-sm text-slate-500">
+All registered borrower groups
+</p>
+
+</div>
+
+
+
+<table className="w-full">
+
+
+<thead className="bg-slate-50 text-xs uppercase text-slate-400">
+
+<tr>
+
+<th className="p-5 text-left">ID</th>
+<th className="p-5 text-left">Group</th>
+<th className="p-5 text-left">Leader</th>
+<th className="p-5 text-left">Branch</th>
+<th className="p-5 text-left">Members</th>
+<th className="p-5 text-left">Portfolio</th>
+<th className="p-5 text-left">Status</th>
+
+
+</tr>
+
+</thead>
+
+
+<tbody>
+
+
+{groups.map((g:any)=>(
+
+
+<tr key={g.id} className="border-t hover:bg-slate-50">
+
+
+<td className="p-5 font-mono text-xs">
+{g.id}
+</td>
+
+
+
+<td className="p-5">
+
+<Link
+to={`/groups/${g.id}`}
+className="font-bold text-blue-600"
+>
+
+{g.name}
+
+</Link>
+
+</td>
+
+
+<td className="p-5">
+{g.leader}
+</td>
+
+
+<td className="p-5">
+{g.branch}
+</td>
+
+
+<td className="p-5">
+{g.members}
+</td>
+
+
+<td className="p-5 font-bold">
+{g.portfolio}
+</td>
+
+
+
+<td className="p-5">
+
+<span className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">
+
+{g.status}
+
+</span>
+
+</td>
+
+
+</tr>
+
+
+))}
+
+
+
+</tbody>
+
+
+</table>
+
+
+
+</div>
+
+
+</main>
+
+
+</div>
+
+
+
+
+
+{showModal && (
+
+<div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+
+
+<div className="bg-white rounded-3xl p-8 w-[500px] shadow-2xl">
+
+
+<h2 className="text-2xl font-black mb-6">
+Create Borrower Group
+</h2>
+
+
+
+<div className="space-y-4">
+
+
+<input
+placeholder="Group Name"
+className="w-full p-3 border rounded-xl"
+onChange={
+e=>setForm({...form,name:e.target.value})
+}
+/>
+
+
+
+<input
+placeholder="Group Leader"
+className="w-full p-3 border rounded-xl"
+onChange={
+e=>setForm({...form,leader:e.target.value})
+}
+/>
+
+
+
+<input
+placeholder="Phone Number"
+className="w-full p-3 border rounded-xl"
+onChange={
+e=>setForm({...form,phone:e.target.value})
+}
+/>
+
+
+
+<input
+placeholder="Branch"
+className="w-full p-3 border rounded-xl"
+onChange={
+e=>setForm({...form,branch:e.target.value})
+}
+/>
+
+
+
+<input
+placeholder="Number of Members"
+type="number"
+className="w-full p-3 border rounded-xl"
+onChange={
+e=>setForm({...form,members:e.target.value})
+}
+/>
+
+
+
+<div className="flex gap-3 mt-6">
+
+
+<button
+onClick={()=>setShowModal(false)}
+className="flex-1 py-3 rounded-xl font-bold text-slate-500"
+>
+Cancel
+</button>
+
+
+
+<button
+
+onClick={registerGroup}
+
+className="flex-1 bg-blue-600 text-white rounded-xl font-bold"
+
+>
+
+Create Group
+
+</button>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+)}
+
+
+
+</div>
+
+);
+
 };

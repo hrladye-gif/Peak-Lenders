@@ -1,342 +1,401 @@
-import { useState } from 'react';
-import { Sidebar } from '../components/layout/Sidebar';
-import * as Lucide from 'lucide-react';
+import { useState } from "react";
+import { Sidebar } from "../components/layout/Sidebar";
+import * as Lucide from "lucide-react";
 
 export const Users = () => {
-  const [showModal, setShowModal] = useState(false);
-  const [search, setSearch] = useState('');
 
-  const [users, setUsers] = useState([
+
+  const [showModal,setShowModal] = useState(false);
+
+
+  const [users,setUsers] = useState([
     {
-      id: 1,
-      name: 'Alex Omondi',
-      role: 'Admin',
-      email: 'alex@peak.com',
-      branch: 'Nairobi CBD',
-      status: 'Active',
-      lastLogin: 'Today, 08:24 AM',
+      id:"USR-001",
+      name:"Admin User",
+      email:"admin@peaklenders.com",
+      role:"Administrator",
+      branch:"Head Office",
+      phone:"+256700000001",
+      status:"Active"
     },
     {
-      id: 2,
-      name: 'Sarah Kimani',
-      role: 'Loan Officer',
-      email: 'sarah@peak.com',
-      branch: 'Kampala Main',
-      status: 'Active',
-      lastLogin: 'Yesterday, 04:12 PM',
+      id:"USR-002",
+      name:"Sarah Nakato",
+      email:"sarah@peaklenders.com",
+      role:"Loan Officer",
+      branch:"Kampala Branch",
+      phone:"+256700000002",
+      status:"Active"
     },
+    {
+      id:"USR-003",
+      name:"David Okello",
+      email:"david@peaklenders.com",
+      role:"Branch Manager",
+      branch:"Entebbe Branch",
+      phone:"+256700000003",
+      status:"Inactive"
+    }
   ]);
 
-  const [newName, setNewName] = useState('');
-  const [newRole, setNewRole] = useState('');
-  const [newEmail, setNewEmail] = useState('');
-  const [newBranch, setNewBranch] = useState('');
 
-  const handleSave = () => {
-    if (!newName || !newRole || !newEmail) return;
+
+  const [form,setForm]=useState({
+    name:"",
+    email:"",
+    role:"",
+    branch:"",
+    phone:""
+  });
+
+
+
+  const addUser=()=>{
 
     setUsers([
-      ...users,
       {
-        id: Date.now(),
-        name: newName,
-        role: newRole,
-        email: newEmail,
-        branch: newBranch || 'Unassigned',
-        status: 'Active',
-        lastLogin: 'Never',
+        id:`USR-${String(users.length+1).padStart(3,"0")}`,
+        ...form,
+        status:"Active"
       },
+      ...users
     ]);
 
-    setNewName('');
-    setNewRole('');
-    setNewEmail('');
-    setNewBranch('');
     setShowModal(false);
+
   };
 
-  const filteredUsers = users.filter(
-    (u) =>
-      u.name.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase()) ||
-      u.role.toLowerCase().includes(search.toLowerCase())
-  );
 
-  const activeUsers = users.filter((u) => u.status === 'Active').length;
-  const admins = users.filter((u) => u.role === 'Admin').length;
-  const officers = users.filter((u) => u.role === 'Loan Officer').length;
 
   return (
-    <div className="flex h-screen bg-[#f8f9f9] text-[#1a2e23]">
+
+    <div className="flex h-screen bg-slate-50">
+
       <Sidebar />
 
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        {/* Header */}
-        <header className="h-16 bg-white border-b border-slate-100 flex items-center justify-between px-6">
+
+      <main className="flex-1 p-8 overflow-y-auto">
+
+
+        <div className="flex justify-between items-center mb-8">
+
+
           <div>
-            <h1 className="text-xl font-bold">Users</h1>
-            <p className="text-sm text-slate-500">
-              Manage system users, permissions and branch assignments
+
+            <h1 className="text-4xl font-black">
+              Users
+            </h1>
+
+            <p className="text-slate-500">
+              Manage system users and access accounts
             </p>
+
           </div>
 
+
           <button
-            onClick={() => setShowModal(true)}
-            className="bg-[#166534] text-white px-5 py-2.5 rounded-full text-sm font-bold flex items-center gap-2 hover:bg-[#14532d]"
+            onClick={()=>setShowModal(true)}
+            className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2"
           >
-            <Lucide.Plus size={16} />
-            Add User
+
+            <Lucide.UserPlus size={18}/>
+
+            New User
+
           </button>
-        </header>
 
-        {/* Main */}
-        <main className="flex-1 p-6 overflow-y-auto space-y-6">
 
-          {/* Stats */}
-          <section className="grid grid-cols-4 gap-5">
-            <div className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-xs uppercase font-bold text-slate-400">
-                    Total Users
-                  </p>
-                  <h2 className="text-3xl font-bold mt-2">
-                    {users.length}
-                  </h2>
-                </div>
-                <div className="p-3 rounded-2xl bg-blue-600">
-                  <Lucide.Users className="text-white" size={22} />
-                </div>
-              </div>
-            </div>
+        </div>
 
-            <div className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-xs uppercase font-bold text-slate-400">
-                    Active Users
-                  </p>
-                  <h2 className="text-3xl font-bold mt-2">
-                    {activeUsers}
-                  </h2>
-                </div>
-                <div className="p-3 rounded-2xl bg-green-600">
-                  <Lucide.UserCheck className="text-white" size={22} />
-                </div>
-              </div>
-            </div>
 
-            <div className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-xs uppercase font-bold text-slate-400">
-                    Admins
-                  </p>
-                  <h2 className="text-3xl font-bold mt-2">
-                    {admins}
-                  </h2>
-                </div>
-                <div className="p-3 rounded-2xl bg-purple-600">
-                  <Lucide.ShieldCheck className="text-white" size={22} />
-                </div>
-              </div>
-            </div>
 
-            <div className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-xs uppercase font-bold text-slate-400">
-                    Loan Officers
-                  </p>
-                  <h2 className="text-3xl font-bold mt-2">
-                    {officers}
-                  </h2>
-                </div>
-                <div className="p-3 rounded-2xl bg-amber-500">
-                  <Lucide.Briefcase className="text-white" size={22} />
-                </div>
-              </div>
-            </div>
-          </section>
 
-          {/* Search */}
-          <section className="bg-white rounded-3xl border border-slate-100 shadow-sm p-5">
-            <div className="relative max-w-md">
-              <Lucide.Search
-                size={18}
-                className="absolute left-4 top-3 text-slate-400"
-              />
-              <input
-                type="text"
-                placeholder="Search users..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 rounded-2xl border border-slate-200 outline-none focus:ring-2 focus:ring-green-100"
-              />
-            </div>
-          </section>
 
-          {/* Table */}
-          <section className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-slate-100">
-              <h2 className="font-bold text-lg">
-                System Users
-              </h2>
-            </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="text-slate-400 text-xs uppercase font-bold border-b border-slate-100">
-                    <th className="px-6 py-4">User</th>
-                    <th className="px-6 py-4">Role</th>
-                    <th className="px-6 py-4">Email</th>
-                    <th className="px-6 py-4">Branch</th>
-                    <th className="px-6 py-4">Status</th>
-                    <th className="px-6 py-4">Last Login</th>
-                    <th className="px-6 py-4">Actions</th>
-                  </tr>
-                </thead>
+        <div className="grid grid-cols-4 gap-5 mb-8">
 
-                <tbody>
-                  {filteredUsers.map((u) => (
-                    <tr
-                      key={u.id}
-                      className="border-b border-slate-50 hover:bg-slate-50"
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-[#166534] text-white flex items-center justify-center font-bold">
-                            {u.name
-                              .split(' ')
-                              .map((n) => n[0])
-                              .join('')
-                              .substring(0, 2)}
-                          </div>
 
-                          <div>
-                            <p className="font-bold">{u.name}</p>
-                          </div>
-                        </div>
-                      </td>
+          <div className="bg-white border rounded-2xl p-6">
 
-                      <td className="px-6 py-4 text-sm">
-                        {u.role}
-                      </td>
+            <p className="text-sm text-slate-500">
+              Total Users
+            </p>
 
-                      <td className="px-6 py-4 text-sm text-slate-500">
-                        {u.email}
-                      </td>
+            <h2 className="text-4xl font-black">
+              {users.length}
+            </h2>
 
-                      <td className="px-6 py-4 text-sm">
-                        {u.branch}
-                      </td>
+          </div>
 
-                      <td className="px-6 py-4">
-                        <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">
-                          {u.status}
-                        </span>
-                      </td>
 
-                      <td className="px-6 py-4 text-sm text-slate-500">
-                        {u.lastLogin}
-                      </td>
 
-                      <td className="px-6 py-4">
-                        <div className="flex gap-2">
-                          <button className="p-2 rounded-lg hover:bg-slate-100">
-                            <Lucide.Eye size={16} />
-                          </button>
 
-                          <button className="p-2 rounded-lg hover:bg-slate-100">
-                            <Lucide.Pencil size={16} />
-                          </button>
+          <div className="bg-white border rounded-2xl p-6">
 
-                          <button className="p-2 rounded-lg hover:bg-slate-100">
-                            <Lucide.KeyRound size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </main>
-      </div>
+            <p className="text-sm text-slate-500">
+              Active Users
+            </p>
 
-      {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-3xl w-[500px] shadow-xl">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold">
-                Add New User
-              </h2>
+            <h2 className="text-4xl font-black text-green-600">
+              {users.filter(u=>u.status==="Active").length}
+            </h2>
 
-              <button onClick={() => setShowModal(false)}>
-                <Lucide.X />
-              </button>
-            </div>
+          </div>
 
-            <div className="space-y-4">
-              <input
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                type="text"
-                placeholder="Full Name"
-                className="w-full p-3 border border-slate-200 rounded-xl"
-              />
 
-              <input
-                value={newEmail}
-                onChange={(e) => setNewEmail(e.target.value)}
-                type="email"
-                placeholder="Email Address"
-                className="w-full p-3 border border-slate-200 rounded-xl"
-              />
 
-              <select
-                value={newRole}
-                onChange={(e) => setNewRole(e.target.value)}
-                className="w-full p-3 border border-slate-200 rounded-xl"
+
+          <div className="bg-white border rounded-2xl p-6">
+
+            <p className="text-sm text-slate-500">
+              Roles
+            </p>
+
+            <h2 className="text-4xl font-black text-blue-600">
+              {new Set(users.map(u=>u.role)).size}
+            </h2>
+
+          </div>
+
+
+
+
+          <div className="bg-white border rounded-2xl p-6">
+
+            <p className="text-sm text-slate-500">
+              Branch Access
+            </p>
+
+            <h2 className="text-4xl font-black">
+              {new Set(users.map(u=>u.branch)).size}
+            </h2>
+
+          </div>
+
+
+        </div>
+
+
+
+
+
+
+
+        <div className="bg-white border rounded-2xl overflow-hidden">
+
+
+          <table className="w-full">
+
+
+            <thead className="bg-slate-100">
+
+
+              <tr>
+
+                <th className="p-4 text-left">
+                  ID
+                </th>
+
+                <th className="p-4 text-left">
+                  User
+                </th>
+
+                <th className="p-4 text-left">
+                  Email
+                </th>
+
+                <th className="p-4 text-left">
+                  Role
+                </th>
+
+                <th className="p-4 text-left">
+                  Branch
+                </th>
+
+                <th className="p-4 text-left">
+                  Phone
+                </th>
+
+                <th className="p-4 text-left">
+                  Status
+                </th>
+
+              </tr>
+
+
+            </thead>
+
+
+
+
+            <tbody>
+
+
+            {users.map(user=>(
+
+              <tr
+                key={user.id}
+                className="border-t"
               >
-                <option value="">Select Role</option>
-                <option>Admin</option>
-                <option>Branch Manager</option>
-                <option>Loan Officer</option>
-                <option>Cashier</option>
-                <option>Accountant</option>
-              </select>
 
-              <input
-                value={newBranch}
-                onChange={(e) => setNewBranch(e.target.value)}
-                type="text"
-                placeholder="Assigned Branch"
-                className="w-full p-3 border border-slate-200 rounded-xl"
-              />
 
-              <div className="flex gap-3 mt-6">
+                <td className="p-4 font-bold">
+                  {user.id}
+                </td>
+
+
+                <td className="p-4 font-bold text-blue-700">
+                  {user.name}
+                </td>
+
+
+                <td className="p-4">
+                  {user.email}
+                </td>
+
+
+                <td className="p-4">
+                  {user.role}
+                </td>
+
+
+                <td className="p-4">
+                  {user.branch}
+                </td>
+
+
+                <td className="p-4">
+                  {user.phone}
+                </td>
+
+
+                <td className="p-4">
+
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                    user.status==="Active"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
+                  }`}>
+
+                    {user.status}
+
+                  </span>
+
+                </td>
+
+
+              </tr>
+
+            ))}
+
+
+            </tbody>
+
+
+          </table>
+
+
+        </div>
+
+
+
+
+
+
+
+        {showModal && (
+
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
+
+
+            <div className="bg-white rounded-3xl p-8 w-[650px]">
+
+
+              <h2 className="text-2xl font-black mb-6">
+                New User
+              </h2>
+
+
+
+
+              <div className="space-y-4">
+
+
+                <input
+                className="border rounded-xl p-3 w-full"
+                placeholder="Full Name"
+                onChange={e=>setForm({...form,name:e.target.value})}
+                />
+
+
+                <input
+                className="border rounded-xl p-3 w-full"
+                placeholder="Email"
+                onChange={e=>setForm({...form,email:e.target.value})}
+                />
+
+
+                <input
+                className="border rounded-xl p-3 w-full"
+                placeholder="Role"
+                onChange={e=>setForm({...form,role:e.target.value})}
+                />
+
+
+                <input
+                className="border rounded-xl p-3 w-full"
+                placeholder="Branch"
+                onChange={e=>setForm({...form,branch:e.target.value})}
+                />
+
+
+                <input
+                className="border rounded-xl p-3 w-full"
+                placeholder="Phone"
+                onChange={e=>setForm({...form,phone:e.target.value})}
+                />
+
+
+              </div>
+
+
+
+
+              <div className="flex justify-end gap-3 mt-6">
+
+
                 <button
-                  onClick={() => setShowModal(false)}
-                  className="flex-1 py-3 rounded-full font-bold text-slate-500 border border-slate-200"
+                onClick={()=>setShowModal(false)}
+                className="px-5 py-3"
                 >
                   Cancel
                 </button>
 
+
                 <button
-                  onClick={handleSave}
-                  className="flex-1 bg-[#166534] text-white py-3 rounded-full font-bold"
+                onClick={addUser}
+                className="bg-blue-600 text-white px-5 py-3 rounded-xl font-bold"
                 >
                   Save User
                 </button>
+
+
               </div>
+
+
             </div>
+
+
           </div>
-        </div>
-      )}
+
+        )}
+
+
+      </main>
+
+
     </div>
+
   );
+
 };

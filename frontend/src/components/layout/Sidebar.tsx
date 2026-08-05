@@ -5,12 +5,14 @@ import * as Lucide from "lucide-react";
 export const Sidebar = () => {
   const location = useLocation();
 
-  const [logo, setLogo] = useState<string | null>(null);
+  const [logo, setLogo] = useState<string | null>(
+    localStorage.getItem("system-logo")
+  );
 
   const [open, setOpen] = useState<Record<string, boolean>>({
     Dashboard: true,
     Customers: true,
-    Lending: true,
+    LoanManagement: true,
     Savings: false,
     Accounting: false,
     Reports: false,
@@ -53,14 +55,14 @@ export const Sidebar = () => {
     },
 
     {
-      title: "Lending",
+      title: "Loan Management",
       icon: "HandCoins",
       items: [
         "Applications",
-        "Active Loans",
+        "Loans",
         "Repayments",
         "Collections",
-        "Write-Offs",
+        "WriteOffs",
       ],
     },
 
@@ -114,11 +116,11 @@ export const Sidebar = () => {
   ];
 
   return (
-    <aside className="w-72 bg-white border-r border-slate-200 flex flex-col h-screen shadow-sm">
+    <aside className="w-72 bg-blue-900 border-r border-blue-800 flex flex-col h-screen shadow-xl">
 
       {/* Logo */}
 
-      <div className="p-6 border-b border-slate-100">
+      <div className="p-6 border-b border-blue-800">
 
         <label className="flex items-center gap-3 cursor-pointer">
 
@@ -129,7 +131,7 @@ export const Sidebar = () => {
             onChange={handleLogoUpload}
           />
 
-          <div className="w-12 h-12 rounded-2xl overflow-hidden bg-blue-50 border border-blue-100 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl overflow-hidden bg-white/10 border border-white/20 flex items-center justify-center">
 
             {logo ? (
               <img
@@ -140,7 +142,7 @@ export const Sidebar = () => {
             ) : (
               <Lucide.Building2
                 size={22}
-                className="text-blue-600"
+                className="text-white"
               />
             )}
 
@@ -148,11 +150,11 @@ export const Sidebar = () => {
 
           <div>
 
-            <h2 className="font-bold text-lg text-slate-900">
+            <h2 className="font-bold text-lg text-white">
               Peak Lenders
             </h2>
 
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-blue-100">
               Digital Microfinance
             </p>
 
@@ -176,7 +178,7 @@ export const Sidebar = () => {
 
                 <button
                   onClick={() => toggle(section.title)}
-                  className="flex items-center justify-between w-full text-slate-700 hover:text-blue-600 transition"
+                  className="flex items-center justify-between w-full text-white hover:text-blue-200 transition"
                 >
 
                   <div className="flex items-center gap-3 uppercase tracking-wide text-xs font-bold">
@@ -223,8 +225,8 @@ export const Sidebar = () => {
                             to={path}
                             className={`flex items-center px-4 py-2.5 rounded-xl text-sm transition-all duration-200 ${
                               active
-                                ? "bg-blue-50 text-blue-700 border border-blue-200 font-semibold shadow-sm"
-                                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                                ? "bg-white/20 text-white border border-white/30 font-semibold shadow-sm"
+                                : "text-white/80 hover:bg-blue-800 hover:text-white"
                             }`}
                           >
                             {item}
@@ -250,9 +252,9 @@ export const Sidebar = () => {
 
       {/* Footer */}
 
-      <div className="border-t border-slate-200 p-4">
+      <div className="border-t border-blue-800 p-4">
 
-        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition">
+        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-200 hover:bg-blue-800 transition">
 
           <Lucide.LogOut size={18} />
 
