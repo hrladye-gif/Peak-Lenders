@@ -1,269 +1,214 @@
-import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import * as Lucide from "lucide-react";
+import React, { useState } from 'react';
+import { NavLink } from 'react-router-dom';
+import { 
+  BarChart3, 
+  Users, 
+  UserCheck, 
+  FileText, 
+  CreditCard, 
+  Banknote, 
+  FolderMinus, 
+  PiggyBank, 
+  Wallet, 
+  ArrowDownLeft, 
+  ArrowUpRight, 
+  BookOpen, 
+  FileSpreadsheet, 
+  BookMarked, 
+  AlertCircle, 
+  FileBarChart, 
+  Settings,
+  ShieldCheck,
+  Building2,
+  ChevronDown, 
+  ChevronRight 
+} from 'lucide-react';
 
 export const Sidebar = () => {
-  const location = useLocation();
-
-  const [logo, setLogo] = useState<string | null>(
-    localStorage.getItem("system-logo")
-  );
-
-  const [open, setOpen] = useState<Record<string, boolean>>({
-    Dashboard: true,
-    Customers: true,
-    LoanManagement: true,
-    Savings: false,
-    Accounting: false,
-    Reports: false,
-    Administration: false,
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    customers: true,
+    loans: true,
+    savings: true,
+    accounting: true,
+    reports: true,
+    admin: true,
   });
 
-  const toggle = (menu: string) => {
-    setOpen((prev) => ({
-      ...prev,
-      [menu]: !prev[menu],
-    }));
+  const toggleSection = (section: string) => {
+    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
-  const handleLogoUpload = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    if (e.target.files?.[0]) {
-      setLogo(URL.createObjectURL(e.target.files[0]));
-    }
-  };
-
-  const menu = [
-    {
-      title: "Dashboard",
-      icon: "LayoutDashboard",
-      items: [
-        "Dashboard",
-        "Notifications",
-        "Activity Feed",
-      ],
-    },
-
-    {
-      title: "Customers",
-      icon: "Users",
-      items: [
-        "Borrowers",
-        "Groups",
-      ],
-    },
-
-    {
-      title: "Loan Management",
-      icon: "HandCoins",
-      items: [
-        "Applications",
-        "Loans",
-        "Repayments",
-        "Collections",
-        "WriteOffs",
-      ],
-    },
-
-    {
-      title: "Savings",
-      icon: "PiggyBank",
-      items: [
-        "Products",
-        "Accounts",
-        "Deposits",
-        "Withdrawals",
-      ],
-    },
-
-    {
-      title: "Accounting",
-      icon: "Calculator",
-      items: [
-        "Chart of Accounts",
-        "Journal Entries",
-        "General Ledger",
-        "Trial Balance",
-        "Income Statement",
-        "Balance Sheet",
-      ],
-    },
-
-    {
-      title: "Reports",
-      icon: "FileText",
-      items: [
-        "Portfolio Reports",
-        "Financial Reports",
-        "Branch Reports",
-      ],
-    },
-
-    {
-      title: "Administration",
-      icon: "ShieldCheck",
-      items: [
-        "Institution",
-        "Branches",
-        "Tenants",
-        "Users",
-        "Roles & Permissions",
-        "Audit Trail",
-        "System Settings",
-      ],
-    },
-  ];
+  const linkClass = ({ isActive }: { isActive: boolean }) =>
+    `flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+      isActive
+        ? 'bg-[#189AB4] text-white shadow-sm'
+        : 'text-slate-300 hover:bg-[#05445E]/50 hover:text-white'
+    }`;
 
   return (
-    <aside className="w-72 bg-blue-900 border-r border-blue-800 flex flex-col h-screen shadow-xl">
-
-      {/* Logo */}
-
-      <div className="p-6 border-b border-blue-800">
-
-        <label className="flex items-center gap-3 cursor-pointer">
-
-          <input
-            type="file"
-            hidden
-            accept="image/*"
-            onChange={handleLogoUpload}
-          />
-
-          <div className="w-12 h-12 rounded-2xl overflow-hidden bg-white/10 border border-white/20 flex items-center justify-center">
-
-            {logo ? (
-              <img
-                src={logo}
-                alt="Logo"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <Lucide.Building2
-                size={22}
-                className="text-white"
-              />
-            )}
-
-          </div>
-
-          <div>
-
-            <h2 className="font-bold text-lg text-white">
-              Peak Lenders
-            </h2>
-
-            <p className="text-xs text-blue-100">
-              Digital Microfinance
-            </p>
-
-          </div>
-
-        </label>
-
+    <aside className="w-64 bg-[#05445E] text-slate-200 min-h-screen flex flex-col border-r border-slate-700/50">
+      {/* Brand Header */}
+      <div className="p-5 border-b border-slate-700/50 flex items-center gap-3">
+        <div className="p-2 bg-[#189AB4] text-white rounded-xl font-bold">PL</div>
+        <div>
+          <h1 className="font-bold text-white tracking-wide text-sm">Peak Lenders</h1>
+          <p className="text-[10px] text-slate-400 uppercase tracking-widest">MFI Portal</p>
+        </div>
       </div>
 
-      {/* Menu */}
+      {/* Navigation Links */}
+      <nav className="flex-1 p-4 space-y-4 overflow-y-auto text-xs">
+        {/* Main */}
+        <div>
+          <NavLink to="/dashboard" className={linkClass}>
+            <BarChart3 size={16} /> Dashboard
+          </NavLink>
+        </div>
 
-      <div className="flex-1 overflow-y-auto px-4 py-5">
+        {/* Customers */}
+        <div>
+          <button
+            onClick={() => toggleSection('customers')}
+            className="w-full flex items-center justify-between text-slate-400 font-bold text-[11px] uppercase tracking-wider mb-1 px-2 py-1 hover:text-white"
+          >
+            <span>Customers</span>
+            {openSections.customers ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+          </button>
+          {openSections.customers && (
+            <div className="space-y-1 pl-2">
+              <NavLink to="/borrowers" className={linkClass}>
+                <UserCheck size={16} /> Borrowers
+              </NavLink>
+              <NavLink to="/groups" className={linkClass}>
+                <Users size={16} /> Solidarity Groups
+              </NavLink>
+            </div>
+          )}
+        </div>
 
-        <nav className="space-y-5">
+        {/* Loans */}
+        <div>
+          <button
+            onClick={() => toggleSection('loans')}
+            className="w-full flex items-center justify-between text-slate-400 font-bold text-[11px] uppercase tracking-wider mb-1 px-2 py-1 hover:text-white"
+          >
+            <span>Loans</span>
+            {openSections.loans ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+          </button>
+          {openSections.loans && (
+            <div className="space-y-1 pl-2">
+              <NavLink to="/applications" className={linkClass}>
+                <FileText size={16} /> Applications
+              </NavLink>
+              <NavLink to="/loans" className={linkClass}>
+                <CreditCard size={16} /> Active Loans
+              </NavLink>
+              <NavLink to="/repayments" className={linkClass}>
+                <Banknote size={16} /> Repayments
+              </NavLink>
+              <NavLink to="/writeoffs" className={linkClass}>
+                <FolderMinus size={16} /> Write-Offs
+              </NavLink>
+            </div>
+          )}
+        </div>
 
-          {menu.map((section) => {
-            const Icon = (Lucide as any)[section.icon];
+        {/* Savings */}
+        <div>
+          <button
+            onClick={() => toggleSection('savings')}
+            className="w-full flex items-center justify-between text-slate-400 font-bold text-[11px] uppercase tracking-wider mb-1 px-2 py-1 hover:text-white"
+          >
+            <span>Savings</span>
+            {openSections.savings ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+          </button>
+          {openSections.savings && (
+            <div className="space-y-1 pl-2">
+              <NavLink to="/savings/products" className={linkClass}>
+                <PiggyBank size={16} /> Products
+              </NavLink>
+              <NavLink to="/savings/accounts" className={linkClass}>
+                <Wallet size={16} /> Accounts
+              </NavLink>
+              <NavLink to="/savings/deposits" className={linkClass}>
+                <ArrowDownLeft size={16} /> Deposits
+              </NavLink>
+              <NavLink to="/savings/withdrawals" className={linkClass}>
+                <ArrowUpRight size={16} /> Withdrawals
+              </NavLink>
+            </div>
+          )}
+        </div>
 
-            return (
-              <div key={section.title}>
+        {/* Accounting */}
+        <div>
+          <button
+            onClick={() => toggleSection('accounting')}
+            className="w-full flex items-center justify-between text-slate-400 font-bold text-[11px] uppercase tracking-wider mb-1 px-2 py-1 hover:text-white"
+          >
+            <span>Accounting</span>
+            {openSections.accounting ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+          </button>
+          {openSections.accounting && (
+            <div className="space-y-1 pl-2">
+              <NavLink to="/accounting/chart-of-accounts" className={linkClass}>
+                <BookOpen size={16} /> Chart of Accounts
+              </NavLink>
+              <NavLink to="/accounting/journal" className={linkClass}>
+                <FileSpreadsheet size={16} /> Journal Entries
+              </NavLink>
+              <NavLink to="/accounting/ledger" className={linkClass}>
+                <BookMarked size={16} /> General Ledger
+              </NavLink>
+            </div>
+          )}
+        </div>
 
-                <button
-                  onClick={() => toggle(section.title)}
-                  className="flex items-center justify-between w-full text-white hover:text-blue-200 transition"
-                >
+        {/* Reports */}
+        <div>
+          <button
+            onClick={() => toggleSection('reports')}
+            className="w-full flex items-center justify-between text-slate-400 font-bold text-[11px] uppercase tracking-wider mb-1 px-2 py-1 hover:text-white"
+          >
+            <span>Reports</span>
+            {openSections.reports ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+          </button>
+          {openSections.reports && (
+            <div className="space-y-1 pl-2">
+              <NavLink to="/reports/par-aging" className={linkClass}>
+                <AlertCircle size={15} /> PAR & Aging
+              </NavLink>
+              <NavLink to="/reports/financial" className={linkClass}>
+                <FileBarChart size={15} /> Financial Statements
+              </NavLink>
+            </div>
+          )}
+        </div>
 
-                  <div className="flex items-center gap-3 uppercase tracking-wide text-xs font-bold">
-
-                    <Icon size={17} />
-
-                    {section.title}
-
-                  </div>
-
-                  <Lucide.ChevronDown
-                    size={16}
-                    className={`transition ${
-                      open[section.title]
-                        ? "rotate-180"
-                        : ""
-                    }`}
-                  />
-
-                </button>
-
-                {open[section.title] && (
-
-                  <ul className="mt-3 ml-3 space-y-1">
-
-                    {section.items.map((item) => {
-
-                      const path =
-                        item === "Dashboard"
-                          ? "/"
-                          : `/${item
-                              .toLowerCase()
-                              .replace(/\s+/g, "-")
-                              .replace(/&/g, "")}`;
-
-                      const active =
-                        location.pathname === path;
-
-                      return (
-
-                        <li key={item}>
-
-                          <Link
-                            to={path}
-                            className={`flex items-center px-4 py-2.5 rounded-xl text-sm transition-all duration-200 ${
-                              active
-                                ? "bg-white/20 text-white border border-white/30 font-semibold shadow-sm"
-                                : "text-white/80 hover:bg-blue-800 hover:text-white"
-                            }`}
-                          >
-                            {item}
-                          </Link>
-
-                        </li>
-
-                      );
-
-                    })}
-
-                  </ul>
-
-                )}
-
-              </div>
-            );
-          })}
-
-        </nav>
-
-      </div>
-
-      {/* Footer */}
-
-      <div className="border-t border-blue-800 p-4">
-
-        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-200 hover:bg-blue-800 transition">
-
-          <Lucide.LogOut size={18} />
-
-          Log Out
-
-        </button>
-
-      </div>
-
+        {/* Administration */}
+        <div>
+          <button
+            onClick={() => toggleSection('admin')}
+            className="w-full flex items-center justify-between text-slate-400 font-bold text-[11px] uppercase tracking-wider mb-1 px-2 py-1 hover:text-white"
+          >
+            <span>Administration</span>
+            {openSections.admin ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+          </button>
+          {openSections.admin && (
+            <div className="space-y-1 pl-2">
+              <NavLink to="/admin/users" className={linkClass}>
+                <ShieldCheck size={16} /> Users & Roles
+              </NavLink>
+              <NavLink to="/admin/branches" className={linkClass}>
+                <Building2 size={16} /> Branches
+              </NavLink>
+              <NavLink to="/admin/settings" className={linkClass}>
+                <Settings size={16} /> System Settings
+              </NavLink>
+            </div>
+          )}
+        </div>
+      </nav>
     </aside>
   );
 };
