@@ -113,6 +113,7 @@ export const Layout = () => {
               <div className="pl-9 space-y-1 mt-1">
                 <Link to="/applications" className={`block px-3 py-1.5 rounded-lg transition-colors ${isActive('/applications') ? 'text-white font-bold bg-[#189AB4]/40' : 'text-slate-400 hover:text-white'}`}>Applications</Link>
                 <Link to="/loans" className={`block px-3 py-1.5 rounded-lg transition-colors ${isActive('/loans') ? 'text-white font-bold bg-[#189AB4]/40' : 'text-slate-400 hover:text-white'}`}>Loans</Link>
+                <Link to="/loan-products" className={`block px-3 py-1.5 rounded-lg transition-colors ${isActive('/loan-products') ? 'text-white font-bold bg-[#189AB4]/40' : 'text-slate-400 hover:text-white'}`}>Loan Products</Link>
                 <Link to="/repayments" className={`block px-3 py-1.5 rounded-lg transition-colors ${isActive('/repayments') ? 'text-white font-bold bg-[#189AB4]/40' : 'text-slate-400 hover:text-white'}`}>Repayments</Link>
                 <Link to="/collections" className={`block px-3 py-1.5 rounded-lg transition-colors ${isActive('/collections') ? 'text-white font-bold bg-[#189AB4]/40' : 'text-slate-400 hover:text-white'}`}>Collections</Link>
                 <Link to="/writeoffs" className={`block px-3 py-1.5 rounded-lg transition-colors ${isActive('/writeoffs') ? 'text-white font-bold bg-[#189AB4]/40' : 'text-slate-400 hover:text-white'}`}>Write-Offs</Link>

@@ -15,3 +15,6 @@ from app.models.savings_transaction import SavingsTransaction
 from app.models.guarantor import Guarantor
 from app.models.collateral import Collateral
 from app.models.audit_log import AuditLog
+from app.models.application import LoanApplication
+
+from app.models.application import LoanApplication

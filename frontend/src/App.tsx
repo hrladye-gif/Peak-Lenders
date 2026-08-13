@@ -13,6 +13,7 @@ import { GroupDetail } from './pages/customers/GroupDetail';
 // Loans
 import { Applications } from './pages/loans/Applications';
 import { Loans } from './pages/loans/Loans';
+import { LoanProducts } from './pages/loans/LoanProducts';
 import { Repayments } from './pages/loans/Repayments';
 import { Collections } from './pages/loans/Collections';
 import { WriteOffs } from './pages/loans/WriteOffs';
@@ -64,6 +65,7 @@ export function App() {
           {/* Loans */}
           <Route path="/applications" element={<Applications />} />
           <Route path="/loans" element={<Loans />} />
+          <Route path="/loan-products" element={<LoanProducts />} />
           <Route path="/repayments" element={<Repayments />} />
           <Route path="/collections" element={<Collections />} />
           <Route path="/writeoffs" element={<WriteOffs />} />
