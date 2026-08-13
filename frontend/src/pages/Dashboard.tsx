@@ -35,27 +35,11 @@ export const Dashboard = () => {
         const response = await api.get('/dashboard/summary');
         setStats(response.data);
       } catch (err: any) {
-        console.warn('Backend API endpoint not responding, falling back to cached state:', err);
-        // Fallback default state matching your current UI
-        setStats({
-          totalPortfolio: 'UGX 2.4B',
-          activeLoans: 1248,
-          collectionRate: '96.8%',
-          riskLevel: 'Low',
-          disbursed: 'UGX 5.8B',
-          recovered: 'UGX 4.9B',
-          outstanding: 'UGX 900M',
-          branchPerformance: [
-            { name: 'Kampala Main', amount: 'UGX 890M' },
-            { name: 'Ntinda', amount: 'UGX 560M' },
-            { name: 'Mbarara', amount: 'UGX 430M' },
-          ],
-          recentActivity: [
-            { id: '1', user: 'John Doe', action: 'received a new loan' },
-            { id: '2', user: 'Sarah', action: 'sent a loan repayment' },
-            { id: '3', user: 'System', action: 'New borrower registered' },
-          ],
-        });
+        console.error('Failed to load dashboard data:', err);
+        setError(
+          err?.response?.data?.detail ||
+          'Unable to load dashboard data from the server.'
+        );
       } finally {
         setLoading(false);
       }
@@ -63,6 +47,23 @@ export const Dashboard = () => {
 
     fetchDashboardData();
   }, []);
+
+  if (error && !stats) {
+    return (
+      <div className="p-8 bg-slate-50 min-h-screen">
+        <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+          <h1 className="text-3xl font-bold text-[#05445E]">Dashboard</h1>
+          <p className="text-slate-500 mt-2">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-6 bg-[#189AB4] hover:bg-[#05445E] text-white px-5 py-2.5 rounded-xl font-semibold transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 space-y-8 bg-slate-50 min-h-screen">
