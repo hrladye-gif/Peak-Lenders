@@ -63,3 +63,8 @@ class Borrower(BaseMixin, Base):
         "Branch",
         back_populates="borrowers"
     )
+
+    group_memberships = relationship(
+        "GroupMember",
+        back_populates="borrower"
+    )

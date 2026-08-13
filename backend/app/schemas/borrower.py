@@ -1,34 +1,31 @@
-from pydantic import BaseModel
-
+from pydantic import BaseModel, ConfigDict
+from typing import Optional
 
 class BorrowerCreate(BaseModel):
-
-    tenant_id: str
-    branch_id: str | None = None
-
+    tenant_id: Optional[str] = None
+    branch_id: Optional[str] = None
     borrower_type: str = "INDIVIDUAL"
-
-    first_name: str | None = None
-    last_name: str | None = None
-
-    business_name: str | None = None
-
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    business_name: Optional[str] = None
     phone: str
-    email: str | None = None
-
-    national_id: str | None = None
-
-    gender: str | None = None
-
-    address: str | None = None
-
+    email: Optional[str] = None
+    national_id: Optional[str] = None
+    gender: Optional[str] = None
+    address: Optional[str] = None
 
 class BorrowerResponse(BaseModel):
-
     id: str
-    first_name: str | None
-    last_name: str | None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    business_name: Optional[str] = None
     phone: str
+    email: Optional[str] = None
+    national_id: Optional[str] = None
+    gender: Optional[str] = None
+    address: Optional[str] = None
+    borrower_type: Optional[str] = None
+    tenant_id: Optional[str] = None
+    branch_id: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

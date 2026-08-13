@@ -183,7 +183,8 @@ Total Members
 <h2 className="text-4xl font-black mt-3 text-blue-600">
 
 {groups.reduce(
-(sum,g)=>sum+g.members,0
+(sum: number, g: { membersCount: number }) => sum + g.membersCount,
+0
 )}
 
 </h2>
@@ -202,7 +203,9 @@ Active Loans
 <h2 className="text-4xl font-black mt-3 text-indigo-600">
 
 {groups.reduce(
-(sum,g)=>sum+g.loans,0
+(sum: number, g: { totalGroupLoans: string }) =>
+  sum + Number(g.totalGroupLoans.replace(/[^0-9.-]+/g, "")),
+0
 )}
 
 </h2>

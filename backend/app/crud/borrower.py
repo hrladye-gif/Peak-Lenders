@@ -50,3 +50,18 @@ def get_borrowers(
             Borrower.tenant_id == tenant_id
         )\
         .all()
+
+
+def get_borrower(
+    db: Session,
+    borrower_id: str,
+    tenant_id: str
+):
+    return (
+        db.query(Borrower)
+        .filter(
+            Borrower.id == borrower_id,
+            Borrower.tenant_id == tenant_id
+        )
+        .first()
+    )

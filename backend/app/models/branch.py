@@ -42,3 +42,8 @@ class Branch(BaseMixin, Base):
         "Borrower",
         back_populates="branch"
     )
+
+    groups = relationship(
+        "Group",
+        back_populates="branch"
+    )

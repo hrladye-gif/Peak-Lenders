@@ -1,9 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { Dashboard } from './pages/Dashboard';
 import { Notifications } from './pages/Notifications';
 import { ActivityFeed } from './pages/ActivityFeed';
-
+import { BorrowerDetail } from './pages/customers/BorrowerDetail';
 // Customers
 import { Borrowers } from './pages/customers/Borrowers';
 import { Groups } from './pages/customers/Groups';
@@ -47,7 +48,8 @@ export function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        <Route element={<Layout />}>
+        <Route element={<ProtectedRoute />}>
+          <Route element={<Layout />}>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/notifications" element={<Notifications />} />
@@ -55,6 +57,7 @@ export function App() {
           
           {/* Customers */}
           <Route path="/borrowers" element={<Borrowers />} />
+          <Route path="/borrowers/:borrowerId" element={<BorrowerDetail />} />
           <Route path="/groups" element={<Groups />} />
           <Route path="/groups/:groupId" element={<GroupDetail />} />
 
@@ -87,6 +90,7 @@ export function App() {
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>

@@ -1,17 +1,22 @@
-import { Navigate } from "react-router-dom";
-import { isAuthenticated } from "../../services/auth";
+import React from "react";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 
+export const ProtectedRoute = () => {
+  const location = useLocation();
+  const token = localStorage.getItem("token");
 
-export const ProtectedRoute = ({
-    children
-}: {
-    children: React.ReactNode
-}) => {
+  if (!token) {
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{
+          from: location.pathname,
+          message: "Please sign in to continue.",
+        }}
+      />
+    );
+  }
 
-    if (!isAuthenticated()) {
-        return <Navigate to="/login" replace />;
-    }
-
-    return children;
-
+  return <Outlet />;
 };

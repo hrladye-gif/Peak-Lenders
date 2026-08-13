@@ -30,3 +30,8 @@ class Tenant(BaseMixin, Base):
         "Borrower",
         back_populates="tenant"
     )
+
+    groups = relationship(
+        "Group",
+        back_populates="tenant"
+    )
