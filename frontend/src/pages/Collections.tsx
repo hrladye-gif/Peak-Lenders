@@ -1,40 +1,84 @@
 import { useEffect, useMemo, useState } from "react";
 import { Sidebar } from "../components/layout/Sidebar";
 import * as Lucide from "lucide-react";
+import { api } from "../api/axios";
 
 export const Collections = () => {
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState("");
 
-  const [collections, setCollections] = useState(() => {
-    const saved = localStorage.getItem("collections");
-
-    return saved
-      ? JSON.parse(saved)
-      : [
-          {
-            id: "COL-0001",
-            loanNo: "LN-0001",
-            borrower: "John Doe",
-            phone: "+256700000001",
-            branch: "Kampala",
-            officer: "Sarah",
-            arrears: 450000,
-            days: 18,
-            action: "Field Visit",
-            outcome: "Promise to Pay",
-            nextVisit: "15 Aug 2026",
-            status: "Pending",
-          },
-        ];
+  const [collections, setCollections] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [summary, setSummary] = useState({
+    total_due: 0,
+    total_paid: 0,
+    overdue_amount: 0,
+    overdue_count: 0,
   });
 
+  type User = {
+    tenant_id?: string;
+  };
+
+  const getTenantId = (): string | null => {
+    const storedUser = localStorage.getItem("user");
+
+    if (!storedUser) {
+      return null;
+    }
+
+    try {
+      const user: User = JSON.parse(storedUser);
+      return user.tenant_id || null;
+    } catch {
+      return null;
+    }
+  };
+
+  const loadCollections = async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const tenantId = getTenantId();
+
+      if (!tenantId) {
+        throw new Error(
+          "Your login session does not contain a tenant ID. Please log out and log in again."
+        );
+      }
+
+      const [casesResponse, summaryResponse] = await Promise.all([
+        api.get(`/collections/${tenantId}`),
+        api.get(`/collections/summary/${tenantId}`),
+      ]);
+
+      setCollections(casesResponse.data || []);
+      setSummary(
+        summaryResponse.data || {
+          total_due: 0,
+          total_paid: 0,
+          overdue_amount: 0,
+          overdue_count: 0,
+        }
+      );
+    } catch (err: any) {
+      console.error("Failed to load collections:", err);
+
+      setError(
+        err?.response?.data?.detail ||
+        err?.message ||
+        "Failed to load collections."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    localStorage.setItem(
-      "collections",
-      JSON.stringify(collections)
-    );
-  }, [collections]);
+    loadCollections();
+  }, []);
 
   const [form, setForm] = useState({
     loanNo: "",
@@ -58,37 +102,78 @@ export const Collections = () => {
     );
   }, [collections, search]);
 
-  const totalArrears = collections.reduce(
-    (a: number, b: any) => a + Number(b.arrears),
-    0
-  );
+  const totalArrears = Number(summary.overdue_amount || 0);
 
-  const saveCollection = () => {
-    setCollections([
-      {
-        id: `COL-${String(collections.length + 1).padStart(4, "0")}`,
-        ...form,
-        arrears: Number(form.arrears),
-        days: Number(form.days),
+  const saveCollection = async () => {
+    setError("");
+
+    const tenantId = getTenantId();
+
+    if (!tenantId) {
+      setError("No tenant ID found. Please log in again.");
+      return;
+    }
+
+    if (!form.loanNo.trim()) {
+      setError("Loan number is required.");
+      return;
+    }
+
+    if (!form.action.trim()) {
+      setError("Collection action is required.");
+      return;
+    }
+
+    const matchingCase = collections.find(
+      (c: any) =>
+        String(c.loanNo || "").toLowerCase() ===
+        form.loanNo.trim().toLowerCase()
+    );
+
+    if (!matchingCase) {
+      setError(
+        "Loan number was not found in the current overdue collection cases."
+      );
+      return;
+    }
+
+    try {
+      await api.post(`/collections/${tenantId}/activities`, {
+        loan_id: matchingCase.loan_id,
+        borrower_id: matchingCase.borrower_id,
+        action: form.action,
+        outcome: form.outcome.trim() || null,
+        next_visit: form.nextVisit || null,
         status: "Pending",
-      },
-      ...collections,
-    ]);
+      });
 
-    setShowModal(false);
+      setForm({
+        loanNo: "",
+        borrower: "",
+        phone: "",
+        branch: "",
+        officer: "",
+        arrears: "",
+        days: "",
+        action: "Phone Call",
+        outcome: "",
+        nextVisit: "",
+      });
 
-    setForm({
-      loanNo: "",
-      borrower: "",
-      phone: "",
-      branch: "",
-      officer: "",
-      arrears: "",
-      days: "",
-      action: "Phone Call",
-      outcome: "",
-      nextVisit: "",
-    });
+      setShowModal(false);
+
+      setError("");
+
+      await loadCollections();
+    } catch (err: any) {
+      console.error("Failed to save collection activity:", err);
+
+      setError(
+        err?.response?.data?.detail ||
+        err?.message ||
+        "Failed to save collection activity."
+      );
+    }
   };
 
   return (
@@ -129,7 +214,7 @@ export const Collections = () => {
               Collection Cases
             </p>
             <h2 className="text-4xl font-black mt-3">
-              {collections.length}
+              {summary.overdue_count}
             </h2>
           </div>
 
@@ -147,12 +232,7 @@ export const Collections = () => {
               Promise To Pay
             </p>
             <h2 className="text-4xl font-black mt-3 text-amber-600">
-              {
-                collections.filter(
-                  (c: any) =>
-                    c.outcome === "Promise to Pay"
-                ).length
-              }
+              0
             </h2>
           </div>
 
@@ -161,16 +241,23 @@ export const Collections = () => {
               Resolved
             </p>
             <h2 className="text-4xl font-black mt-3 text-green-600">
-              {
-                collections.filter(
-                  (c: any) =>
-                    c.status === "Resolved"
-                ).length
-              }
+              0
             </h2>
           </div>
 
         </div>
+
+        {error && (
+          <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-red-700 font-medium">
+            {error}
+          </div>
+        )}
+
+        {loading && (
+          <div className="mb-6 rounded-2xl border bg-white px-5 py-4 text-slate-500">
+            Loading collection cases...
+          </div>
+        )}
 
         <div className="bg-white rounded-3xl border overflow-hidden">
 

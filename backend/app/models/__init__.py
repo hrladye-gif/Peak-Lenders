@@ -19,3 +19,5 @@ from app.models.audit_log import AuditLog
 from app.models.application import LoanApplication
 
 from app.models.application import LoanApplication
+
+from app.models.collection_activity import CollectionActivity
