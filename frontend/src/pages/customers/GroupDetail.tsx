@@ -1,3 +1,4 @@
+import { formatMoney } from "../../config/regional";
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
@@ -238,7 +239,7 @@ export const GroupDetail = () => {
             </p>
 
             <h3 className="text-xl font-bold text-[#05445E]">
-              UGX 0
+              {formatMoney(0)}
             </h3>
           </div>
         </div>

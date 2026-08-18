@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Save, Globe, Lock, CheckCircle2, Upload, Building2 } from 'lucide-react';
+import { EAST_AFRICAN_CURRENCIES, DEFAULT_CURRENCY } from "../../config/regional";
 
 export const Settings = () => {
   const [orgName, setOrgName] = useState(() => localStorage.getItem('peak_org_name') || 'Peak Lenders East Africa Ltd');
-  const [currency, setCurrency] = useState(() => localStorage.getItem('peak_currency') || 'UGX');
+  const [currency, setCurrency] = useState(() => localStorage.getItem('peak_currency') || DEFAULT_CURRENCY);
   const [timezone, setTimezone] = useState(() => localStorage.getItem('peak_timezone') || 'Africa/Nairobi');
   const [timeout, setTimeoutVal] = useState(() => localStorage.getItem('peak_timeout') || '30');
   const [gracePeriod, setGracePeriod] = useState(() => localStorage.getItem('peak_grace') || '3');
@@ -110,11 +111,11 @@ export const Settings = () => {
                 onChange={(e) => setCurrency(e.target.value)}
                 className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#189AB4] font-medium text-slate-700"
               >
-                <option value="UGX">UGX - Ugandan Shilling</option>
-                <option value="KES">KES - Kenyan Shilling</option>
-                <option value="TZS">TZS - Tanzanian Shilling</option>
-                <option value="RWF">RWF - Rwandan Franc</option>
-                <option value="SSP">SSP - South Sudanese Pound</option>
+                {EAST_AFRICAN_CURRENCIES.map((item) => (
+                  <option key={item.code} value={item.code}>
+                    {item.code} - {item.name}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="md:col-span-2">

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Sidebar } from "../components/layout/Sidebar";
 import * as Lucide from "lucide-react";
+import { getCurrency, formatMoney } from "../config/regional";
 
 export const Repayments = () => {
   const [showModal, setShowModal] = useState(false);
@@ -16,7 +17,7 @@ export const Repayments = () => {
             loanNo: "LN-0001",
             borrower: "John Doe",
             phone: "+256700000001",
-            currency: "UGX",
+            currency: getCurrency(),
             amount: 250000,
             method: "Cash",
             collector: "Sarah",

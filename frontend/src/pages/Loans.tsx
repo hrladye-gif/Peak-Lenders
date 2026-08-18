@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Sidebar } from "../components/layout/Sidebar";
 import * as Lucide from "lucide-react";
+import { getCurrency, formatMoney } from "../config/regional";
 
 export const Loans = () => {
   const [search, setSearch] = useState("");
@@ -17,7 +18,7 @@ export const Loans = () => {
             phone: "+256700000001",
             branch: "Kampala",
             product: "Business Loan",
-            currency: "UGX",
+            currency: getCurrency(),
             amount: 5000000,
             balance: 4200000,
             installment: 470000,

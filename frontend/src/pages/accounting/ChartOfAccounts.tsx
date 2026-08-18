@@ -1,3 +1,4 @@
+import { formatMoney } from "../../config/regional";
 import React, { useState } from 'react';
 import { Plus, Search, FolderTree, X } from 'lucide-react';
 
@@ -14,12 +15,12 @@ interface Account {
 
 export const ChartOfAccounts = () => {
   const [accounts, setAccounts] = useState<Account[]>([
-    { id: '1', code: '1000', name: 'Petty Cash', category: 'Asset', type: 'Cash & Bank', description: 'Main cash on hand at central office', balance: 'UGX 5,200,000', status: 'Active' },
-    { id: '2', code: '1100', name: 'Gross Loan Portfolio', category: 'Asset', type: 'Loans Receivable', description: 'Total outstanding microfinance principal', balance: 'UGX 420,000,000', status: 'Active' },
-    { id: '3', code: '2000', name: 'Client Voluntary Savings', category: 'Liability', type: 'Savings Deposits', description: 'Voluntary client savings deposits liability', balance: 'UGX 185,000,000', status: 'Active' },
-    { id: '4', code: '3000', name: 'Share Capital', category: 'Equity', type: 'Equity', description: 'Paid-up equity share capital', balance: 'UGX 100,000,000', status: 'Active' },
-    { id: '5', code: '4000', name: 'Interest Income on Loans', category: 'Income', type: 'Revenue', description: 'Earned interest on active loan contracts', balance: 'UGX 38,500,000', status: 'Active' },
-    { id: '6', code: '5000', name: 'Office Operating Expenses', category: 'Expense', type: 'Operating Cost', description: 'Day-to-day branch administrative expenses', balance: 'UGX 12,100,000', status: 'Active' },
+    { id: '1', code: '1000', name: 'Petty Cash', category: 'Asset', type: 'Cash & Bank', description: 'Main cash on hand at central office', balance: formatMoney(5200000), status: 'Active' },
+    { id: '2', code: '1100', name: 'Gross Loan Portfolio', category: 'Asset', type: 'Loans Receivable', description: 'Total outstanding microfinance principal', balance: formatMoney(420000000), status: 'Active' },
+    { id: '3', code: '2000', name: 'Client Voluntary Savings', category: 'Liability', type: 'Savings Deposits', description: 'Voluntary client savings deposits liability', balance: formatMoney(185000000), status: 'Active' },
+    { id: '4', code: '3000', name: 'Share Capital', category: 'Equity', type: 'Equity', description: 'Paid-up equity share capital', balance: formatMoney(100000000), status: 'Active' },
+    { id: '5', code: '4000', name: 'Interest Income on Loans', category: 'Income', type: 'Revenue', description: 'Earned interest on active loan contracts', balance: formatMoney(38500000), status: 'Active' },
+    { id: '6', code: '5000', name: 'Office Operating Expenses', category: 'Expense', type: 'Operating Cost', description: 'Day-to-day branch administrative expenses', balance: formatMoney(12100000), status: 'Active' },
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,7 +40,7 @@ export const ChartOfAccounts = () => {
       category,
       type: category,
       description,
-      balance: 'UGX 0',
+      balance: formatMoney(0),
       status: 'Active',
     };
 

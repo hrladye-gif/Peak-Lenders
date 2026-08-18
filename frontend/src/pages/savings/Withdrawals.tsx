@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowUpRight, Plus, X, Calendar } from 'lucide-react';
 
+import { getCurrency, formatMoney } from "../../config/regional";
 interface Withdrawal {
   id: string;
   accountNo: string;
@@ -19,7 +20,7 @@ export const Withdrawals = () => {
   ];
 
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([
-    { id: '1', accountNo: 'SAV-10012', holder: 'Grace Namubiru', amount: 'UGX 50,000', method: 'Cash Teller', date: '2026-08-02', status: 'Approved' },
+    { id: '1', accountNo: 'SAV-10012', holder: 'Grace Namubiru', amount: formatMoney(50000), method: 'Cash Teller', date: '2026-08-02', status: 'Approved' },
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,7 +39,7 @@ export const Withdrawals = () => {
       id: Date.now().toString(),
       accountNo: selectedAccount,
       holder: matched ? matched.holder : 'Unknown',
-      amount: `UGX ${Number(amount).toLocaleString()}`,
+      amount: formatMoney(Number(amount)),
       method,
       date,
       status: 'Approved',
@@ -140,7 +141,7 @@ export const Withdrawals = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Amount (UGX)</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Amount ({getCurrency()})</label>
                   <input
                     type="number"
                     required

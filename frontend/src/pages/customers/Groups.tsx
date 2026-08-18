@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { api } from '../../api/axios';
 import { Users2, Plus, MapPin, X } from 'lucide-react';
 
+import { formatMoney } from "../../config/regional";
 interface Group {
   id: string;
   name: string;
@@ -48,7 +49,7 @@ export const Groups = () => {
           leader: leaderName,
           membersCount: members.length,
           location: group.location || 'N/A',
-          totalGroupLoans: 'UGX 0',
+          totalGroupLoans: formatMoney(0),
           status: group.status === 'ACTIVE' ? 'Active' : 'Review',
         };
       });

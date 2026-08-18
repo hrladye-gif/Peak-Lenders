@@ -9,6 +9,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { api } from '../../api/axios';
+import { getCurrency, formatMoney } from '../../config/regional';
 
 interface MonthlyPerformance {
   month: string;
@@ -75,6 +76,11 @@ export const Loans = () => {
   const [loanProducts, setLoanProducts] = useState<LoanProduct[]>([]);
   const [selectedProductId, setSelectedProductId] = useState('');
   const [durationMonths, setDurationMonths] = useState('');
+
+  const [issueDate, setIssueDate] = useState(
+    new Date().toISOString().split('T')[0]
+  );
+  const [dueDate, setDueDate] = useState('');
 
   // =========================================================
   // LOAD REAL DATA FROM BACKEND
@@ -176,11 +182,17 @@ export const Loans = () => {
 
   const loadLoanProducts = async () => {
     try {
-      const response = await api.get('/loan-products/');
-      const products = (response.data || []).filter(
-        (product: LoanProduct) => product.is_active
-      );
+      const response = await api.get('/loan-products');
 
+      console.log('Loan products API response:', response.data);
+
+      const rawProducts = Array.isArray(response.data)
+        ? response.data
+        : response.data?.items || response.data?.data || [];
+
+      const products = rawProducts.filter(
+        (product: LoanProduct) => product.is_active === true
+      );
       setLoanProducts(products);
 
       if (products.length > 0) {
@@ -201,6 +213,30 @@ export const Loans = () => {
     loanProducts.find(
       (product) => product.id === selectedProductId
     ) || null;
+
+  const calculateDueDate = (startDate: string, months: number) => {
+    if (!startDate || !months || months <= 0) {
+      return '';
+    }
+
+    const date = new Date(`${startDate}T00:00:00`);
+    date.setMonth(date.getMonth() + months);
+
+    return date.toISOString().split('T')[0];
+  };
+
+  useEffect(() => {
+    if (issueDate && durationMonths) {
+      setDueDate(
+        calculateDueDate(
+          issueDate,
+          Number(durationMonths)
+        )
+      );
+    } else {
+      setDueDate('');
+    }
+  }, [issueDate, durationMonths]);
 
   const handleProductChange = (productId: string) => {
     setSelectedProductId(productId);
@@ -264,14 +300,14 @@ export const Loans = () => {
 
     if (amount < selectedProduct.min_amount) {
       setError(
-        `Loan amount cannot be below UGX ${selectedProduct.min_amount.toLocaleString()}.`
+        `Loan amount cannot be below ${formatMoney(selectedProduct.min_amount)}.`
       );
       return;
     }
 
     if (amount > selectedProduct.max_amount) {
       setError(
-        `Loan amount cannot exceed UGX ${selectedProduct.max_amount.toLocaleString()}.`
+        `Loan amount cannot exceed ${formatMoney(selectedProduct.max_amount)}.`
       );
       return;
     }
@@ -295,6 +331,8 @@ export const Loans = () => {
         principal: amount,
         interest_rate: Number(selectedProduct.interest_rate),
         term_months: term,
+        disbursement_date: issueDate,
+        maturity_date: dueDate,
       });
 
       console.log('Loan created:', response.data);
@@ -497,11 +535,11 @@ export const Loans = () => {
                   </td>
 
                   <td className="py-4 px-6 font-medium">
-                    UGX {loan.principal.toLocaleString()}
+                    {formatMoney(loan.principal)}
                   </td>
 
                   <td className="py-4 px-6 font-bold text-slate-900">
-                    UGX {loan.remainingBalance.toLocaleString()}
+                    {formatMoney(loan.remainingBalance)}
                   </td>
 
                   <td className="py-4 px-6 text-slate-500 font-mono">
@@ -670,11 +708,9 @@ export const Loans = () => {
                         Amount
                       </span>
                       <span className="font-semibold text-slate-700">
-                        UGX{' '}
-                        {selectedProduct.min_amount.toLocaleString()}
+                        {formatMoney(selectedProduct.min_amount)}
                         {' — '}
-                        UGX{' '}
-                        {selectedProduct.max_amount.toLocaleString()}
+                        {formatMoney(selectedProduct.max_amount)}
                       </span>
                     </div>
 
@@ -693,7 +729,7 @@ export const Loans = () => {
               <div>
 
                 <label className="block font-bold text-slate-700 mb-1">
-                  Principal Amount (UGX) *
+                  Principal Amount ({getCurrency()}) *
                 </label>
 
                 <input
@@ -712,6 +748,38 @@ export const Loans = () => {
                   }
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#189AB4]"
                 />
+
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Issue Date *
+                  </label>
+
+                  <input
+                    type="date"
+                    required
+                    value={issueDate}
+                    onChange={(e) => setIssueDate(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#189AB4]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Due Date *
+                  </label>
+
+                  <input
+                    type="date"
+                    required
+                    value={dueDate}
+                    readOnly
+                    className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-slate-600 focus:outline-none"
+                  />
+                </div>
 
               </div>
 
@@ -834,7 +902,7 @@ export const Loans = () => {
                   </span>
 
                   <span className="font-bold text-slate-800 text-sm mt-1 block">
-                    UGX {selectedStatement.principal.toLocaleString()}
+                    {formatMoney(selectedStatement.principal)}
                   </span>
                 </div>
 
@@ -844,7 +912,7 @@ export const Loans = () => {
                   </span>
 
                   <span className="font-bold text-rose-600 text-sm mt-1 block">
-                    UGX {selectedStatement.remainingBalance.toLocaleString()}
+                    {formatMoney(selectedStatement.remainingBalance)}
                   </span>
                 </div>
 
@@ -926,28 +994,23 @@ export const Loans = () => {
                             </td>
 
                             <td className="py-3 px-4">
-                              UGX{' '}
-                              {row.beginningBalance.toLocaleString()}
+                              {formatMoney(row.beginningBalance)}
                             </td>
 
                             <td className="py-3 px-4 text-emerald-600">
-                              +UGX{' '}
-                              {row.interestAccrued.toLocaleString()}
+                              +{formatMoney(row.interestAccrued)}
                             </td>
 
                             <td className="py-3 px-4 text-rose-600">
-                              +UGX{' '}
-                              {row.penalty.toLocaleString()}
+                              +{formatMoney(row.penalty)}
                             </td>
 
                             <td className="py-3 px-4 text-sky-600">
-                              -UGX{' '}
-                              {row.paymentMade.toLocaleString()}
+                              -{formatMoney(row.paymentMade)}
                             </td>
 
                             <td className="py-3 px-4 font-bold text-slate-900">
-                              UGX{' '}
-                              {row.endingBalance.toLocaleString()}
+                              {formatMoney(row.endingBalance)}
                             </td>
 
                           </tr>

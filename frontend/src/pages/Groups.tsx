@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Sidebar } from "../components/layout/Sidebar";
+import { formatMoney } from "../config/regional";
 import * as Lucide from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -23,7 +24,7 @@ phone:"+256700000000",
 branch:"Kampala Branch",
 members:12,
 loans:8,
-portfolio:"UGX 45,000,000",
+portfolio:formatMoney(45000000),
 status:"Active"
 }
 

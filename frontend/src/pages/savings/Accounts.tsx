@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { PiggyBank, Plus, Search, X, Calendar } from 'lucide-react';
 
+import { getCurrency, formatMoney } from "../../config/regional";
 interface Account {
   id: string;
   accountNo: string;
@@ -20,9 +21,9 @@ export const Accounts = () => {
   ];
 
   const [accounts, setAccounts] = useState<Account[]>([
-    { id: '1', accountNo: 'SAV-10029', holder: 'Robert Musoke', product: 'Regular Voluntary Savings', balance: 'UGX 1,450,000', dateOpened: '2026-02-10', status: 'Active' },
-    { id: '2', accountNo: 'SAV-10030', holder: 'Nakawa Traders SACCO Group', product: 'Group SACCO Shares', balance: 'UGX 8,200,000', dateOpened: '2026-01-15', status: 'Active' },
-    { id: '3', accountNo: 'SAV-10012', holder: 'Grace Namubiru', product: 'Regular Voluntary Savings', balance: 'UGX 620,000', dateOpened: '2026-04-01', status: 'Active' },
+    { id: '1', accountNo: 'SAV-10029', holder: 'Robert Musoke', product: 'Regular Voluntary Savings', balance: formatMoney(1450000), dateOpened: '2026-02-10', status: 'Active' },
+    { id: '2', accountNo: 'SAV-10030', holder: 'Nakawa Traders SACCO Group', product: 'Group SACCO Shares', balance: formatMoney(8200000), dateOpened: '2026-01-15', status: 'Active' },
+    { id: '3', accountNo: 'SAV-10012', holder: 'Grace Namubiru', product: 'Regular Voluntary Savings', balance: formatMoney(620000), dateOpened: '2026-04-01', status: 'Active' },
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -40,7 +41,7 @@ export const Accounts = () => {
       accountNo: `SAV-${Math.floor(10000 + Math.random() * 90000)}`,
       holder: selectedHolder,
       product,
-      balance: `UGX ${Number(initialDeposit).toLocaleString()}`,
+      balance: formatMoney(Number(initialDeposit)),
       dateOpened,
       status: 'Active',
     };
@@ -151,7 +152,7 @@ export const Accounts = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Initial Deposit (UGX)</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Initial Deposit ({getCurrency()})</label>
                   <input
                     type="number"
                     required

@@ -1,3 +1,4 @@
+import { formatMoney } from "../config/regional";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Sidebar } from "../components/layout/Sidebar";
@@ -202,7 +203,7 @@ Group Exposure
 
 <h2 className="text-4xl font-black">
 
-KES 0
+{formatMoney(0)}
 
 </h2>
 

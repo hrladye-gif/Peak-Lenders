@@ -1,3 +1,4 @@
+import { formatMoney } from "../../config/regional";
 import React, { useState } from 'react';
 import { Calculator, Filter } from 'lucide-react';
 
@@ -16,9 +17,9 @@ export const GeneralLedger = () => {
   const [selectedGl, setSelectedGl] = useState('1000');
 
   const ledgerRecords: LedgerTxn[] = [
-    { id: '1', date: '2026-08-01', glCode: '1000', glName: 'Petty Cash', description: 'Opening Balance', debit: 'UGX 10,000,000', credit: '-', runningBalance: 'UGX 10,000,000' },
-    { id: '2', date: '2026-08-05', glCode: '1000', glName: 'Petty Cash', description: 'Client Voluntary Savings Deposit', debit: 'UGX 1,500,000', credit: '-', runningBalance: 'UGX 11,500,000' },
-    { id: '3', date: '2026-08-06', glCode: '1000', glName: 'Petty Cash', description: 'Loan Disbursement #LN-10029', debit: '-', credit: 'UGX 2,500,000', runningBalance: 'UGX 9,000,000' },
+    { id: '1', date: '2026-08-01', glCode: '1000', glName: 'Petty Cash', description: 'Opening Balance', debit: formatMoney(10000000), credit: '-', runningBalance: formatMoney(10000000) },
+    { id: '2', date: '2026-08-05', glCode: '1000', glName: 'Petty Cash', description: 'Client Voluntary Savings Deposit', debit: formatMoney(1500000), credit: '-', runningBalance: formatMoney(11500000) },
+    { id: '3', date: '2026-08-06', glCode: '1000', glName: 'Petty Cash', description: 'Loan Disbursement #LN-10029', debit: '-', credit: formatMoney(2500000), runningBalance: formatMoney(9000000) },
   ];
 
   return (

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { PiggyBank, Plus, Search, UserCheck, X } from 'lucide-react';
 
+import { getCurrency, formatMoney } from "../../config/regional";
 interface SavingsAccount {
   id: string;
   accountNo: string;
@@ -18,7 +19,7 @@ export const SavingsAccounts = () => {
       accountNo: 'SAV-10029',
       accountHolder: 'Robert Musoke',
       type: 'Individual',
-      balance: 'UGX 1,450,000',
+      balance: formatMoney(1450000),
       accountType: 'Voluntary Savings',
       status: 'Active',
     },
@@ -27,7 +28,7 @@ export const SavingsAccounts = () => {
       accountNo: 'SAV-10030',
       accountHolder: 'Nakawa Traders SACCO Group',
       type: 'Group',
-      balance: 'UGX 8,200,000',
+      balance: formatMoney(8200000),
       accountType: 'Compulsory Share',
       status: 'Active',
     },
@@ -36,7 +37,7 @@ export const SavingsAccounts = () => {
       accountNo: 'SAV-10012',
       accountHolder: 'Grace Namubiru',
       type: 'Individual',
-      balance: 'UGX 620,000',
+      balance: formatMoney(620000),
       accountType: 'Voluntary Savings',
       status: 'Active',
     },
@@ -67,7 +68,7 @@ export const SavingsAccounts = () => {
       accountNo: `SAV-${Math.floor(10000 + Math.random() * 90000)}`,
       accountHolder: selectedHolder,
       type: matchedBorrower ? (matchedBorrower.type as any) : 'Individual',
-      balance: `UGX ${Number(initialDeposit).toLocaleString()}`,
+      balance: formatMoney(Number(initialDeposit)),
       accountType: accountCategory,
       status: 'Active',
     };
@@ -198,7 +199,7 @@ export const SavingsAccounts = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Initial Deposit (UGX)</label>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Initial Deposit ({getCurrency()})</label>
                 <input
                   type="number"
                   required

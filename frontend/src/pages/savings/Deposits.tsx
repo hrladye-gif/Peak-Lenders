@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowDownLeft, Plus, X, Calendar } from 'lucide-react';
 
+import { getCurrency, formatMoney } from "../../config/regional";
 interface Deposit {
   id: string;
   accountNo: string;
@@ -19,8 +20,8 @@ export const Deposits = () => {
   ];
 
   const [deposits, setDeposits] = useState<Deposit[]>([
-    { id: '1', accountNo: 'SAV-10029', holder: 'Robert Musoke', amount: 'UGX 200,000', method: 'MTN Mobile Money', ref: 'MM-9012', date: '2026-08-06' },
-    { id: '2', accountNo: 'SAV-10030', holder: 'Nakawa Traders SACCO Group', amount: 'UGX 1,500,000', method: 'Bank Deposit', ref: 'BK-5521', date: '2026-08-05' },
+    { id: '1', accountNo: 'SAV-10029', holder: 'Robert Musoke', amount: formatMoney(200000), method: 'MTN Mobile Money', ref: 'MM-9012', date: '2026-08-06' },
+    { id: '2', accountNo: 'SAV-10030', holder: 'Nakawa Traders SACCO Group', amount: formatMoney(1500000), method: 'Bank Deposit', ref: 'BK-5521', date: '2026-08-05' },
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -40,7 +41,7 @@ export const Deposits = () => {
       id: Date.now().toString(),
       accountNo: selectedAccount,
       holder: matched ? matched.holder : 'Unknown',
-      amount: `UGX ${Number(amount).toLocaleString()}`,
+      amount: formatMoney(Number(amount)),
       method,
       ref: ref || `TXN-${Math.floor(1000 + Math.random() * 9000)}`,
       date,
@@ -139,7 +140,7 @@ export const Deposits = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Amount (UGX)</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Amount ({getCurrency()})</label>
                   <input
                     type="number"
                     required

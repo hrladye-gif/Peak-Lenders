@@ -1,6 +1,7 @@
 import { Sidebar } from "../components/layout/Sidebar";
 import * as Lucide from "lucide-react";
 import { useState } from "react";
+import { getCurrency, formatMoney, type Currency } from "../config/regional";
 export const Institution = () => {
 
 
@@ -8,7 +9,7 @@ export const Institution = () => {
     name:"Peak Lenders",
     type:"Microfinance Institution",
     country:"Uganda",
-    currency:"UGX",
+    currency: getCurrency(),
     phone:"+256700000000",
     email:"info@peaklenders.com",
     address:"Kampala, Uganda"
@@ -140,7 +141,7 @@ export const Institution = () => {
                 value={institution.currency}
                 onChange={e=>setInstitution({
                   ...institution,
-                  currency:e.target.value
+                  currency:e.target.value as Currency
                 })}
               />
 

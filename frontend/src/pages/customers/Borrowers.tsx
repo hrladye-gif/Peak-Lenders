@@ -1,3 +1,4 @@
+import { formatMoney } from "../../config/regional";
 import { Link } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { api } from '../../api/axios';
@@ -60,7 +61,7 @@ export const Borrowers = () => {
         phone: b.phone || 'N/A',
         location: b.address || 'N/A',
         activeLoans: b.activeLoans || 0,
-        totalBorrowed: b.totalBorrowed || 'UGX 0',
+        totalBorrowed: b.totalBorrowed || formatMoney(0),
         status: b.status || 'Active',
       }));
 

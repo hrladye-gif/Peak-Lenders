@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AlertTriangle, PhoneCall, Send, X, MessageSquare, CheckCircle } from 'lucide-react';
+import { formatMoney } from '../../config/regional';
 
 interface OverdueAccount {
   id: string;
@@ -7,7 +8,7 @@ interface OverdueAccount {
   account: string;
   phone: string;
   daysOverdue: number;
-  balance: string;
+  balance: number;
 }
 
 export const Collections = () => {
@@ -18,7 +19,7 @@ export const Collections = () => {
       account: 'LN-8750',
       phone: '+256 772 987654',
       daysOverdue: 18,
-      balance: 'UGX 1,200,000',
+      balance: 1200000,
     },
     {
       id: '2',
@@ -26,7 +27,7 @@ export const Collections = () => {
       account: 'LN-8712',
       phone: '+256 701 445566',
       daysOverdue: 22,
-      balance: 'UGX 3,400,000',
+      balance: 3400000,
     },
   ]);
 

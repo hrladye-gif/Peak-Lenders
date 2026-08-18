@@ -1,3 +1,4 @@
+import { formatMoney } from "../config/regional";
 import React from 'react';
 import { Activity, UserPlus, DollarSign, FileCheck } from 'lucide-react';
 
@@ -28,7 +29,7 @@ export const ActivityFeed = () => {
           </div>
           <div>
             <p className="text-sm font-semibold text-[#05445E]">
-              Alex M. <span className="font-normal text-slate-600">disbursed loan</span> #L-8820 (UGX 1,500,000)
+              Alex M. <span className="font-normal text-slate-600">disbursed loan</span> #L-8820 {formatMoney(1500000)}
             </p>
             <span className="text-xs text-slate-400">Ntinda Branch • 42 mins ago</span>
           </div>

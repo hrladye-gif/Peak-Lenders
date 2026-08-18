@@ -1,3 +1,4 @@
+import { formatMoney } from "../../config/regional";
 import React, { useState } from 'react';
 import { Plus, X, Calendar, FileCheck } from 'lucide-react';
 
@@ -14,8 +15,8 @@ interface JournalEntry {
 
 export const JournalEntries = () => {
   const [entries, setEntries] = useState<JournalEntry[]>([
-    { id: '1', ref: 'JV-2026-001', date: '2026-08-06', narration: 'Loan disbursement for Robert Musoke', debitAcc: '1100 - Gross Loan Portfolio', creditAcc: '1000 - Petty Cash', amount: 'UGX 2,500,000', status: 'Posted' },
-    { id: '2', ref: 'JV-2026-002', date: '2026-08-05', narration: 'Client Savings Deposit via Mobile Money', debitAcc: '1000 - Petty Cash', creditAcc: '2000 - Client Voluntary Savings', amount: 'UGX 1,500,000', status: 'Posted' },
+    { id: '1', ref: 'JV-2026-001', date: '2026-08-06', narration: 'Loan disbursement for Robert Musoke', debitAcc: '1100 - Gross Loan Portfolio', creditAcc: '1000 - Petty Cash', amount: formatMoney(2500000), status: 'Posted' },
+    { id: '2', ref: 'JV-2026-002', date: '2026-08-05', narration: 'Client Savings Deposit via Mobile Money', debitAcc: '1000 - Petty Cash', creditAcc: '2000 - Client Voluntary Savings', amount: formatMoney(1500000), status: 'Posted' },
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -36,7 +37,7 @@ export const JournalEntries = () => {
       narration,
       debitAcc,
       creditAcc,
-      amount: `UGX ${Number(amount).toLocaleString()}`,
+      amount: formatMoney(Number(amount)),
       status: 'Posted',
     };
 
@@ -144,7 +145,7 @@ export const JournalEntries = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Amount (UGX)</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Amount</label>
                   <input
                     type="number"
                     required

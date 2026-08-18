@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { Sidebar } from "../components/layout/Sidebar";
 import * as Lucide from "lucide-react";
+import { getCurrency, formatMoney, type Currency } from "../config/regional";
 
 export const SystemSettings = () => {
 
@@ -38,7 +39,7 @@ export const SystemSettings = () => {
     systemName:"Peak Lenders",
     language:"English",
     timezone:"Africa/Kampala",
-    currency:"UGX",
+    currency: getCurrency(),
     dateFormat:"DD/MM/YYYY",
     loanApproval:true,
     notifications:true,
@@ -304,7 +305,7 @@ export const SystemSettings = () => {
               value={settings.currency}
               onChange={e=>setSettings({
                 ...settings,
-                currency:e.target.value
+                currency:e.target.value as Currency
               })}
             >
 
@@ -326,6 +327,10 @@ export const SystemSettings = () => {
 
               <option value="BIF">
                 Burundian Franc (BIF)
+              </option>
+
+              <option value="SSP">
+                South Sudanese Pound (SSP)
               </option>
 
               <option value="ETB">

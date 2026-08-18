@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Sidebar } from "../components/layout/Sidebar";
 import * as Lucide from "lucide-react";
+import { getCurrency, formatMoney, type Currency } from "../config/regional";
 
 export const Products = () => {
 
@@ -11,7 +12,7 @@ export const Products = () => {
       id:"SP-0001",
       name:"Regular Savings",
       type:"Savings",
-      currency:"UGX",
+      currency: getCurrency() as Currency,
       interest:"5%",
       minimum:10000,
       status:"Active"
@@ -20,7 +21,7 @@ export const Products = () => {
       id:"SP-0002",
       name:"Fixed Deposit",
       type:"Deposit",
-      currency:"UGX",
+      currency: getCurrency() as Currency,
       interest:"8%",
       minimum:100000,
       status:"Active"
@@ -31,7 +32,7 @@ export const Products = () => {
   const [form,setForm]=useState({
     name:"",
     type:"",
-    currency:"",
+    currency: getCurrency() as Currency,
     interest:"",
     minimum:""
   });
@@ -235,7 +236,7 @@ export const Products = () => {
               <input
               className="border rounded-xl p-3 w-full"
               placeholder="Currency"
-              onChange={e=>setForm({...form,currency:e.target.value})}
+              onChange={e=>setForm({...form,currency:e.target.value as Currency})}
               />
 
 

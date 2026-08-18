@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Sidebar } from "../components/layout/Sidebar";
+import { formatMoney } from "../config/regional";
 import * as Lucide from "lucide-react";
 
 export const WriteOffs = () => {
@@ -160,7 +161,7 @@ export const WriteOffs = () => {
                   </td>
 
                   <td className="p-4 text-red-600 font-bold">
-                    UGX {item.amount.toLocaleString()}
+                    {formatMoney(item.amount)}
                   </td>
 
                   <td className="p-4">

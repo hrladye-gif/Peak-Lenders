@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowUpRight, ArrowDownLeft, Plus, X, Calendar, DollarSign } from 'lucide-react';
 
+import { getCurrency, formatMoney } from "../../config/regional";
 interface SavingsTxn {
   id: string;
   accountNo: string;
@@ -19,9 +20,9 @@ export const Transactions = () => {
   ];
 
   const [transactions, setTransactions] = useState<SavingsTxn[]>([
-    { id: '1', accountNo: 'SAV-10029', accountHolder: 'Robert Musoke', type: 'Deposit', amount: 'UGX 200,000', method: 'MTN Mobile Money', date: '2026-08-06' },
-    { id: '2', accountNo: 'SAV-10030', accountHolder: 'Nakawa Traders SACCO Group', type: 'Deposit', amount: 'UGX 1,500,000', method: 'Bank Transfer', date: '2026-08-05' },
-    { id: '3', accountNo: 'SAV-10012', accountHolder: 'Grace Namubiru', type: 'Withdrawal', amount: 'UGX 50,000', method: 'Cash', date: '2026-08-02' },
+    { id: '1', accountNo: 'SAV-10029', accountHolder: 'Robert Musoke', type: 'Deposit', amount: formatMoney(200000), method: 'MTN Mobile Money', date: '2026-08-06' },
+    { id: '2', accountNo: 'SAV-10030', accountHolder: 'Nakawa Traders SACCO Group', type: 'Deposit', amount: formatMoney(1500000), method: 'Bank Transfer', date: '2026-08-05' },
+    { id: '3', accountNo: 'SAV-10012', accountHolder: 'Grace Namubiru', type: 'Withdrawal', amount: formatMoney(50000), method: 'Cash', date: '2026-08-02' },
   ]);
 
   // Modal State
@@ -43,7 +44,7 @@ export const Transactions = () => {
       accountNo: selectedAccNo,
       accountHolder: matchedAcc ? matchedAcc.holder : 'Unknown',
       type: txnType,
-      amount: `UGX ${Number(amount).toLocaleString()}`,
+      amount: formatMoney(Number(amount)),
       method,
       date,
     };
@@ -178,7 +179,7 @@ export const Transactions = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Amount (UGX)</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Amount ({getCurrency()})</label>
                   <input
                     type="number"
                     required

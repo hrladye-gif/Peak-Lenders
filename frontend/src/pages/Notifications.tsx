@@ -1,3 +1,4 @@
+import { formatMoney } from "../config/regional";
 import React from 'react';
 import { Bell, CheckCircle2, AlertCircle, Info } from 'lucide-react';
 
@@ -16,7 +17,7 @@ export const Notifications = () => {
           </div>
           <div>
             <h4 className="font-semibold text-[#05445E] text-sm">Loan Repayment Completed</h4>
-            <p className="text-xs text-slate-600 mt-0.5">John Doe completed repayment of UGX 250,000 for Loan #L-9041.</p>
+            <p className="text-xs text-slate-600 mt-0.5">John Doe completed repayment of {formatMoney(250000)} for Loan #L-9041.</p>
             <span className="text-[10px] text-slate-400 mt-1 block">10 mins ago</span>
           </div>
         </div>

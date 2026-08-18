@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, Pencil, Power, X } from 'lucide-react';
 import { api } from '../../api/axios';
+import { getCurrency, formatMoney } from "../../config/regional";
 
 interface LoanProduct {
   id: string;
@@ -195,7 +196,7 @@ export const LoanProducts = () => {
   const formatMoney = (value: number) =>
     new Intl.NumberFormat('en-UG', {
       style: 'currency',
-      currency: 'UGX',
+      currency: getCurrency(),
       maximumFractionDigits: 0,
     }).format(value);
 
