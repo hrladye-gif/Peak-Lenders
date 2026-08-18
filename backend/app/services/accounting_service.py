@@ -57,9 +57,7 @@ def create_journal_entry(
         db.add(journal_line)
 
 
-    db.commit()
-
-    db.refresh(entry)
+    db.flush()
 
     return entry
 

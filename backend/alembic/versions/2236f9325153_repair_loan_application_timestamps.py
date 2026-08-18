@@ -16,71 +16,97 @@ depends_on = None
 
 
 def upgrade():
-    # Existing database uses date_submitted.
-    # Add the columns expected by the SQLAlchemy model without
-    # deleting or recreating the loan_applications table.
+    bind = op.get_bind()
+    inspector = sa.inspect(bind)
 
-    op.add_column(
-        "loan_applications",
-        sa.Column(
+    columns = {
+        column["name"]
+        for column in inspector.get_columns("loan_applications")
+    }
+
+    # submitted_at
+    if "submitted_at" not in columns:
+        op.add_column(
+            "loan_applications",
+            sa.Column(
+                "submitted_at",
+                sa.DateTime(timezone=True),
+                nullable=True,
+            ),
+        )
+
+        op.execute(
+            """
+            UPDATE loan_applications
+            SET submitted_at = date_submitted::timestamp
+            WHERE submitted_at IS NULL
+            """
+        )
+
+        op.alter_column(
+            "loan_applications",
             "submitted_at",
-            sa.DateTime(timezone=True),
-            nullable=True,
-        ),
-    )
+            nullable=False,
+        )
 
-    op.execute(
-        """
-        UPDATE loan_applications
-        SET submitted_at = date_submitted::timestamp
-        WHERE submitted_at IS NULL
-        """
-    )
+    # reviewed_at
+    if "reviewed_at" not in columns:
+        op.add_column(
+            "loan_applications",
+            sa.Column(
+                "reviewed_at",
+                sa.DateTime(timezone=True),
+                nullable=True,
+            ),
+        )
 
-    op.alter_column(
-        "loan_applications",
-        "submitted_at",
-        nullable=False,
-    )
-
-    op.add_column(
-        "loan_applications",
-        sa.Column(
-            "reviewed_at",
-            sa.DateTime(timezone=True),
-            nullable=True,
-        ),
-    )
-
-    op.add_column(
-        "loan_applications",
-        sa.Column(
-            "reviewed_by",
-            sa.String(),
-            sa.ForeignKey("users.id"),
-            nullable=True,
-        ),
-    )
+    # reviewed_by
+    if "reviewed_by" not in columns:
+        op.add_column(
+            "loan_applications",
+            sa.Column(
+                "reviewed_by",
+                sa.String(),
+                sa.ForeignKey("users.id"),
+                nullable=True,
+            ),
+        )
 
 
 def downgrade():
-    op.drop_constraint(
-        "loan_applications_reviewed_by_fkey",
-        "loan_applications",
-        type_="foreignkey",
-    )
+    bind = op.get_bind()
+    inspector = sa.inspect(bind)
 
-    op.drop_column(
-        "loan_applications",
-        "reviewed_by",
-    )
+    columns = {
+        column["name"]
+        for column in inspector.get_columns("loan_applications")
+    }
 
-    op.drop_column(
-        "loan_applications",
-        "reviewed_at",
-    )
+    if "reviewed_by" in columns:
+        foreign_keys = inspector.get_foreign_keys("loan_applications")
 
-    op.drop_column(
-        "loan_applications",
-        "submitted_at",
-    )
+        for fk in foreign_keys:
+            if fk.get("constrained_columns") == ["reviewed_by"]:
+                if fk.get("name"):
+                    op.drop_constraint(
+                        fk["name"],
+                        "loan_applications",
+                        type_="foreignkey",
+                    )
+
+        op.drop_column(
+            "loan_applications",
+            "reviewed_by",
+        )
+
+    if "reviewed_at" in columns:
+        op.drop_column(
+            "loan_applications",
+            "reviewed_at",
+        )
+
+    if "submitted_at" in columns:
+        op.drop_column(
+            "loan_applications",
+            "submitted_at",
+        )

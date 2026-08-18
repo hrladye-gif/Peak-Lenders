@@ -77,7 +77,7 @@ def create_loan(
         branch_id=data.branch_id,
         borrower_id=data.borrower_id,
         loan_product_id=data.loan_product_id,
-        loan_number=generate_loan_number(),
+        loan_number=generate_loan_number(db),
         principal=data.principal,
         interest_rate=data.interest_rate,
         term_months=data.term_months,

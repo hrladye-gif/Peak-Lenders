@@ -2,6 +2,7 @@ from app.models.tenant import Tenant
 from app.models.branch import Branch
 from app.models.user import User
 from app.models.borrower import Borrower
+from app.models.group import Group
 from app.models.loan import Loan
 from app.models.loan_product import LoanProduct
 from app.models.repayment import Repayment
