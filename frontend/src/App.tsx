@@ -16,7 +16,7 @@ import { Loans } from './pages/loans/Loans';
 import { LoanProducts } from './pages/loans/LoanProducts';
 import { Repayments } from './pages/loans/Repayments';
 import { Collections } from './pages/loans/Collections';
-import { WriteOffs } from './pages/loans/WriteOffs';
+import { WriteOffs } from './pages/WriteOffs';
 
 // Savings
 import { SavingsProducts } from './pages/savings/SavingsProducts';
