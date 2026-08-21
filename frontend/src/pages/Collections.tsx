@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { Sidebar } from "../components/layout/Sidebar";
 import * as Lucide from "lucide-react";
 import { api } from "../api/axios";
 
@@ -179,7 +178,6 @@ export const Collections = () => {
   return (
     <div className="flex h-screen bg-slate-50">
 
-      <Sidebar />
 
       <div className="flex-1 overflow-y-auto p-8">
 
@@ -199,7 +197,7 @@ export const Collections = () => {
 
           <button
             onClick={() => setShowModal(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold flex gap-2 items-center"
+            className="bg-[#05445E] hover:bg-[#032d3d] text-white px-6 py-3 rounded-2xl font-bold flex gap-2 items-center"
           >
             <Lucide.Plus size={18} />
             New Collection
@@ -314,7 +312,7 @@ export const Collections = () => {
 
                   <tr
                     key={c.id}
-                    className="border-t hover:bg-blue-50"
+                    className="border-t hover:bg-slate-50"
                   >
 
                     <td className="p-4 font-mono">{c.id}</td>
@@ -322,7 +320,7 @@ export const Collections = () => {
                     <td className="p-4">{c.loanNo}</td>
 
                     <td className="p-4">
-                      <div className="font-bold text-blue-700">
+                      <div className="font-bold text-[#05445E]">
                         {c.borrower}
                       </div>
                       <div className="text-xs text-slate-500">
@@ -447,7 +445,7 @@ export const Collections = () => {
 
                 <button
                   onClick={saveCollection}
-                  className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold"
+                  className="bg-[#05445E] text-white px-6 py-3 rounded-xl font-bold"
                 >
                   Save Collection
                 </button>

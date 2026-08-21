@@ -48,7 +48,7 @@ def get_write_offs(
             User,
         )
         .join(Loan, Loan.id == WriteOff.loan_id)
-        .join(Borrower, Borrower.id == WriteOff.borrower_id)
+        .outerjoin(Borrower, Borrower.id == WriteOff.borrower_id)
         .outerjoin(User, User.id == WriteOff.requested_by)
         .filter(WriteOff.tenant_id == tenant_id)
         .order_by(WriteOff.created_at.desc())

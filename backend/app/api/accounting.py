@@ -10,6 +10,7 @@ from app.models.journal_line import JournalLine
 from app.models.user import User
 from app.schemas.accounting import (
     AccountCreate,
+    AccountUpdate,
     AccountResponse,
     JournalEntryCreate,
     JournalEntryResponse,
@@ -67,6 +68,7 @@ def list_accounts(
             account_code=account.account_code,
             account_name=account.account_name,
             account_type=account.account_type,
+            description=account.description,
             balance=calculate_account_balance(db, account.id),
             status="Active",
         )
@@ -104,6 +106,7 @@ def create_account(
         account_code=data.account_code,
         account_name=data.account_name,
         account_type=data.account_type,
+        description=data.description,
     )
 
     db.add(account)
@@ -115,9 +118,219 @@ def create_account(
         account_code=account.account_code,
         account_name=account.account_name,
         account_type=account.account_type,
+        description=account.description,
         balance=Decimal("0"),
         status="Active",
     )
+
+
+
+@router.get(
+    "/accounts/{account_id}",
+    response_model=AccountResponse,
+)
+def get_account(
+    account_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    account = (
+        db.query(Account)
+        .filter(
+            Account.id == account_id,
+            Account.tenant_id == current_user.tenant_id,
+        )
+        .first()
+    )
+
+    if not account:
+        raise HTTPException(
+            status_code=404,
+            detail="GL account not found.",
+        )
+
+    return AccountResponse(
+        id=account.id,
+        account_code=account.account_code,
+        account_name=account.account_name,
+        account_type=account.account_type,
+        description=account.description,
+        balance=calculate_account_balance(db, account.id),
+        status="Active",
+    )
+
+
+@router.put(
+    "/accounts/{account_id}",
+    response_model=AccountResponse,
+)
+def update_account(
+    account_id: str,
+    data: AccountUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    account = (
+        db.query(Account)
+        .filter(
+            Account.id == account_id,
+            Account.tenant_id == current_user.tenant_id,
+        )
+        .first()
+    )
+
+    if not account:
+        raise HTTPException(
+            status_code=404,
+            detail="GL account not found.",
+        )
+
+    duplicate = (
+        db.query(Account)
+        .filter(
+            Account.tenant_id == current_user.tenant_id,
+            Account.account_code == data.account_code,
+            Account.id != account_id,
+        )
+        .first()
+    )
+
+    if duplicate:
+        raise HTTPException(
+            status_code=409,
+            detail="Another account already uses this GL code.",
+        )
+
+    account.account_code = data.account_code
+    account.account_name = data.account_name
+    account.account_type = data.account_type
+    account.description = data.description
+
+    db.commit()
+    db.refresh(account)
+
+    return AccountResponse(
+        id=account.id,
+        account_code=account.account_code,
+        account_name=account.account_name,
+        account_type=account.account_type,
+        description=account.description,
+        balance=calculate_account_balance(db, account.id),
+        status="Active",
+    )
+
+
+@router.delete(
+    "/accounts/{account_id}",
+)
+def delete_account(
+    account_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    account = (
+        db.query(Account)
+        .filter(
+            Account.id == account_id,
+            Account.tenant_id == current_user.tenant_id,
+        )
+        .first()
+    )
+
+    if not account:
+        raise HTTPException(
+            status_code=404,
+            detail="GL account not found.",
+        )
+
+    used = (
+        db.query(JournalLine)
+        .filter(JournalLine.account_id == account_id)
+        .first()
+    )
+
+    if used:
+        raise HTTPException(
+            status_code=409,
+            detail="This account has journal transactions and cannot be deleted.",
+        )
+
+    db.delete(account)
+    db.commit()
+
+    return {
+        "message": "GL account deleted successfully.",
+        "id": account_id,
+    }
+
+
+@router.get(
+    "/accounts/{account_id}/transactions",
+    response_model=list[LedgerResponse],
+)
+def account_transactions(
+    account_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    account = (
+        db.query(Account)
+        .filter(
+            Account.id == account_id,
+            Account.tenant_id == current_user.tenant_id,
+        )
+        .first()
+    )
+
+    if not account:
+        raise HTTPException(
+            status_code=404,
+            detail="GL account not found.",
+        )
+
+    lines = (
+        db.query(JournalLine)
+        .join(
+            JournalEntry,
+            JournalEntry.id == JournalLine.journal_entry_id,
+        )
+        .filter(
+            JournalEntry.tenant_id == current_user.tenant_id,
+            JournalLine.account_id == account_id,
+        )
+        .order_by(
+            JournalEntry.entry_date,
+            JournalEntry.created_at,
+        )
+        .all()
+    )
+
+    running_balance = Decimal("0")
+    results = []
+
+    for line in lines:
+        debit = Decimal(str(line.debit or 0))
+        credit = Decimal(str(line.credit or 0))
+        running_balance += debit - credit
+
+        entry = line.journal_entry
+
+        results.append(
+            LedgerResponse(
+                id=line.id,
+                date=entry.entry_date,
+                journal_entry_id=entry.id,
+                reference_no=entry.reference_no,
+                gl_code=account.account_code,
+                gl_name=account.account_name,
+                description=entry.description,
+                debit=debit,
+                credit=credit,
+                running_balance=running_balance,
+            )
+        )
+
+    return results
 
 
 @router.get(

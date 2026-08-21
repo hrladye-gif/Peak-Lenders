@@ -15,7 +15,7 @@ import { Applications } from './pages/loans/Applications';
 import { Loans } from './pages/loans/Loans';
 import { LoanProducts } from './pages/loans/LoanProducts';
 import { Repayments } from './pages/loans/Repayments';
-import { Collections } from './pages/loans/Collections';
+import { Collections } from './pages/Collections';
 import { WriteOffs } from './pages/WriteOffs';
 
 // Savings

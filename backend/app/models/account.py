@@ -1,6 +1,7 @@
 from sqlalchemy import Column
 from sqlalchemy import String
 from sqlalchemy import ForeignKey
+from sqlalchemy import Text
 from sqlalchemy.orm import relationship
 
 from app.db.database import Base
@@ -29,6 +30,11 @@ class Account(BaseMixin, Base):
     account_type = Column(
         String,
         nullable=False
+    )
+
+    description = Column(
+        Text,
+        nullable=True
     )
 
     tenant = relationship(

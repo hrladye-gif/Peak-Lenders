@@ -9,6 +9,14 @@ class AccountCreate(BaseModel):
     account_code: str = Field(min_length=1, max_length=50)
     account_name: str = Field(min_length=1, max_length=255)
     account_type: str = Field(min_length=1, max_length=100)
+    description: Optional[str] = None
+
+
+class AccountUpdate(BaseModel):
+    account_code: str = Field(min_length=1, max_length=50)
+    account_name: str = Field(min_length=1, max_length=255)
+    account_type: str = Field(min_length=1, max_length=100)
+    description: Optional[str] = None
 
 
 class AccountResponse(BaseModel):
@@ -16,6 +24,7 @@ class AccountResponse(BaseModel):
     account_code: str
     account_name: str
     account_type: str
+    description: Optional[str] = None
     balance: Decimal
     status: str = "Active"
 

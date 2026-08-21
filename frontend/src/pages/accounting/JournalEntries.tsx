@@ -90,12 +90,23 @@ export const JournalEntries = () => {
   const handlePostJournal = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!narration || !amount || !debitAcc || !creditAcc) return;
+    setError('');
 
+    const cleanNarration = narration.trim();
     const numericAmount = Number(amount);
 
-    if (numericAmount <= 0) {
-      setError('Amount must be greater than zero.');
+    if (!cleanNarration) {
+      setError('Please enter a narration / description.');
+      return;
+    }
+
+    if (!debitAcc) {
+      setError('Please select a debit account.');
+      return;
+    }
+
+    if (!creditAcc) {
+      setError('Please select a credit account.');
       return;
     }
 
@@ -104,13 +115,21 @@ export const JournalEntries = () => {
       return;
     }
 
-    try {
-      setError('');
+    if (!amount || !Number.isFinite(numericAmount) || numericAmount <= 0) {
+      setError('Please enter an amount greater than zero.');
+      return;
+    }
 
+    if (!date) {
+      setError('Please select a journal date.');
+      return;
+    }
+
+    try {
       await api.post('/accounting/journal', {
         entry_date: date,
         reference_no: `JV-${Date.now()}`,
-        description: narration,
+        description: cleanNarration,
         source_module: 'MANUAL',
         lines: [
           {
@@ -128,13 +147,17 @@ export const JournalEntries = () => {
 
       setNarration('');
       setAmount('');
+      setError('');
       setIsModalOpen(false);
 
       await loadData();
     } catch (err: any) {
       console.error('Failed to post journal:', err);
+
       setError(
         err.response?.data?.detail ||
+        err.response?.data?.message ||
+        err.message ||
         'Failed to post journal entry.'
       );
     }
@@ -230,10 +253,15 @@ export const JournalEntries = () => {
                 <div>
                   <label className="block text-xs font-semibold text-emerald-700 mb-1">Debit Account (DR)</label>
                   <select
+                    required
                     value={debitAcc}
-                    onChange={(e) => setDebitAcc(e.target.value)}
+                    onChange={(e) => {
+                      setDebitAcc(e.target.value);
+                      setError('');
+                    }}
                     className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#189AB4]"
                   >
+                    <option value="">Select debit account</option>
                     {accounts.map((account) => (
                       <option key={account.id} value={account.id}>
                         {account.account_code} - {account.account_name}
@@ -245,10 +273,15 @@ export const JournalEntries = () => {
                 <div>
                   <label className="block text-xs font-semibold text-rose-700 mb-1">Credit Account (CR)</label>
                   <select
+                    required
                     value={creditAcc}
-                    onChange={(e) => setCreditAcc(e.target.value)}
+                    onChange={(e) => {
+                      setCreditAcc(e.target.value);
+                      setError('');
+                    }}
                     className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#189AB4]"
                   >
+                    <option value="">Select credit account</option>
                     {accounts.map((account) => (
                       <option key={account.id} value={account.id}>
                         {account.account_code} - {account.account_name}
@@ -295,7 +328,7 @@ export const JournalEntries = () => {
                 </button>
                 <button
                   type="submit"
-                  className="w-1/2 py-2.5 bg-[#189AB4] hover:bg-[#05445E] text-white rounded-xl font-semibold transition-colors"
+                  className="w-1/2 py-2.5 bg-[#189AB4] hover:bg-[#05445E] text-white rounded-xl font-semibold transition-colors cursor-pointer"
                 >
                   Post Journal Entry
                 </button>

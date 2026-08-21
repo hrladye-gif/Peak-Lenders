@@ -14,34 +14,29 @@ from app.api.collection import router as collection_router
 from app.api.write_off import router as write_off_router
 from app.api.dashboard import router as dashboard_router
 from app.api.application import router as application_router
-
+from app.api.savings import router as savings_router
+from app.api.accounting import router as accounting_router
 
 app = FastAPI(
     title="Peak Lenders API",
     version="1.0.0"
 )
 
-app.include_router(risk_router)
-app.include_router(auth_router)
-app.include_router(tenant_router)
-app.include_router(branch_router)
-app.include_router(borrower_router)
-app.include_router(group_router)
-app.include_router(loan_router)
-app.include_router(loan_product_router)
-app.include_router(loan_workflow_router)
-app.include_router(repayment_router)
-app.include_router(schedule_router)
-app.include_router(collection_router)
-app.include_router(write_off_router)
-app.include_router(dashboard_router)
-app.include_router(application_router)
+app.include_router(risk_router, prefix="/api")
+app.include_router(auth_router, prefix="/api")
+app.include_router(tenant_router, prefix="/api")
+app.include_router(branch_router, prefix="/api")
+app.include_router(borrower_router, prefix="/api")
+app.include_router(group_router, prefix="/api")
+app.include_router(loan_router, prefix="/api")
+app.include_router(loan_product_router, prefix="/api")
+app.include_router(loan_workflow_router, prefix="/api")
+app.include_router(repayment_router, prefix="/api")
+app.include_router(schedule_router, prefix="/api")
+app.include_router(collection_router, prefix="/api")
+app.include_router(write_off_router, prefix="/api")
+app.include_router(dashboard_router, prefix="/api")
+app.include_router(application_router, prefix="/api")
+app.include_router(savings_router, prefix="/api")
 
-
-@app.get("/")
-def root():
-
-    return {
-        "status": "running",
-        "app": "Peak Lenders"
-    }
+app.include_router(accounting_router, prefix="/api")
