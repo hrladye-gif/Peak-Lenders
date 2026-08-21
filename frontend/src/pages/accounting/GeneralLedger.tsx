@@ -1,6 +1,7 @@
 import { formatMoney } from "../../config/regional";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Calculator, Filter } from 'lucide-react';
+import { api } from '../../api/axios';
 
 interface LedgerTxn {
   id: string;
@@ -15,12 +16,48 @@ interface LedgerTxn {
 
 export const GeneralLedger = () => {
   const [selectedGl, setSelectedGl] = useState('1000');
+  const [accounts, setAccounts] = useState<any[]>([]);
+  const [ledgerRecords, setLedgerRecords] = useState<LedgerTxn[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const ledgerRecords: LedgerTxn[] = [
-    { id: '1', date: '2026-08-01', glCode: '1000', glName: 'Petty Cash', description: 'Opening Balance', debit: formatMoney(10000000), credit: '-', runningBalance: formatMoney(10000000) },
-    { id: '2', date: '2026-08-05', glCode: '1000', glName: 'Petty Cash', description: 'Client Voluntary Savings Deposit', debit: formatMoney(1500000), credit: '-', runningBalance: formatMoney(11500000) },
-    { id: '3', date: '2026-08-06', glCode: '1000', glName: 'Petty Cash', description: 'Loan Disbursement #LN-10029', debit: '-', credit: formatMoney(2500000), runningBalance: formatMoney(9000000) },
-  ];
+  const loadAccounts = async () => {
+    const response = await api.get('/accounting/accounts');
+    setAccounts(response.data);
+  };
+
+  const loadLedger = async (accountCode: string) => {
+    setLoading(true);
+
+    try {
+      const response = await api.get('/accounting/ledger', {
+        params: { account_code: accountCode },
+      });
+
+      setLedgerRecords(
+        response.data.map((row: any) => ({
+          id: row.id,
+          date: row.date,
+          glCode: row.gl_code,
+          glName: row.gl_name,
+          description: row.description || '-',
+          debit: Number(row.debit || 0) > 0
+            ? formatMoney(Number(row.debit))
+            : '-',
+          credit: Number(row.credit || 0) > 0
+            ? formatMoney(Number(row.credit))
+            : '-',
+          runningBalance: formatMoney(Number(row.running_balance || 0)),
+        }))
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadAccounts().catch(console.error);
+    loadLedger(selectedGl).catch(console.error);
+  }, [selectedGl]);
 
   return (
     <div className="p-8 space-y-6 bg-slate-50 min-h-screen">
@@ -39,10 +76,11 @@ export const GeneralLedger = () => {
           onChange={(e) => setSelectedGl(e.target.value)}
           className="px-3 py-1.5 border border-slate-300 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#189AB4]"
         >
-          <option value="1000">1000 - Petty Cash</option>
-          <option value="1100">1100 - Gross Loan Portfolio</option>
-          <option value="2000">2000 - Client Voluntary Savings</option>
-          <option value="4000">4000 - Interest Income</option>
+          {accounts.map((account) => (
+            <option key={account.id} value={account.account_code}>
+              {account.account_code} - {account.account_name}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -59,7 +97,19 @@ export const GeneralLedger = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {ledgerRecords.map((l) => (
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="p-8 text-center text-slate-500">
+                  Loading ledger...
+                </td>
+              </tr>
+            ) : ledgerRecords.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="p-8 text-center text-slate-500">
+                  No ledger transactions found for this account.
+                </td>
+              </tr>
+            ) : ledgerRecords.map((l) => (
               <tr key={l.id} className="hover:bg-slate-50 transition-colors">
                 <td className="p-4 font-mono text-xs text-slate-500">{l.date}</td>
                 <td className="p-4 font-mono font-bold text-[#189AB4]">{l.glCode}</td>

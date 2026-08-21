@@ -1,5 +1,6 @@
 import { formatMoney } from "../../config/regional";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { api } from '../../api/axios';
 import { Plus, Search, FolderTree, X } from 'lucide-react';
 
 interface Account {
@@ -14,44 +15,78 @@ interface Account {
 }
 
 export const ChartOfAccounts = () => {
-  const [accounts, setAccounts] = useState<Account[]>([
-    { id: '1', code: '1000', name: 'Petty Cash', category: 'Asset', type: 'Cash & Bank', description: 'Main cash on hand at central office', balance: formatMoney(5200000), status: 'Active' },
-    { id: '2', code: '1100', name: 'Gross Loan Portfolio', category: 'Asset', type: 'Loans Receivable', description: 'Total outstanding microfinance principal', balance: formatMoney(420000000), status: 'Active' },
-    { id: '3', code: '2000', name: 'Client Voluntary Savings', category: 'Liability', type: 'Savings Deposits', description: 'Voluntary client savings deposits liability', balance: formatMoney(185000000), status: 'Active' },
-    { id: '4', code: '3000', name: 'Share Capital', category: 'Equity', type: 'Equity', description: 'Paid-up equity share capital', balance: formatMoney(100000000), status: 'Active' },
-    { id: '5', code: '4000', name: 'Interest Income on Loans', category: 'Income', type: 'Revenue', description: 'Earned interest on active loan contracts', balance: formatMoney(38500000), status: 'Active' },
-    { id: '6', code: '5000', name: 'Office Operating Expenses', category: 'Expense', type: 'Operating Cost', description: 'Day-to-day branch administrative expenses', balance: formatMoney(12100000), status: 'Active' },
-  ]);
-
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [code, setCode] = useState('');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<'Asset' | 'Liability' | 'Equity' | 'Income' | 'Expense'>('Asset');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const handleAddAccount = (e: React.FormEvent) => {
+  const loadAccounts = async () => {
+    try {
+      setLoading(true);
+      setError('');
+
+      const response = await api.get('/accounting/accounts');
+
+      setAccounts(
+        response.data.map((account: any) => ({
+          id: account.id,
+          code: account.account_code,
+          name: account.account_name,
+          category: account.account_type,
+          type: account.account_type,
+          description: '',
+          balance: formatMoney(Number(account.balance || 0)),
+          status: account.status === 'Active' ? 'Active' : 'Inactive',
+        }))
+      );
+    } catch (err: any) {
+      console.error('Failed to load accounts:', err);
+      setError(
+        err.response?.data?.detail ||
+        'Failed to load chart of accounts.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadAccounts();
+  }, []);
+
+  const handleAddAccount = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!code || !name) return;
 
-    const newAcc: Account = {
-      id: Date.now().toString(),
-      code,
-      name,
-      category,
-      type: category,
-      description,
-      balance: formatMoney(0),
-      status: 'Active',
-    };
+    try {
+      await api.post('/accounting/accounts', {
+        account_code: code,
+        account_name: name,
+        account_type: category,
+      });
 
-    setAccounts([...accounts, newAcc]);
-    setCode('');
-    setName('');
-    setDescription('');
-    setIsModalOpen(false);
+      setCode('');
+      setName('');
+      setDescription('');
+      setIsModalOpen(false);
+
+      await loadAccounts();
+    } catch (err: any) {
+      console.error('Failed to create account:', err);
+      setError(
+        err.response?.data?.detail ||
+        'Failed to create account.'
+      );
+    }
   };
 
   const categoryColors = {
+
     Asset: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     Liability: 'bg-amber-50 text-amber-700 border-amber-200',
     Equity: 'bg-purple-50 text-purple-700 border-purple-200',
@@ -73,6 +108,12 @@ export const ChartOfAccounts = () => {
           <Plus size={18} /> Add Account
         </button>
       </div>
+
+      {error && (
+        <div className="bg-rose-50 border border-rose-200 text-rose-700 rounded-xl px-4 py-3 text-sm">
+          {error}
+        </div>
+      )}
 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="p-4 border-b border-slate-100 flex justify-between items-center">
@@ -98,7 +139,19 @@ export const ChartOfAccounts = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {accounts.map((acc) => (
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="p-8 text-center text-slate-500">
+                  Loading accounts...
+                </td>
+              </tr>
+            ) : accounts.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="p-8 text-center text-slate-500">
+                  No GL accounts found.
+                </td>
+              </tr>
+            ) : accounts.map((acc) => (
               <tr key={acc.id} className="hover:bg-slate-50 transition-colors">
                 <td className="p-4 font-mono font-bold text-[#189AB4]">{acc.code}</td>
                 <td className="p-4 font-bold text-[#05445E]">{acc.name}</td>

@@ -1,5 +1,6 @@
 import { formatMoney } from "../../config/regional";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { api } from '../../api/axios';
 import { Plus, X, Calendar, FileCheck } from 'lucide-react';
 
 interface JournalEntry {
@@ -14,37 +15,129 @@ interface JournalEntry {
 }
 
 export const JournalEntries = () => {
-  const [entries, setEntries] = useState<JournalEntry[]>([
-    { id: '1', ref: 'JV-2026-001', date: '2026-08-06', narration: 'Loan disbursement for Robert Musoke', debitAcc: '1100 - Gross Loan Portfolio', creditAcc: '1000 - Petty Cash', amount: formatMoney(2500000), status: 'Posted' },
-    { id: '2', ref: 'JV-2026-002', date: '2026-08-05', narration: 'Client Savings Deposit via Mobile Money', debitAcc: '1000 - Petty Cash', creditAcc: '2000 - Client Voluntary Savings', amount: formatMoney(1500000), status: 'Posted' },
-  ]);
-
+  const [entries, setEntries] = useState<JournalEntry[]>([]);
+  const [accounts, setAccounts] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [narration, setNarration] = useState('');
-  const [debitAcc, setDebitAcc] = useState('1100 - Gross Loan Portfolio');
-  const [creditAcc, setCreditAcc] = useState('1000 - Petty Cash');
+  const [debitAcc, setDebitAcc] = useState('');
+  const [creditAcc, setCreditAcc] = useState('');
   const [amount, setAmount] = useState('');
-  const [date, setDate] = useState('2026-08-07');
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const handlePostJournal = (e: React.FormEvent) => {
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      setError('');
+
+      const [journalResponse, accountsResponse] = await Promise.all([
+        api.get('/accounting/journal'),
+        api.get('/accounting/accounts'),
+      ]);
+
+      const accountList = accountsResponse.data || [];
+      setAccounts(accountList);
+
+      if (!debitAcc && accountList.length > 0) {
+        setDebitAcc(accountList[0].id);
+      }
+
+      if (!creditAcc && accountList.length > 1) {
+        setCreditAcc(accountList[1].id);
+      }
+
+      const formattedEntries: JournalEntry[] = [];
+
+      for (const entry of journalResponse.data || []) {
+        const debit = entry.lines?.find((line: any) => Number(line.debit) > 0);
+        const credit = entry.lines?.find((line: any) => Number(line.credit) > 0);
+
+        formattedEntries.push({
+          id: entry.id,
+          ref: entry.reference_no || entry.id,
+          date: entry.entry_date,
+          narration: entry.description || '',
+          debitAcc: debit
+            ? `${debit.account_code} - ${debit.account_name}`
+            : '-',
+          creditAcc: credit
+            ? `${credit.account_code} - ${credit.account_name}`
+            : '-',
+          amount: formatMoney(
+            Number(debit?.debit || credit?.credit || 0)
+          ),
+          status: 'Posted',
+        });
+      }
+
+      setEntries(formattedEntries);
+    } catch (err: any) {
+      console.error('Failed to load journal:', err);
+      setError(
+        err.response?.data?.detail ||
+        'Failed to load journal entries.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const handlePostJournal = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!narration || !amount) return;
 
-    const newEntry: JournalEntry = {
-      id: Date.now().toString(),
-      ref: `JV-2026-00${entries.length + 1}`,
-      date,
-      narration,
-      debitAcc,
-      creditAcc,
-      amount: formatMoney(Number(amount)),
-      status: 'Posted',
-    };
+    if (!narration || !amount || !debitAcc || !creditAcc) return;
 
-    setEntries([newEntry, ...entries]);
-    setNarration('');
-    setAmount('');
-    setIsModalOpen(false);
+    const numericAmount = Number(amount);
+
+    if (numericAmount <= 0) {
+      setError('Amount must be greater than zero.');
+      return;
+    }
+
+    if (debitAcc === creditAcc) {
+      setError('Debit and credit accounts must be different.');
+      return;
+    }
+
+    try {
+      setError('');
+
+      await api.post('/accounting/journal', {
+        entry_date: date,
+        reference_no: `JV-${Date.now()}`,
+        description: narration,
+        source_module: 'MANUAL',
+        lines: [
+          {
+            account_id: debitAcc,
+            debit: numericAmount,
+            credit: 0,
+          },
+          {
+            account_id: creditAcc,
+            debit: 0,
+            credit: numericAmount,
+          },
+        ],
+      });
+
+      setNarration('');
+      setAmount('');
+      setIsModalOpen(false);
+
+      await loadData();
+    } catch (err: any) {
+      console.error('Failed to post journal:', err);
+      setError(
+        err.response?.data?.detail ||
+        'Failed to post journal entry.'
+      );
+    }
   };
 
   return (
@@ -62,6 +155,12 @@ export const JournalEntries = () => {
         </button>
       </div>
 
+      {error && (
+        <div className="bg-rose-50 border border-rose-200 text-rose-700 rounded-xl px-4 py-3 text-sm">
+          {error}
+        </div>
+      )}
+
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <table className="w-full text-left text-sm text-slate-600">
           <thead className="bg-[#05445E]/5 text-[#05445E] uppercase text-[11px] font-bold tracking-wider border-b border-slate-200">
@@ -75,7 +174,19 @@ export const JournalEntries = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {entries.map((j) => (
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="p-8 text-center text-slate-500">
+                  Loading journal entries...
+                </td>
+              </tr>
+            ) : entries.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="p-8 text-center text-slate-500">
+                  No journal entries found.
+                </td>
+              </tr>
+            ) : entries.map((j) => (
               <tr key={j.id} className="hover:bg-slate-50 transition-colors">
                 <td className="p-4 font-mono font-bold text-[#189AB4]">{j.ref}</td>
                 <td className="p-4 font-mono text-xs text-slate-500">{j.date}</td>
@@ -123,9 +234,11 @@ export const JournalEntries = () => {
                     onChange={(e) => setDebitAcc(e.target.value)}
                     className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#189AB4]"
                   >
-                    <option value="1100 - Gross Loan Portfolio">1100 - Gross Loan Portfolio</option>
-                    <option value="1000 - Petty Cash">1000 - Petty Cash</option>
-                    <option value="5000 - Office Expenses">5000 - Office Expenses</option>
+                    {accounts.map((account) => (
+                      <option key={account.id} value={account.id}>
+                        {account.account_code} - {account.account_name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -136,9 +249,11 @@ export const JournalEntries = () => {
                     onChange={(e) => setCreditAcc(e.target.value)}
                     className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#189AB4]"
                   >
-                    <option value="1000 - Petty Cash">1000 - Petty Cash</option>
-                    <option value="2000 - Client Savings">2000 - Client Savings</option>
-                    <option value="4000 - Interest Income">4000 - Interest Income</option>
+                    {accounts.map((account) => (
+                      <option key={account.id} value={account.id}>
+                        {account.account_code} - {account.account_name}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
