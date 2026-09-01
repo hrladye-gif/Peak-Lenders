@@ -2,6 +2,7 @@ from sqlalchemy import Column
 from sqlalchemy import String
 from sqlalchemy import ForeignKey
 from sqlalchemy import Date
+from sqlalchemy import Boolean
 from sqlalchemy.orm import relationship
 
 from app.db.database import Base
@@ -51,6 +52,13 @@ class Borrower(BaseMixin, Base):
     gender = Column(String)
 
     address = Column(String)
+
+    is_active = Column(
+        Boolean,
+        nullable=False,
+        default=True,
+        server_default="true"
+    )
 
 
     tenant = relationship(

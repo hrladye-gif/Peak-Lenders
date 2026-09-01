@@ -65,3 +65,32 @@ def get_borrower(
         )
         .first()
     )
+
+
+def update_borrower(
+    db: Session,
+    borrower: Borrower,
+    data,
+):
+    update_data = data.model_dump(exclude_unset=True)
+
+    for field, value in update_data.items():
+        setattr(borrower, field, value)
+
+    db.commit()
+    db.refresh(borrower)
+
+    return borrower
+
+
+def set_borrower_active_status(
+    db: Session,
+    borrower: Borrower,
+    is_active: bool,
+):
+    borrower.is_active = is_active
+
+    db.commit()
+    db.refresh(borrower)
+
+    return borrower
