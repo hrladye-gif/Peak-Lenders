@@ -9,3 +9,12 @@ __pycache__/
 
 # TypeScript build cache
 *.tsbuildinfo
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# TypeScript / Vite build cache
+*.tsbuildinfo
+frontend/dist/
