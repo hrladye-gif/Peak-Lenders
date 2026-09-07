@@ -1,9 +1,19 @@
 import { formatMoney, getCurrency } from "../../config/regional";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { api } from '../../api/axios';
 import { FileSpreadsheet, Download, Calendar, DollarSign, TrendingUp, Layers } from 'lucide-react';
 
 export const FinancialStatements = () => {
   const [statementType, setStatementType] = useState<'balance' | 'income' | 'cashflow'>('balance');
+  const [report, setReport] = useState<any>(null);
+
+  useEffect(() => {
+    api.get('/accounting/reports/financial-statements')
+      .then((res) => setReport(res.data))
+      .catch((err) => console.error('Failed to load financial statements:', err));
+  }, []);
+
+  const amount = (value: any) => formatMoney(Number(value || 0));
 
   return (
     <div className="p-8 space-y-6 bg-slate-50 min-h-screen">
@@ -66,158 +76,97 @@ export const FinancialStatements = () => {
                 {statementType === 'income' && 'Statement of Comprehensive Income (Profit & Loss)'}
                 {statementType === 'cashflow' && 'Statement of Cash Flows'}
               </h2>
-              <p className="text-xs text-slate-400">As of August 07, 2026 • Reporting Currency: {getCurrency()}</p>
+              <p className="text-xs text-slate-400">As of {new Date().toLocaleDateString()} • Reporting Currency: {getCurrency()}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg">
-            <Calendar size={14} className="text-[#189AB4]" /> FY 2026 - Q3
+            <Calendar size={14} className="text-[#189AB4]" /> Live Financial Period
           </div>
         </div>
 
-        {/* 1. BALANCE SHEET */}
+        {/* FINANCIAL STATEMENTS */}
         {statementType === 'balance' && (
           <div className="space-y-6">
-            <div>
-              <h3 className="font-bold text-[#05445E] text-xs uppercase tracking-wider bg-slate-100 p-2.5 rounded-lg mb-3">
-                Assets
-              </h3>
-              <div className="space-y-2.5 text-xs text-slate-700 px-3">
-                <div className="flex justify-between"><span>1000 - Cash & Cash Equivalents</span><span className="font-mono font-semibold">{formatMoney(15200000)}</span></div>
-                <div className="flex justify-between"><span>1100 - Gross Outstanding Loan Portfolio</span><span className="font-mono font-semibold">{formatMoney(420000000)}</span></div>
-                <div className="flex justify-between text-rose-600"><span>1200 - Less: Provision for Loan Losses (PAR Reserve)</span><span className="font-mono font-semibold">({formatMoney(9800000)})</span></div>
-                <div className="flex justify-between"><span>1300 - Equipment & Fixed Assets</span><span className="font-mono font-semibold">{formatMoney(18500000)}</span></div>
-                <div className="flex justify-between font-bold border-t border-slate-200 pt-3 text-[#05445E] text-sm">
-                  <span>Total Assets</span>
-                  <span className="font-mono">{formatMoney(443900000)}</span>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-bold text-[#05445E] text-xs uppercase tracking-wider bg-slate-100 p-2.5 rounded-lg mb-3">
-                Liabilities & Equity
-              </h3>
-              <div className="space-y-2.5 text-xs text-slate-700 px-3">
-                <div className="flex justify-between"><span>2000 - Client Voluntary Savings Deposits</span><span className="font-mono font-semibold">{formatMoney(185000000)}</span></div>
-                <div className="flex justify-between"><span>2100 - Accounts Payable & Accrued Expenses</span><span className="font-mono font-semibold">{formatMoney(8700000)}</span></div>
-                <div className="flex justify-between font-semibold text-slate-800 border-t border-slate-100 pt-2">
-                  <span>Total Liabilities</span>
-                  <span className="font-mono">{formatMoney(193700000)}</span>
-                </div>
-
-                <div className="pt-3">
-                  <div className="flex justify-between"><span>3000 - Paid-in Share Capital</span><span className="font-mono font-semibold">{formatMoney(110000000)}</span></div>
-                  <div className="flex justify-between"><span>3100 - Retained Earnings</span><span className="font-mono font-semibold">{formatMoney(123600000)}</span></div>
-                  <div className="flex justify-between text-emerald-700"><span>3200 - Current Period Surplus / Net Income</span><span className="font-mono font-semibold">{formatMoney(16600000)}</span></div>
-                  <div className="flex justify-between font-semibold text-slate-800 border-t border-slate-100 pt-2">
-                    <span>Total Equity</span>
-                    <span className="font-mono">{formatMoney(250200000)}</span>
+            {[
+              ['Assets', report?.assets || [], 'assets'],
+              ['Liabilities', report?.liabilities || [], 'liabilities'],
+              ['Equity', report?.equity || [], 'equity'],
+            ].map(([title, items, key]: any) => (
+              <div key={key}>
+                <h3 className="font-bold text-[#05445E] text-xs uppercase tracking-wider bg-slate-100 p-2.5 rounded-lg mb-3">
+                  {title}
+                </h3>
+                <div className="space-y-2.5 text-xs text-slate-700 px-3">
+                  {items.map((item: any) => (
+                    <div key={item.code} className="flex justify-between">
+                      <span>{item.code} - {item.name}</span>
+                      <span className="font-mono font-semibold">{amount(item.amount)}</span>
+                    </div>
+                  ))}
+                  <div className="flex justify-between font-bold border-t border-slate-200 pt-3 text-[#05445E] text-sm">
+                    <span>Total {title}</span>
+                    <span className="font-mono">
+                      {amount(report?.totals?.[key])}
+                    </span>
                   </div>
                 </div>
-
-                <div className="flex justify-between font-bold border-t-2 border-slate-300 pt-3 text-[#05445E] text-sm">
-                  <span>Total Liabilities & Equity</span>
-                  <span className="font-mono">{formatMoney(443900000)}</span>
-                </div>
               </div>
+            ))}
+
+            <div className="flex justify-between font-bold border-t-2 border-slate-300 pt-3 text-[#05445E] text-sm">
+              <span>Total Liabilities & Equity</span>
+              <span className="font-mono">
+                {amount(report?.total_liabilities_equity)}
+              </span>
             </div>
           </div>
         )}
 
-        {/* 2. INCOME STATEMENT */}
         {statementType === 'income' && (
           <div className="space-y-6">
-            <div>
-              <h3 className="font-bold text-emerald-800 text-xs uppercase tracking-wider bg-emerald-50 p-2.5 rounded-lg mb-3">
-                Operating Revenue
-              </h3>
-              <div className="space-y-2.5 text-xs text-slate-700 px-3">
-                <div className="flex justify-between"><span>4000 - Interest Income on Microfinance Loans</span><span className="font-mono font-semibold">{formatMoney(38500000)}</span></div>
-                <div className="flex justify-between"><span>4100 - Loan Application & Processing Fees</span><span className="font-mono font-semibold">{formatMoney(3800000)}</span></div>
-                <div className="flex justify-between"><span>4200 - Late Penalty Charges & Recoveries</span><span className="font-mono font-semibold">{formatMoney(1400000)}</span></div>
-                <div className="flex justify-between font-bold border-t border-slate-200 pt-3 text-emerald-800 text-sm">
-                  <span>Total Revenue</span>
-                  <span className="font-mono">{formatMoney(43700000)}</span>
+            {[
+              ['Operating Revenue', report?.income || [], 'income'],
+              ['Operating Expenses', report?.expenses || [], 'expenses'],
+            ].map(([title, items, key]: any) => (
+              <div key={key}>
+                <h3 className="font-bold text-[#05445E] text-xs uppercase tracking-wider bg-slate-100 p-2.5 rounded-lg mb-3">
+                  {title}
+                </h3>
+                <div className="space-y-2.5 text-xs text-slate-700 px-3">
+                  {items.map((item: any) => (
+                    <div key={item.code} className="flex justify-between">
+                      <span>{item.code} - {item.name}</span>
+                      <span className="font-mono font-semibold">{amount(item.amount)}</span>
+                    </div>
+                  ))}
+                  <div className="flex justify-between font-bold border-t border-slate-200 pt-3 text-[#05445E] text-sm">
+                    <span>Total {title}</span>
+                    <span className="font-mono">
+                      {amount(report?.totals?.[key])}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div>
-              <h3 className="font-bold text-rose-800 text-xs uppercase tracking-wider bg-rose-50 p-2.5 rounded-lg mb-3">
-                Operating Expenses
-              </h3>
-              <div className="space-y-2.5 text-xs text-slate-700 px-3">
-                <div className="flex justify-between"><span>5000 - Staff Salaries & Benefits</span><span className="font-mono font-semibold">{formatMoney(14000000)}</span></div>
-                <div className="flex justify-between"><span>5100 - Rent & Utilities</span><span className="font-mono font-semibold">{formatMoney(4200000)}</span></div>
-                <div className="flex justify-between"><span>5200 - Field Travel & Collection Costs</span><span className="font-mono font-semibold">{formatMoney(3100000)}</span></div>
-                <div className="flex justify-between"><span>5300 - Provision for Bad Debts</span><span className="font-mono font-semibold">{formatMoney(5800000)}</span></div>
-                <div className="flex justify-between font-bold border-t border-slate-200 pt-3 text-rose-800 text-sm">
-                  <span>Total Operating Expenses</span>
-                  <span className="font-mono">{formatMoney(27100000)}</span>
-                </div>
-              </div>
-            </div>
+            ))}
 
             <div className="p-4 bg-[#05445E]/5 rounded-xl flex justify-between items-center text-sm font-bold text-[#05445E]">
-              <span>Net Profit Before Tax (Surplus)</span>
-              <span className="font-mono text-base text-teal-700">{formatMoney(16600000)}</span>
+              <span>Net Profit / Surplus</span>
+              <span className="font-mono text-base text-teal-700">
+                {amount(report?.net_income)}
+              </span>
             </div>
           </div>
         )}
 
-        {/* 3. CASH FLOW STATEMENT */}
         {statementType === 'cashflow' && (
-          <div className="space-y-6">
-            <div>
-              <h3 className="font-bold text-[#05445E] text-xs uppercase tracking-wider bg-slate-100 p-2.5 rounded-lg mb-3">
-                1. Cash Flow from Operating Activities
-              </h3>
-              <div className="space-y-2.5 text-xs text-slate-700 px-3">
-                <div className="flex justify-between"><span>Net Operating Surplus</span><span className="font-mono font-semibold">{formatMoney(16600000)}</span></div>
-                <div className="flex justify-between"><span>Add: Non-Cash Provision for Bad Debts</span><span className="font-mono font-semibold">{formatMoney(5800000)}</span></div>
-                <div className="flex justify-between text-rose-600"><span>Net Increase in Loan Outstanding Portfolio</span><span className="font-mono font-semibold">({formatMoney(25000000)})</span></div>
-                <div className="flex justify-between text-emerald-700"><span>Net Increase in Client Savings Deposits</span><span className="font-mono font-semibold">{formatMoney(12500000)}</span></div>
-                <div className="flex justify-between font-bold border-t border-slate-200 pt-3 text-[#05445E] text-sm">
-                  <span>Net Cash Provided by Operating Activities</span>
-                  <span className="font-mono">{formatMoney(9900000)}</span>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-bold text-[#05445E] text-xs uppercase tracking-wider bg-slate-100 p-2.5 rounded-lg mb-3">
-                2. Cash Flow from Investing Activities
-              </h3>
-              <div className="space-y-2.5 text-xs text-slate-700 px-3">
-                <div className="flex justify-between text-rose-600"><span>Purchase of Office Computers & Hardware</span><span className="font-mono font-semibold">({formatMoney(2400000)})</span></div>
-                <div className="flex justify-between font-bold border-t border-slate-200 pt-3 text-[#05445E] text-sm">
-                  <span>Net Cash Used in Investing Activities</span>
-                  <span className="font-mono text-rose-700">({formatMoney(2400000)})</span>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-bold text-[#05445E] text-xs uppercase tracking-wider bg-slate-100 p-2.5 rounded-lg mb-3">
-                3. Cash Flow from Financing Activities
-              </h3>
-              <div className="space-y-2.5 text-xs text-slate-700 px-3">
-                <div className="flex justify-between text-emerald-700"><span>Additional Capital Injection by Shareholders</span><span className="font-mono font-semibold">{formatMoney(5000000)}</span></div>
-                <div className="flex justify-between font-bold border-t border-slate-200 pt-3 text-[#05445E] text-sm">
-                  <span>Net Cash Provided by Financing Activities</span>
-                  <span className="font-mono">{formatMoney(5000000)}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-4 bg-teal-50 border border-teal-200 rounded-xl space-y-2 text-xs">
-              <div className="flex justify-between text-slate-700"><span>Net Increase in Cash & Equivalents</span><span className="font-mono font-bold">{formatMoney(12500000)}</span></div>
-              <div className="flex justify-between text-slate-700"><span>Cash Balance at Beginning of Period</span><span className="font-mono font-bold">{formatMoney(2700000)}</span></div>
-              <div className="flex justify-between border-t border-teal-200 pt-2 font-bold text-[#05445E] text-sm">
-                <span>Ending Cash Balance</span>
-                <span className="font-mono text-teal-800">{formatMoney(15200000)}</span>
-              </div>
-            </div>
+          <div className="p-6 bg-slate-50 rounded-xl text-sm text-slate-600">
+            <p className="font-semibold text-[#05445E] mb-2">
+              Cash Flow Statement
+            </p>
+            <p>
+              Cash flow reporting will be calculated from posted journal
+              entries and cash/bank accounts.
+            </p>
           </div>
         )}
       </div>

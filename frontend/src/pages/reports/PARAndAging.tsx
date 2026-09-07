@@ -1,26 +1,30 @@
 import { formatMoney } from "../../config/regional";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { api } from '../../api/axios';
 import { AlertTriangle, Download, Filter, Search, ShieldAlert, ArrowUpRight, TrendingDown } from 'lucide-react';
 
 export const PARAndAging = () => {
   const [selectedBand, setSelectedBand] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [report, setReport] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.get('/accounting/reports/par-aging')
+      .then((res) => setReport(res.data))
+      .catch((err) => console.error('Failed to load PAR report:', err))
+      .finally(() => setLoading(false));
+  }, []);
 
   const agingBands = [
-    { label: 'Current (On-Time)', range: '0 Days', amount: formatMoney(380000000), percentage: '90.5%', color: 'bg-emerald-500', text: 'text-emerald-700', bg: 'bg-emerald-50' },
-    { label: 'PAR 1 - 30 Days', range: '1-30 Days', amount: formatMoney(18500000), percentage: '4.4%', color: 'bg-amber-500', text: 'text-amber-700', bg: 'bg-amber-50' },
-    { label: 'PAR 31 - 60 Days', range: '31-60 Days', amount: formatMoney(10200000), percentage: '2.4%', color: 'bg-orange-500', text: 'text-orange-700', bg: 'bg-orange-50' },
-    { label: 'PAR 61 - 90 Days', range: '61-90 Days', amount: formatMoney(6800000), percentage: '1.6%', color: 'bg-rose-500', text: 'text-rose-700', bg: 'bg-rose-50' },
-    { label: 'PAR 90+ Days (Default)', range: '90+ Days', amount: formatMoney(4500000), percentage: '1.1%', color: 'bg-red-700', text: 'text-red-800', bg: 'bg-red-50' },
+    { label: 'Current (On-Time)', range: '0 Days', color: 'bg-emerald-500', text: 'text-emerald-700', bg: 'bg-emerald-50' },
+    { label: 'PAR 1 - 30 Days', range: '1-30 Days', color: 'bg-amber-500', text: 'text-amber-700', bg: 'bg-amber-50' },
+    { label: 'PAR 31 - 60 Days', range: '31-60 Days', color: 'bg-orange-500', text: 'text-orange-700', bg: 'bg-orange-50' },
+    { label: 'PAR 61 - 90 Days', range: '61-90 Days', color: 'bg-rose-500', text: 'text-rose-700', bg: 'bg-rose-50' },
+    { label: 'PAR 90+ Days (Default)', range: '90+ Days', color: 'bg-red-700', text: 'text-red-800', bg: 'bg-red-50' },
   ];
 
-  const loans = [
-    { id: 'LN-1089', borrower: 'Grace Namukasa', product: 'Individual Business', loanOfficer: 'John Opio', principalOutstanding: formatMoney(4500000), amountOverdue: formatMoney(750000), daysOverdue: 42, status: 'PAR 31-60' },
-    { id: 'LN-1042', borrower: 'Kampala Women Group (Seat 4)', product: 'Group Solidarity', loanOfficer: 'Sarah Akello', principalOutstanding: formatMoney(2100000), amountOverdue: formatMoney(420000), daysOverdue: 14, status: 'PAR 1-30' },
-    { id: 'LN-0982', borrower: 'David Mukasa', product: 'Agricultural Loan', loanOfficer: 'John Opio', principalOutstanding: formatMoney(6800000), amountOverdue: formatMoney(2100000), daysOverdue: 78, status: 'PAR 61-90' },
-    { id: 'LN-0871', borrower: 'Kintu Joseph', product: 'Individual Business', loanOfficer: 'Robert Mulema', principalOutstanding: formatMoney(4500000), amountOverdue: formatMoney(4500000), daysOverdue: 112, status: 'PAR 90+' },
-    { id: 'LN-1120', borrower: 'Amina Hassan', product: 'Boda Boda Asset', loanOfficer: 'Sarah Akello', principalOutstanding: formatMoney(3200000), amountOverdue: formatMoney(320000), daysOverdue: 8, status: 'PAR 1-30' },
-  ];
+  const loans = report?.loans || [];
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -54,8 +58,8 @@ export const PARAndAging = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-1">
           <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Gross Outstanding Portfolio</p>
-          <p className="text-2xl font-bold text-[#05445E]">{formatMoney(420000000)}</p>
-          <span className="text-xs text-slate-500 font-medium">1,240 Total Active Loans</span>
+          <p className="text-2xl font-bold text-[#05445E]">{formatMoney(Number(report?.total_outstanding || 0))}</p>
+          <span className="text-xs text-slate-500 font-medium">{report?.total_loans || 0} Total Active Loans</span>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-1">
@@ -63,26 +67,32 @@ export const PARAndAging = () => {
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total PAR (&gt;30 Days)</p>
             <span className="p-1.5 bg-rose-50 text-rose-600 rounded-lg"><AlertTriangle size={16} /></span>
           </div>
-          <p className="text-2xl font-bold text-rose-600">5.1%</p>
+          <p className="text-2xl font-bold text-rose-600">{Number(report?.par_percentage || 0).toFixed(1)}%</p>
           <span className="text-xs text-rose-600 font-semibold flex items-center gap-1">
-            <TrendingDown size={14} /> {formatMoney(21500000)} at risk
+            <TrendingDown size={14} /> {formatMoney(Number(report?.total_overdue || 0))} at risk
           </span>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-1">
           <div className="flex justify-between items-center">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">PAR 1 Day Rate</p>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">PAR &gt;30 Days</p>
             <span className="p-1.5 bg-amber-50 text-amber-600 rounded-lg"><ShieldAlert size={16} /></span>
           </div>
-          <p className="text-2xl font-bold text-amber-600">9.5%</p>
-          <span className="text-xs text-slate-500 font-medium">{formatMoney(40000000)} non-performing</span>
+          <p className="text-2xl font-bold text-amber-600">
+            {Number(report?.par30_percentage || 0).toFixed(1)}%
+          </p>
+          <span className="text-xs text-slate-500 font-medium">
+            {formatMoney(Number(report?.par30_overdue || 0))} over 30 days
+          </span>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-1">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Required Loss Provision</p>
-          <p className="text-2xl font-bold text-[#05445E]">{formatMoney(9800000)}</p>
-          <span className="text-xs text-emerald-600 font-semibold flex items-center gap-0.5">
-            <ArrowUpRight size={14} /> 100% Fully Provisioned
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Recorded Loss Provision</p>
+          <p className="text-2xl font-bold text-[#05445E]">
+            {formatMoney(Number(report?.recorded_provision || 0))}
+          </p>
+          <span className="text-xs text-slate-500 font-medium">
+            Posted to account 5100
           </span>
         </div>
       </div>
@@ -97,11 +107,52 @@ export const PARAndAging = () => {
                 <span className={`font-bold ${band.text}`}>{band.label}</span>
               </div>
               <div>
-                <p className="text-lg font-bold text-slate-800">{band.amount}</p>
-                <p className="text-xs text-slate-500 font-semibold">{band.percentage} of Portfolio</p>
+                <p className="text-lg font-bold text-slate-800">
+                  {formatMoney(
+                    Number(
+                      report?.aging_totals?.[
+                        band.range === '0 Days' ? 'Current' :
+                        band.range === '1-30 Days' ? 'PAR 1-30' :
+                        band.range === '31-60 Days' ? 'PAR 31-60' :
+                        band.range === '61-90 Days' ? 'PAR 61-90' : 'PAR 90+'
+                      ] || 0
+                    )
+                  )}
+                </p>
+                <p className="text-xs text-slate-500 font-semibold">
+                  {report?.total_outstanding
+                    ? (
+                        Number(
+                          report?.aging_totals?.[
+                            band.range === '0 Days' ? 'Current' :
+                            band.range === '1-30 Days' ? 'PAR 1-30' :
+                            band.range === '31-60 Days' ? 'PAR 31-60' :
+                            band.range === '61-90 Days' ? 'PAR 61-90' : 'PAR 90+'
+                          ] || 0
+                        )
+                        / Number(report.total_outstanding) * 100
+                      ).toFixed(1)
+                    : '0.0'}% of Portfolio
+                </p>
               </div>
               <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
-                <div className={`${band.color} h-1.5 rounded-full`} style={{ width: band.percentage }}></div>
+                <div className={`${band.color} h-1.5 rounded-full`} style={{
+                  width: `${
+                    report?.total_outstanding
+                      ? (
+                          loans
+                            .filter((loan: any) => loan.band === (
+                              band.range === '0 Days' ? 'Current' :
+                              band.range === '1-30 Days' ? 'PAR 1-30' :
+                              band.range === '31-60 Days' ? 'PAR 31-60' :
+                              band.range === '61-90 Days' ? 'PAR 61-90' : 'PAR 90+'
+                            ))
+                            .reduce((sum: number, loan: any) => sum + Number(loan.outstanding || 0), 0)
+                          / Number(report.total_outstanding) * 100
+                        ).toFixed(1)
+                      : 0
+                  }%`
+                }}></div>
               </div>
             </div>
           ))}
@@ -161,18 +212,33 @@ export const PARAndAging = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs text-slate-700">
-              {loans.map((loan) => (
-                <tr key={loan.id} className="hover:bg-slate-50/80 transition-colors">
-                  <td className="p-3 font-mono font-bold text-[#05445E]">{loan.id}</td>
-                  <td className="p-3 font-semibold text-slate-800">{loan.borrower}</td>
-                  <td className="p-3 text-slate-500">{loan.product}</td>
-                  <td className="p-3 text-slate-500">{loan.loanOfficer}</td>
-                  <td className="p-3 font-mono text-right font-semibold">{loan.principalOutstanding}</td>
-                  <td className="p-3 font-mono text-right font-bold text-rose-600">{loan.amountOverdue}</td>
-                  <td className="p-3 font-mono text-center font-bold text-amber-700">{loan.daysOverdue} days</td>
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="p-8 text-center text-slate-500">
+                    Loading PAR report...
+                  </td>
+                </tr>
+              ) : loans
+                .filter((loan: any) =>
+                  `${loan.loan_id} ${loan.borrower_name || ''}`
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase())
+                )
+                .filter((loan: any) =>
+                  selectedBand === 'all' || loan.band === selectedBand
+                )
+                .map((loan: any) => (
+                <tr key={loan.loan_id} className="hover:bg-slate-50/80 transition-colors">
+                  <td className="p-3 font-mono font-bold text-[#05445E]">{loan.loan_id}</td>
+                  <td className="p-3 font-semibold text-slate-800">{loan.borrower_name || 'Unknown borrower'}</td>
+                  <td className="p-3 text-slate-500">{loan.product_name || 'Unknown product'}</td>
+                  <td className="p-3 text-slate-500">{loan.loan_officer || 'Not assigned'}</td>
+                  <td className="p-3 font-mono text-right font-semibold">{formatMoney(Number(loan.outstanding || 0))}</td>
+                  <td className="p-3 font-mono text-right font-bold text-rose-600">{formatMoney(Number(loan.overdue || 0))}</td>
+                  <td className="p-3 font-mono text-center font-bold text-amber-700">{loan.days_overdue} days</td>
                   <td className="p-3 text-center">
                     <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${getStatusBadge(loan.status)}`}>
-                      {loan.status}
+                      {loan.band}
                     </span>
                   </td>
                 </tr>

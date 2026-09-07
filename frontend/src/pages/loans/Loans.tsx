@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Plus,
   Wallet,
@@ -7,17 +8,30 @@ import {
   Percent,
   Download,
   CheckCircle2,
+  Eye,
+  Pencil,
+  Trash2,
+  ShieldCheck,
+  Banknote,
+  ReceiptText,
 } from 'lucide-react';
 import { api } from '../../api/axios';
 import { getCurrency, formatMoney } from '../../config/regional';
 
 interface MonthlyPerformance {
   month: string;
+  installmentNo: number;
+  dueDate: string;
   beginningBalance: number;
+  principalDue: number;
+  interestDue: number;
+  principalPaid: number;
+  interestPaid: number;
   interestAccrued: number;
   penalty: number;
   paymentMade: number;
   endingBalance: number;
+  status: string;
 }
 
 interface LoanProduct {
@@ -37,12 +51,25 @@ interface LoanProduct {
 interface LoanItem {
   id: string;
   loanId: string;
+
+  // Backend fields needed for editing pending loans.
+  borrower_id?: string;
+  loan_product_id?: string;
+  term_months?: number;
+  created_at?: string;
+  maturity_date?: string;
+
   borrowerName: string;
   principal: number;
   remainingBalance: number;
   issueDate: string;
   dueDate: string;
-  status: 'Active' | 'Fully Paid' | 'Overdue';
+  status:
+    | 'Pending'
+    | 'Approved'
+    | 'Active'
+    | 'Fully Paid'
+    | 'Overdue';
   interestType:
     | 'Flat Rate'
     | 'Reducing Balance'
@@ -53,6 +80,10 @@ interface LoanItem {
 }
 
 export const Loans = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const borrowerFilter = searchParams.get('borrower');
+
   const [loans, setLoans] = useState<LoanItem[]>([]);
   const [registeredBorrowersAndGroups, setRegisteredBorrowersAndGroups] =
     useState<any[]>([]);
@@ -92,6 +123,12 @@ export const Loans = () => {
     loadLoanProducts();
   }, []);
 
+  useEffect(() => {
+    if (borrowerFilter) {
+      setBorrowerId(borrowerFilter);
+    }
+  }, [borrowerFilter]);
+
   const loadLoans = async () => {
     try {
       setLoading(true);
@@ -103,6 +140,12 @@ export const Loans = () => {
       const mappedLoans: LoanItem[] = backendLoans.map((loan: any) => ({
         id: loan.id,
         loanId: loan.loan_number,
+
+        borrower_id: loan.borrower_id,
+        loan_product_id: loan.loan_product_id,
+        term_months: Number(loan.term_months || 0),
+        created_at: loan.created_at,
+        maturity_date: loan.maturity_date,
 
         borrowerName:
           loan.borrower_name ||
@@ -133,7 +176,11 @@ export const Loans = () => {
             ? 'Fully Paid'
             : loan.status === 'OVERDUE'
               ? 'Overdue'
-              : 'Active',
+              : loan.status === 'APPROVED'
+                ? 'Approved'
+                : loan.status === 'ACTIVE'
+                  ? 'Active'
+                  : 'Pending',
 
         interestType:
           loan.interest_type ||
@@ -145,7 +192,17 @@ export const Loans = () => {
         performance: loan.performance || [],
       }));
 
-      setLoans(mappedLoans);
+      const filteredLoans = borrowerFilter
+        ? mappedLoans.filter((loan: any) => {
+            const rawLoan = backendLoans.find(
+              (item: any) => item.id === loan.id
+            );
+
+            return rawLoan?.borrower_id === borrowerFilter;
+          })
+        : mappedLoans;
+
+      setLoans(filteredLoans);
     } catch (err: any) {
       console.error('Failed to load loans:', err);
 
@@ -265,14 +322,209 @@ export const Loans = () => {
   // STATEMENT
   // =========================================================
 
-  const openStatement = (loan: LoanItem) => {
-    setSelectedStatement(loan);
-    setIsStatementOpen(true);
+  const openStatement = async (loan: LoanItem) => {
+    try {
+      setExportNotification('');
+      setError('');
+
+      const response = await api.get(
+        `/loan-statements/${loan.id}`
+      );
+
+      const statement = response.data;
+
+      setSelectedStatement({
+        ...loan,
+        id: statement.id,
+        loanId: statement.loanId,
+        borrowerName: statement.borrowerName,
+        principal: Number(statement.principal || 0),
+        remainingBalance: Number(
+          statement.remainingBalance || 0
+        ),
+        issueDate:
+          statement.issueDate || loan.issueDate,
+        dueDate:
+          statement.dueDate || loan.dueDate,
+        interestType:
+          statement.interestType || loan.interestType,
+        interestRate:
+          Number(statement.interestRate || 0),
+        performance:
+          statement.performance || [],
+      });
+
+      setIsStatementOpen(true);
+    } catch (err: any) {
+      console.error(
+        'Failed to load loan statement:',
+        err
+      );
+
+      setError(
+        err?.response?.data?.detail ||
+          'Unable to load the loan statement.'
+      );
+    }
   };
 
   // =========================================================
   // DISBURSE
   // =========================================================
+
+
+  // =========================================================
+  // LOAN ACTIONS
+  // =========================================================
+
+  const approveLoan = async (loan: LoanItem) => {
+    try {
+      setError('');
+      setSuccessMessage('');
+
+      await api.post(`/loan-workflow/${loan.id}/approve`);
+
+      setSuccessMessage(`${loan.loanId} approved successfully.`);
+      await loadLoans();
+    } catch (err: any) {
+      console.error('Failed to approve loan:', err);
+
+      setError(
+        err?.response?.data?.detail ||
+          'Failed to approve the loan.'
+      );
+    }
+  };
+
+  const disburseLoan = async (loan: LoanItem) => {
+    if (
+      !window.confirm(
+        `Disburse ${loan.loanId} to ${loan.borrowerName} for ${formatMoney(
+          loan.principal
+        )}?`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setError('');
+      setSuccessMessage('');
+
+      await api.post(`/loan-workflow/${loan.id}/disburse`);
+
+      setSuccessMessage(`${loan.loanId} disbursed successfully.`);
+      await loadLoans();
+    } catch (err: any) {
+      console.error('Failed to disburse loan:', err);
+
+      setError(
+        err?.response?.data?.detail ||
+          'Failed to disburse the loan.'
+      );
+    }
+  };
+
+  const repayLoan = (loan: LoanItem) => {
+    if (
+      loan.status !== 'Active' &&
+      loan.status !== 'Overdue'
+    ) {
+      setError('Only active or overdue loans can receive repayments.');
+      return;
+    }
+
+    navigate(`/repayments?loan=${encodeURIComponent(loan.id)}`);
+  };
+
+  const deleteLoan = async (loan: LoanItem) => {
+    if (
+      loan.status !== 'Pending'
+    ) {
+      setError('Only pending loans can be deleted.');
+      return;
+    }
+
+    if (
+      !window.confirm(
+        `Delete loan ${loan.loanId} for ${loan.borrowerName}? This action cannot be undone.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setError('');
+      setSuccessMessage('');
+
+      await api.delete(`/loans/${loan.id}`);
+
+      setSuccessMessage(`${loan.loanId} deleted successfully.`);
+      await loadLoans();
+    } catch (err: any) {
+      console.error('Failed to delete loan:', err);
+
+      setError(
+        err?.response?.data?.detail ||
+          'Failed to delete the loan.'
+      );
+    }
+  };
+
+  const editLoan = (loan: LoanItem) => {
+    setError('');
+    setSuccessMessage('');
+
+    // Only pending loans may be edited.
+    if (loan.status === 'Pending') {
+      const rawLoan = loans.find(
+        (item) => item.id === loan.id
+      );
+
+      setBorrowerId(
+        rawLoan?.borrower_id || ''
+      );
+
+      setBorrowerName(
+        loan.borrowerName
+      );
+
+      setPrincipal(
+        String(loan.principal)
+      );
+
+      setSelectedProductId(
+        rawLoan?.loan_product_id || ''
+      );
+
+      setDurationMonths(
+        rawLoan?.term_months
+          ? String(rawLoan.term_months)
+          : ''
+      );
+
+      setIssueDate(
+        rawLoan?.created_at?.split('T')[0] ||
+          loan.issueDate ||
+          new Date().toISOString().split('T')[0]
+      );
+
+      setDueDate(
+        rawLoan?.maturity_date ||
+          loan.dueDate ||
+          ''
+      );
+
+      setSelectedStatement(loan);
+      setIsStatementOpen(false);
+      setIsDisburseOpen(true);
+      return;
+    }
+
+    setError(
+      'Only pending loans can be edited. Approved and disbursed loan terms are locked.'
+    );
+  };
 
   const handleDisburseSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -325,27 +577,51 @@ export const Loans = () => {
     }
 
     try {
-      const response = await api.post('/loans/', {
+      const editingLoan =
+        selectedStatement &&
+        selectedStatement.status === 'Pending'
+          ? selectedStatement
+          : null;
+
+      const payload = {
         borrower_id: borrowerId,
         loan_product_id: selectedProduct.id,
         principal: amount,
         interest_rate: Number(selectedProduct.interest_rate),
         term_months: term,
-        disbursement_date: issueDate,
         maturity_date: dueDate,
-      });
+      };
 
-      console.log('Loan created:', response.data);
+      const response = editingLoan
+        ? await api.patch(
+            `/loans/${editingLoan.id}`,
+            payload
+          )
+        : await api.post('/loans/', {
+            ...payload,
+            disbursement_date: issueDate,
+          });
+
+      console.log(
+        editingLoan
+          ? 'Loan updated:'
+          : 'Loan created:',
+        response.data
+      );
 
       setSuccessMessage(
-        `Loan ${response.data?.loan_number || ''} created successfully.`
+        editingLoan
+          ? `Loan ${response.data?.loan_number || editingLoan.loanId} updated successfully.`
+          : `Loan ${response.data?.loan_number || ''} created successfully.`
       );
 
       setIsDisburseOpen(false);
 
+      setSelectedStatement(null);
       setPrincipal('');
       setSelectedProductId('');
       setDurationMonths('');
+      setDueDate('');
 
       await loadLoans();
       await loadLoanProducts();
@@ -432,7 +708,7 @@ export const Loans = () => {
           className="flex items-center gap-2 bg-[#05445E] hover:bg-[#032d3f] text-white px-4 py-2.5 rounded-xl font-medium text-xs shadow-md transition-all cursor-pointer"
         >
           <Plus size={16} />
-          Disburse New Loan
+          Create New Loan
         </button>
       </div>
 
@@ -564,6 +840,89 @@ export const Loans = () => {
                     </span>
                   </td>
 
+                  <td className="px-4 py-4">
+                    <div className="flex items-center justify-end gap-1.5">
+
+                      {/* VIEW */}
+                      <button
+                        type="button"
+                        onClick={() => openStatement(loan)}
+                        title="View loan"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:border-[#189AB4] hover:bg-[#E8F7FA] hover:text-[#05445E]"
+                      >
+                        <Eye size={16} />
+                      </button>
+
+                      {/* EDIT */}
+                      <button
+                        type="button"
+                        onClick={() => editLoan(loan)}
+                        disabled={loan.status !== 'Pending'}
+                        title={
+                          loan.status === 'Pending'
+                            ? 'Edit loan'
+                            : 'Only pending loans can be edited'
+                        }
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:border-[#189AB4] hover:bg-[#E8F7FA] hover:text-[#05445E] disabled:cursor-not-allowed disabled:opacity-35"
+                      >
+                        <Pencil size={16} />
+                      </button>
+
+                      {/* DELETE */}
+                      <button
+                        type="button"
+                        onClick={() => deleteLoan(loan)}
+                        disabled={loan.status !== 'Pending'}
+                        title={
+                          loan.status === 'Pending'
+                            ? 'Delete loan'
+                            : 'Only pending loans can be deleted'
+                        }
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:border-red-300 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-35"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+
+                      {/* APPROVE */}
+                      {loan.status === 'Pending' && (
+                        <button
+                          type="button"
+                          onClick={() => approveLoan(loan)}
+                          title="Approve loan"
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[#05445E] text-white transition hover:bg-[#04384D]"
+                        >
+                          <ShieldCheck size={16} />
+                        </button>
+                      )}
+
+                      {/* DISBURSE */}
+                      {loan.status === 'Approved' && (
+                        <button
+                          type="button"
+                          onClick={() => disburseLoan(loan)}
+                          title="Disburse loan"
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[#189AB4] text-white transition hover:bg-[#117E95]"
+                        >
+                          <Banknote size={16} />
+                        </button>
+                      )}
+
+                      {/* REPAY */}
+                      {(loan.status === 'Active' ||
+                        loan.status === 'Overdue') && (
+                        <button
+                          type="button"
+                          onClick={() => repayLoan(loan)}
+                          title="Record repayment"
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#189AB4] bg-[#E8F7FA] text-[#05445E] transition hover:bg-[#189AB4] hover:text-white"
+                        >
+                          <ReceiptText size={16} />
+                        </button>
+                      )}
+
+                    </div>
+                  </td>
+
                 </tr>
               ))}
 
@@ -586,7 +945,7 @@ export const Loans = () => {
                 </div>
 
                 <h3 className="font-bold text-slate-800 text-sm">
-                  Disburse New Loan
+                  Create New Loan
                 </h3>
 
               </div>
@@ -838,7 +1197,9 @@ export const Loans = () => {
                   type="submit"
                   className="px-4 py-2 bg-[#05445E] hover:bg-[#032d3f] text-white rounded-xl font-medium shadow-md transition-all cursor-pointer"
                 >
-                  Confirm & Disburse
+                  {selectedStatement?.status === 'Pending'
+                    ? 'Update Loan'
+                    : 'Create Loan'}
                 </button>
 
               </div>

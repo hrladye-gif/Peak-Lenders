@@ -14,14 +14,34 @@ import {
   ChevronRight,
   Search,
   Building2,
-  ShieldAlert
+  ShieldAlert,
+  LogOut
 } from 'lucide-react';
 
 export const Layout = () => {
   const location = useLocation();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('companyName');
+    localStorage.removeItem('peak_org_name');
+
+    window.location.href = '/login';
+  };
   const [orgName, setOrgName] = useState(() => localStorage.getItem('peak_org_name') || 'Peak Lenders EA');
   const [logo, setLogo] = useState(() => localStorage.getItem('peak_logo'));
   const [currency, setCurrency] = useState(() => localStorage.getItem('peak_currency') || 'UGX');
+
+  const getStoredUser = () => {
+    try {
+      return JSON.parse(localStorage.getItem('user') || '{}');
+    } catch {
+      return {};
+    }
+  };
+
+  const [currentUser, setCurrentUser] = useState(getStoredUser);
 
   // Sub-menu toggle states
   const [customersOpen, setCustomersOpen] = useState(true);
@@ -36,14 +56,17 @@ export const Layout = () => {
       setOrgName(localStorage.getItem('peak_org_name') || 'Peak Lenders EA');
       setLogo(localStorage.getItem('peak_logo'));
       setCurrency(localStorage.getItem('peak_currency') || 'UGX');
+      setCurrentUser(getStoredUser());
     };
 
     window.addEventListener('peak-settings-changed', updateSidebarState);
     window.addEventListener('storage', updateSidebarState);
+    window.addEventListener('user-changed', updateSidebarState);
 
     return () => {
       window.removeEventListener('peak-settings-changed', updateSidebarState);
       window.removeEventListener('storage', updateSidebarState);
+      window.removeEventListener('user-changed', updateSidebarState);
     };
   }, []);
 
@@ -213,13 +236,31 @@ export const Layout = () => {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3 border-l pl-4 border-slate-200">
               <div className="w-8 h-8 rounded-full bg-[#189AB4] text-white font-bold flex items-center justify-center text-xs">
-                EA
+                {`${currentUser.first_name?.[0] || 'A'}${currentUser.last_name?.[0] || 'U'}`.toUpperCase()}
               </div>
               <div className="text-xs">
-                <p className="font-bold text-slate-700">Admin User</p>
-                <p className="text-[10px] text-slate-400">East Africa Node</p>
+                <p className="font-bold text-slate-700">
+                  {currentUser.first_name || currentUser.last_name
+                    ? `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim()
+                    : 'Admin User'}
+                </p>
+                <p className="text-[10px] text-slate-400">
+                  {currentUser.role
+                    ? currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1)
+                    : 'Administrator'}
+                </p>
               </div>
               <ChevronDown size={14} className="text-slate-400" />
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                title="Logout"
+                className="ml-2 flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+              >
+                <LogOut size={15} />
+                Logout
+              </button>
             </div>
           </div>
         </header>

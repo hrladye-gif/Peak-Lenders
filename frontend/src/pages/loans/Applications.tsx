@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 
 import { api } from '../../api/axios';
-import { getCurrency, formatMoney } from "../../config/regional";
+import { formatMoney } from "../../config/regional";
 
 interface Application {
   id: string;
@@ -109,13 +109,7 @@ export const Applications = () => {
     );
   }, [applications, search]);
 
-  const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat('en-UG', {
-      style: 'currency',
-      currency: getCurrency(),
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
+  const formatAmount = (amount: number) => formatMoney(amount);
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString('en-GB');
