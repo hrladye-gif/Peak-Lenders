@@ -22,3 +22,7 @@ from app.models.application import LoanApplication
 
 from app.models.collection_activity import CollectionActivity
 from app.models.write_off import WriteOff
+
+from app.models.permission import Permission
+from app.models.role import Role, RolePermission, UserRole
+from app.models.settings import TenantSettings

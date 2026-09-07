@@ -42,8 +42,10 @@ def create_payment(
         )
 
     return process_repayment(
-        db,
-        payment,
+        db=db,
+        data=payment,
+        tenant_id=current_user.tenant_id,
+        received_by=current_user.id,
     )
 
 

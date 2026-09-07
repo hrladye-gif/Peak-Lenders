@@ -1,6 +1,6 @@
 from sqlalchemy import Column
 from sqlalchemy import String
-from sqlalchemy import ForeignKey
+from sqlalchemy import Boolean, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from app.db.database import Base
@@ -28,6 +28,13 @@ class Branch(BaseMixin, Base):
 
     address = Column(String)
 
+    is_active = Column(
+        Boolean,
+        nullable=False,
+        default=True,
+        server_default="true",
+    )
+
     tenant = relationship(
         "Tenant",
         back_populates="branches"
@@ -46,4 +53,17 @@ class Branch(BaseMixin, Base):
     groups = relationship(
         "Group",
         back_populates="branch"
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "tenant_id",
+            "name",
+            name="uq_branches_tenant_name",
+        ),
+        UniqueConstraint(
+            "tenant_id",
+            "code",
+            name="uq_branches_tenant_code",
+        ),
     )

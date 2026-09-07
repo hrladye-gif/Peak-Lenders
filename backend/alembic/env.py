@@ -22,6 +22,8 @@ import app.models.savings_product
 import app.models.savings_account
 import app.models.savings_transaction
 import app.models.audit_log
+import app.models.permission
+import app.models.role
 config = context.config
 
 config.set_main_option(
@@ -66,3 +68,4 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     run_migrations_online()
+

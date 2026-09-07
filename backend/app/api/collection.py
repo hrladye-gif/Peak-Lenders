@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from sqlalchemy.orm import Session
 
@@ -12,9 +12,7 @@ from app.services.collection_activity_service import (
     create_collection_activity,
     get_collection_activities,
 )
-from app.schemas.collection import (
-    CollectionActivityCreate,
-)
+from app.schemas.collection import CollectionActivityCreate
 
 
 router = APIRouter(
@@ -23,15 +21,28 @@ router = APIRouter(
 )
 
 
+def _verify_tenant(
+    tenant_id: str,
+    current_user: User,
+):
+    if str(tenant_id) != str(current_user.tenant_id):
+        raise HTTPException(
+            status_code=403,
+            detail="You do not have access to this tenant's collections.",
+        )
+
+
 @router.get("/summary/{tenant_id}")
 def summary(
     tenant_id: str,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    _verify_tenant(tenant_id, current_user)
+
     return get_collection_summary(
         db,
-        tenant_id,
+        current_user.tenant_id,
     )
 
 
@@ -41,9 +52,11 @@ def cases(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    _verify_tenant(tenant_id, current_user)
+
     return get_collection_cases(
         db,
-        tenant_id,
+        current_user.tenant_id,
     )
 
 
@@ -54,12 +67,20 @@ def create_activity(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return create_collection_activity(
-        db,
-        tenant_id,
-        current_user.id,
-        data,
-    )
+    _verify_tenant(tenant_id, current_user)
+
+    try:
+        return create_collection_activity(
+            db,
+            current_user.tenant_id,
+            current_user.id,
+            data,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=str(exc),
+        )
 
 
 @router.get("/{tenant_id}/activities/{loan_id}")
@@ -69,8 +90,16 @@ def activities(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return get_collection_activities(
-        db,
-        tenant_id,
-        loan_id,
-    )
+    _verify_tenant(tenant_id, current_user)
+
+    try:
+        return get_collection_activities(
+            db,
+            current_user.tenant_id,
+            loan_id,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=404,
+            detail=str(exc),
+        )

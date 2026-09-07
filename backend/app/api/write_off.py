@@ -70,6 +70,12 @@ def approve(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    if current_user.role.lower() not in {"admin", "administrator"}:
+        raise HTTPException(
+            status_code=403,
+            detail="Administrator access required to approve write-offs.",
+        )
+
     try:
         return approve_write_off(
             db=db,

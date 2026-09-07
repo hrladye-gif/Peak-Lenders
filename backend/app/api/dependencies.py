@@ -69,3 +69,40 @@ def get_current_user(
         )
 
     return user
+
+
+def require_permission(permission_code: str):
+    def dependency(
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user),
+    ):
+        from app.models.role import UserRole
+        from app.models.permission import Permission
+        from app.models.role import RolePermission
+
+        allowed = (
+            db.query(Permission.id)
+            .join(
+                RolePermission,
+                RolePermission.permission_id == Permission.id,
+            )
+            .join(
+                UserRole,
+                UserRole.role_id == RolePermission.role_id,
+            )
+            .filter(
+                UserRole.user_id == current_user.id,
+                Permission.code == permission_code,
+            )
+            .first()
+        )
+
+        if not allowed:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to perform this action.",
+            )
+
+        return current_user
+
+    return dependency

@@ -1,4 +1,5 @@
 from datetime import date
+from decimal import Decimal
 
 from sqlalchemy.orm import Session
 
@@ -7,6 +8,10 @@ from app.models.loan_schedule import LoanSchedule
 from app.models.repayment import Repayment
 from app.models.borrower import Borrower
 from app.models.branch import Branch
+
+
+def _money(value):
+    return Decimal(str(value or 0))
 
 
 def get_collection_summary(
@@ -21,42 +26,50 @@ def get_collection_summary(
         .filter(
             Loan.tenant_id == tenant_id,
             LoanSchedule.due_date <= today,
+            Loan.status.notin_(["WRITTEN_OFF"]),
         )
         .all()
     )
 
-    total_due = sum(
-        (x.total_due or 0 for x in schedules),
-        0,
-    )
+    total_due = Decimal("0.00")
+    overdue_amount = Decimal("0.00")
+    overdue_count = 0
 
-    overdue = [
-        x for x in schedules
-        if (x.total_paid or 0) < (x.total_due or 0)
-    ]
+    for schedule in schedules:
+        due = _money(schedule.total_due)
 
-    overdue_amount = sum(
-        ((x.total_due or 0) - (x.total_paid or 0) for x in overdue),
-        0,
-    )
+        total_due += due
+
+        if schedule.due_date < today:
+            # repayment_service already reduces schedule.total_due
+            # after every payment. Do not subtract historical
+            # repayments a second time here.
+            arrears = due
+
+            if arrears > 0:
+                overdue_amount += arrears
+                overdue_count += 1
 
     payments = (
         db.query(Repayment)
         .join(Loan, Loan.id == Repayment.loan_id)
-        .filter(Loan.tenant_id == tenant_id)
+        .filter(
+            Loan.tenant_id == tenant_id,
+            Repayment.payment_date <= today,
+        )
         .all()
     )
 
     total_paid = sum(
-        (x.total_paid or 0 for x in payments),
-        0,
+        (_money(x.total_paid) for x in payments),
+        Decimal("0.00"),
     )
 
     return {
         "total_due": float(total_due),
         "total_paid": float(total_paid),
         "overdue_amount": float(overdue_amount),
-        "overdue_count": len(overdue),
+        "overdue_count": overdue_count,
     }
 
 
@@ -79,17 +92,22 @@ def get_collection_cases(
         .filter(
             Loan.tenant_id == tenant_id,
             LoanSchedule.due_date < today,
+            Loan.status.notin_(["WRITTEN_OFF"]),
         )
-        .order_by(LoanSchedule.due_date.asc())
+        .order_by(
+            LoanSchedule.due_date.asc(),
+            LoanSchedule.installment_no.asc(),
+        )
         .all()
     )
 
     cases = []
 
     for schedule, loan, borrower, branch in rows:
-        total_due = schedule.total_due or 0
-        total_paid = getattr(schedule, "total_paid", 0) or 0
-        arrears = total_due - total_paid
+        # repayment_service keeps schedule.total_due as the
+        # remaining amount after payments. Historical repayments
+        # must not be subtracted again.
+        arrears = _money(schedule.total_due)
 
         if arrears <= 0:
             continue

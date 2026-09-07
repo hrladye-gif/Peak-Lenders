@@ -592,3 +592,360 @@ def general_ledger(
         )
 
     return results
+
+
+@router.get("/reports/trial-balance")
+def trial_balance_report(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    accounts = (
+        db.query(Account)
+        .filter(Account.tenant_id == current_user.tenant_id)
+        .order_by(Account.account_code)
+        .all()
+    )
+
+    results = []
+    total_debit = Decimal("0")
+    total_credit = Decimal("0")
+
+    for account in accounts:
+        lines = (
+            db.query(JournalLine)
+            .join(
+                JournalEntry,
+                JournalEntry.id == JournalLine.journal_entry_id,
+            )
+            .filter(
+                JournalEntry.tenant_id == current_user.tenant_id,
+                JournalLine.account_id == account.id,
+            )
+            .all()
+        )
+
+        debit = sum(
+            (Decimal(str(line.debit or 0)) for line in lines),
+            Decimal("0"),
+        )
+
+        credit = sum(
+            (Decimal(str(line.credit or 0)) for line in lines),
+            Decimal("0"),
+        )
+
+        total_debit += debit
+        total_credit += credit
+
+        results.append({
+            "id": account.id,
+            "code": account.account_code,
+            "account": account.account_name,
+            "account_type": account.account_type,
+            "debit": debit,
+            "credit": credit,
+        })
+
+    return {
+        "accounts": results,
+        "total_debit": total_debit,
+        "total_credit": total_credit,
+        "balanced": total_debit == total_credit,
+    }
+
+
+@router.get("/reports/par-aging")
+def par_aging_report(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    from datetime import date
+    from app.models.loan import Loan
+    from app.models.loan_schedule import LoanSchedule
+    from app.models.repayment import Repayment
+    from app.models.borrower import Borrower
+    from app.models.loan_product import LoanProduct
+
+    today = date.today()
+
+    schedules = (
+        db.query(LoanSchedule)
+        .join(Loan, Loan.id == LoanSchedule.loan_id)
+        .filter(
+            Loan.tenant_id == current_user.tenant_id,
+            Loan.status.in_(["ACTIVE", "OVERDUE"]),
+            LoanSchedule.due_date < today,
+            LoanSchedule.status != "PAID",
+        )
+        .all()
+    )
+
+    rows = []
+    total_outstanding = Decimal("0")
+    total_overdue = Decimal("0")
+
+    for schedule in schedules:
+        loan = db.query(Loan).filter(
+            Loan.id == schedule.loan_id
+        ).first()
+
+        if not loan:
+            continue
+
+        paid_principal = db.query(
+            func.coalesce(
+                func.sum(Repayment.principal_paid),
+                0,
+            )
+        ).filter(
+            Repayment.schedule_id == schedule.id,
+            Repayment.loan_id == loan.id,
+        ).scalar()
+
+        paid_principal = Decimal(
+            str(paid_principal or 0)
+        )
+
+        principal_due = Decimal(
+            str(schedule.principal_due or 0)
+        )
+
+        overdue = max(
+            principal_due - paid_principal,
+            Decimal("0"),
+        )
+
+        if overdue <= 0:
+            continue
+
+        days_overdue = max(
+            (today - schedule.due_date).days,
+            0,
+        )
+
+        if days_overdue <= 30:
+            band = "PAR 1-30"
+        elif days_overdue <= 60:
+            band = "PAR 31-60"
+        elif days_overdue <= 90:
+            band = "PAR 61-90"
+        else:
+            band = "PAR 90+"
+
+        total_overdue += overdue
+
+        borrower = db.query(Borrower).filter(
+            Borrower.id == loan.borrower_id,
+            Borrower.tenant_id == current_user.tenant_id,
+        ).first()
+
+        product = db.query(LoanProduct).filter(
+            LoanProduct.id == loan.loan_product_id,
+            LoanProduct.tenant_id == current_user.tenant_id,
+        ).first()
+
+        borrower_name = (
+            borrower.business_name
+            if borrower and borrower.business_name
+            else " ".join(
+                part for part in [
+                    borrower.first_name if borrower else None,
+                    borrower.last_name if borrower else None,
+                ]
+                if part
+            )
+            if borrower
+            else "Unknown borrower"
+        )
+
+        rows.append({
+            "loan_id": loan.loan_number,
+            "schedule_id": schedule.id,
+            "borrower_name": borrower_name,
+            "product_name": product.name if product else "Unknown product",
+            "loan_officer": "Not assigned",
+            "due_date": schedule.due_date,
+            "outstanding": overdue,
+            "overdue": overdue,
+            "days_overdue": days_overdue,
+            "band": band,
+            "status": loan.status,
+        })
+
+    portfolio_outstanding = db.query(
+        func.coalesce(
+            func.sum(LoanSchedule.principal_due),
+            0,
+        )
+    ).join(
+        Loan,
+        Loan.id == LoanSchedule.loan_id,
+    ).filter(
+        Loan.tenant_id == current_user.tenant_id,
+        Loan.status.in_(["ACTIVE", "OVERDUE"]),
+        LoanSchedule.status != "PAID",
+    ).scalar()
+
+    portfolio_outstanding = Decimal(
+        str(portfolio_outstanding or 0)
+    )
+
+    total_outstanding = portfolio_outstanding
+
+    total_active_loans = db.query(
+        func.count(Loan.id)
+    ).filter(
+        Loan.tenant_id == current_user.tenant_id,
+        Loan.status.in_(["ACTIVE", "OVERDUE"]),
+    ).scalar() or 0
+
+    par30_overdue = sum(
+        (
+            row["overdue"]
+            for row in rows
+            if row["days_overdue"] > 30
+        ),
+        Decimal("0"),
+    )
+
+    par30_percentage = (
+        par30_overdue / total_outstanding * 100
+        if total_outstanding > 0
+        else Decimal("0")
+    )
+
+    provision_account = db.query(Account).filter(
+        Account.tenant_id == current_user.tenant_id,
+        Account.account_code == "5100",
+    ).first()
+
+    recorded_provision = (
+        calculate_account_balance(
+            db,
+            provision_account.id,
+        )
+        if provision_account
+        else Decimal("0")
+    )
+
+    aging_totals = {
+        "Current": max(
+            total_outstanding - total_overdue,
+            Decimal("0"),
+        ),
+        "PAR 1-30": sum(
+            (
+                row["overdue"]
+                for row in rows
+                if row["band"] == "PAR 1-30"
+            ),
+            Decimal("0"),
+        ),
+        "PAR 31-60": sum(
+            (
+                row["overdue"]
+                for row in rows
+                if row["band"] == "PAR 31-60"
+            ),
+            Decimal("0"),
+        ),
+        "PAR 61-90": sum(
+            (
+                row["overdue"]
+                for row in rows
+                if row["band"] == "PAR 61-90"
+            ),
+            Decimal("0"),
+        ),
+        "PAR 90+": sum(
+            (
+                row["overdue"]
+                for row in rows
+                if row["band"] == "PAR 90+"
+            ),
+            Decimal("0"),
+        ),
+    }
+
+    return {
+        "total_outstanding": total_outstanding,
+        "total_overdue": total_overdue,
+        "par_percentage": par30_percentage,
+        "par30_overdue": par30_overdue,
+        "par30_percentage": par30_percentage,
+        "recorded_provision": recorded_provision,
+        "total_loans": total_active_loans,
+        "aging_totals": aging_totals,
+        "loans": rows,
+    }
+
+
+@router.get("/reports/financial-statements")
+def financial_statements(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    accounts = (
+        db.query(Account)
+        .filter(Account.tenant_id == current_user.tenant_id)
+        .all()
+    )
+
+    result = {
+        "assets": [],
+        "liabilities": [],
+        "equity": [],
+        "income": [],
+        "expenses": [],
+    }
+
+    totals = {
+        "assets": Decimal("0"),
+        "liabilities": Decimal("0"),
+        "equity": Decimal("0"),
+        "income": Decimal("0"),
+        "expenses": Decimal("0"),
+    }
+
+    for account in accounts:
+        raw_balance = calculate_account_balance(
+            db,
+            account.id,
+        )
+
+        key = str(
+            account.account_type or ""
+        ).lower()
+
+        # Assets and expenses normally carry debit balances.
+        # Liabilities, equity, and income normally carry
+        # credit balances.
+        if key in {"liabilities", "equity", "income"}:
+            balance = -raw_balance
+        else:
+            balance = raw_balance
+
+        item = {
+            "code": account.account_code,
+            "name": account.account_name,
+            "amount": balance,
+        }
+
+        if key in result:
+            result[key].append(item)
+            totals[key] += balance
+
+    result["totals"] = totals
+
+    result["net_income"] = (
+        totals["income"] - totals["expenses"]
+    )
+
+    result["total_assets"] = totals["assets"]
+    result["total_liabilities_equity"] = (
+        totals["liabilities"]
+        + totals["equity"]
+        + result["net_income"]
+    )
+
+    return result

@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from app.api.risk import router as risk_router
 from app.api.auth import router as auth_router
 from app.api.user import router as user_router
+from app.api.role import router as role_router
+from app.api.settings import router as settings_router
 from app.api.tenant import router as tenant_router
 from app.api.branch import router as branch_router
 from app.api.borrower import router as borrower_router
@@ -29,6 +31,8 @@ app = FastAPI(
 app.include_router(risk_router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
 app.include_router(user_router, prefix="/api")
+app.include_router(role_router, prefix="/api")
+app.include_router(settings_router, prefix="/api")
 app.include_router(tenant_router, prefix="/api")
 app.include_router(branch_router, prefix="/api")
 app.include_router(borrower_router, prefix="/api")

@@ -1,23 +1,26 @@
 from datetime import date
+from decimal import Decimal
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.models.loan import Loan
-from app.models.account import Account
 from app.models.loan_transaction import LoanTransaction
-from decimal import Decimal
-
-from app.services.accounting_service import create_journal_entry
+from app.services.accounting_service import post_loan_disbursement
+from app.services.schedule_service import create_schedule
 
 
 def approve_loan(
     db: Session,
     loan_id: str,
+    tenant_id: str,
 ):
     loan = (
         db.query(Loan)
-        .filter(Loan.id == loan_id)
+        .filter(
+            Loan.id == loan_id,
+            Loan.tenant_id == tenant_id,
+        )
         .first()
     )
 
@@ -30,7 +33,7 @@ def approve_loan(
     if loan.status != "PENDING":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Loan cannot be approved from status {loan.status}.",
+            detail=f"Only PENDING loans can be approved. Current status: {loan.status}.",
         )
 
     loan.status = "APPROVED"
@@ -44,10 +47,14 @@ def approve_loan(
 def disburse_loan(
     db: Session,
     loan_id: str,
+    tenant_id: str,
 ):
     loan = (
         db.query(Loan)
-        .filter(Loan.id == loan_id)
+        .filter(
+            Loan.id == loan_id,
+            Loan.tenant_id == tenant_id,
+        )
         .first()
     )
 
@@ -57,77 +64,60 @@ def disburse_loan(
             detail="Loan not found.",
         )
 
+    if loan.status == "ACTIVE":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Loan has already been disbursed.",
+        )
+
     if loan.status != "APPROVED":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Loan must be APPROVED before disbursement. Current status: {loan.status}.",
+            detail=f"Only APPROVED loans can be disbursed. Current status: {loan.status}.",
         )
 
-    loan_account = (
-        db.query(Account)
-        .filter(
-            Account.tenant_id == loan.tenant_id,
-            Account.account_code == "1100",
-        )
-        .first()
-    )
+    try:
+        amount = Decimal(str(loan.principal))
 
-    cash_account = (
-        db.query(Account)
-        .filter(
-            Account.tenant_id == loan.tenant_id,
-            Account.account_code == "1000",
-        )
-        .first()
-    )
-
-    if not loan_account:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Loan Portfolio account (1100) is missing.",
+        post_loan_disbursement(
+            db=db,
+            tenant_id=loan.tenant_id,
+            loan_id=loan.id,
+            amount=amount,
+            reference_no=loan.loan_number,
         )
 
-    if not cash_account:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Cash account (1000) is missing.",
+        transaction = LoanTransaction(
+            loan_id=loan.id,
+            transaction_type="DISBURSEMENT",
+            principal_amount=amount,
+            interest_amount=Decimal("0.00"),
+            penalty_amount=Decimal("0.00"),
+            total_amount=amount,
+            notes="Loan disbursement",
         )
 
-    loan.status = "ACTIVE"
-    loan.disbursement_date = date.today()
+        db.add(transaction)
 
-    create_journal_entry(
-        db=db,
-        tenant_id=loan.tenant_id,
-        reference_no=loan.loan_number,
-        description="Loan Disbursement",
-        lines=[
-            {
-                "account_id": loan_account.id,
-                "debit": loan.principal,
-                "credit": 0,
-            },
-            {
-                "account_id": cash_account.id,
-                "debit": 0,
-                "credit": loan.principal,
-            },
-        ],
-    )
+        # Actual disbursement date is recorded only here.
+        loan.disbursement_date = date.today()
 
-    transaction = LoanTransaction(
-        loan_id=loan.id,
-        transaction_type="DISBURSEMENT",
-        principal_amount=Decimal(str(loan.principal)),
-        interest_amount=Decimal("0.00"),
-        penalty_amount=Decimal("0.00"),
-        total_amount=Decimal(str(loan.principal)),
-        notes="Loan disbursement",
-    )
+        create_schedule(
+            db=db,
+            loan_id=loan.id,
+        )
 
-    db.add(transaction)
+        loan.status = "ACTIVE"
 
-    db.commit()
-    db.refresh(loan)
+        db.commit()
+        db.refresh(loan)
 
-    return loan
+        return loan
+
+    except HTTPException:
+        db.rollback()
+        raise
+
+    except Exception:
+        db.rollback()
+        raise

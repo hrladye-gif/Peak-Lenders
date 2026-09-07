@@ -1,9 +1,11 @@
 from datetime import date
+from decimal import Decimal, ROUND_HALF_UP
 
 from sqlalchemy.orm import Session
 
 from app.models.write_off import WriteOff
 from app.models.loan import Loan
+from app.models.loan_schedule import LoanSchedule
 from app.models.borrower import Borrower
 from app.models.user import User
 from app.models.audit_log import AuditLog
@@ -93,7 +95,7 @@ def create_write_off(
     tenant_id: str,
     user_id: str,
     loan_id: str,
-    amount: float,
+    amount,
     reason: str,
 ):
     loan = (
@@ -111,7 +113,12 @@ def create_write_off(
     if loan.status == "WRITTEN_OFF":
         raise ValueError("Loan has already been written off.")
 
-    if amount <= 0:
+    amount = Decimal(str(amount)).quantize(
+        Decimal("0.01"),
+        rounding=ROUND_HALF_UP,
+    )
+
+    if amount <= Decimal("0.00"):
         raise ValueError("Write-off amount must be greater than zero.")
 
     if not reason.strip():
@@ -119,7 +126,10 @@ def create_write_off(
 
     borrower = (
         db.query(Borrower)
-        .filter(Borrower.id == loan.borrower_id)
+        .filter(
+            Borrower.id == loan.borrower_id,
+            Borrower.tenant_id == tenant_id,
+        )
         .first()
     )
 
@@ -204,6 +214,36 @@ def approve_write_off(
     if not loan:
         raise ValueError("Loan not found.")
 
+    # Never write off more than the loan's actual outstanding
+    # principal balance.
+    outstanding_principal = (
+        sum(
+            (row.principal_due or 0)
+            for row in db.query(LoanSchedule)
+            .filter(
+                LoanSchedule.loan_id == loan.id,
+                LoanSchedule.status != "PAID",
+            )
+            .all()
+        )
+    )
+
+    outstanding_principal = Decimal(str(outstanding_principal or 0)).quantize(
+        Decimal("0.01"),
+        rounding=ROUND_HALF_UP,
+    )
+
+    write_off_amount = Decimal(str(write_off.amount)).quantize(
+        Decimal("0.01"),
+        rounding=ROUND_HALF_UP,
+    )
+
+    if write_off_amount > outstanding_principal:
+        raise ValueError(
+            f"Write-off amount exceeds outstanding principal "
+            f"by {write_off_amount - outstanding_principal:.2f}."
+        )
+
     loan_account = (
         db.query(Account)
         .filter(
@@ -217,7 +257,7 @@ def approve_write_off(
         db.query(Account)
         .filter(
             Account.tenant_id == tenant_id,
-            Account.account_code == "5000",
+            Account.account_code == "5200",
         )
         .first()
     )
@@ -229,51 +269,57 @@ def approve_write_off(
 
     if not expense_account:
         raise ValueError(
-            "Operating Expenses account 5000 was not found."
+            "Loan Write-off Expense account 5200 was not found."
         )
 
     reference = f"WRITE-OFF-{write_off.id}"
 
-    create_journal_entry(
-        db=db,
-        tenant_id=tenant_id,
-        reference_no=reference,
-        description=f"Loan write-off for {loan.loan_number}",
-        lines=[
-            {
-                "account_id": expense_account.id,
-                "debit": float(write_off.amount),
-                "credit": 0,
-            },
-            {
-                "account_id": loan_account.id,
-                "debit": 0,
-                "credit": float(write_off.amount),
-            },
-        ],
-    )
-
-    loan.status = "WRITTEN_OFF"
-
-    write_off.status = "Approved"
-    write_off.approved_by = user_id
-    write_off.write_off_date = date.today()
-
-    db.add(
-        AuditLog(
-            entity_type="WriteOff",
-            entity_id=write_off.id,
-            action="APPROVE",
-            performed_by=user_id,
-            details=(
-                f"Write-off approved for loan {loan.loan_number}; "
-                f"amount={write_off.amount}; "
-                f"journal={reference}"
-            ),
+    try:
+        create_journal_entry(
+            db=db,
+            tenant_id=tenant_id,
+            reference_no=reference,
+            description=f"Loan write-off for {loan.loan_number}",
+            lines=[
+                {
+                    "account_id": expense_account.id,
+                    "debit": write_off_amount,
+                    "credit": 0,
+                },
+                {
+                    "account_id": loan_account.id,
+                    "debit": 0,
+                    "credit": write_off_amount,
+                },
+            ],
+            source_module="WRITE_OFFS",
         )
-    )
 
-    db.commit()
-    db.refresh(write_off)
+        loan.status = "WRITTEN_OFF"
 
-    return write_off
+        write_off.status = "Approved"
+        write_off.approved_by = user_id
+        write_off.write_off_date = date.today()
+
+        db.add(
+            AuditLog(
+                entity_type="WriteOff",
+                entity_id=write_off.id,
+                action="APPROVE",
+                performed_by=user_id,
+                details=(
+                    f"Write-off approved for loan {loan.loan_number}; "
+                    f"amount={write_off.amount}; "
+                    f"journal={reference}"
+                ),
+            )
+        )
+
+        db.commit()
+        db.refresh(write_off)
+
+        return write_off
+
+    except Exception:
+        db.rollback()
+        raise

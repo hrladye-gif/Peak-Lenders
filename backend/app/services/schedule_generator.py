@@ -1,43 +1,90 @@
 from datetime import date
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 from dateutil.relativedelta import relativedelta
+
+
+CENT = Decimal("0.01")
+
+
+def money(value):
+    return Decimal(str(value)).quantize(
+        CENT,
+        rounding=ROUND_HALF_UP,
+    )
 
 
 def generate_flat_schedule(
     principal: float,
     annual_interest_rate: float,
     term_months: int,
-    disbursement_date: date
+    disbursement_date: date,
 ):
     principal = Decimal(str(principal))
     rate = Decimal(str(annual_interest_rate))
 
-    monthly_principal = principal / term_months
+    if principal <= 0:
+        raise ValueError("Principal must be greater than zero.")
 
-    total_interest = principal * (rate / Decimal("100"))
+    if term_months <= 0:
+        raise ValueError("Term must be greater than zero.")
 
-    monthly_interest = total_interest / term_months
+    monthly_principal = money(
+        principal / Decimal(term_months)
+    )
+
+    total_interest = principal * (
+        rate / Decimal("100")
+    )
+
+    monthly_interest = money(
+        total_interest / Decimal(term_months)
+    )
 
     balance = principal
+    principal_scheduled = Decimal("0.00")
+    interest_scheduled = Decimal("0.00")
 
     schedule = []
 
     for installment in range(1, term_months + 1):
 
-        due_date = disbursement_date + relativedelta(months=installment)
+        due_date = (
+            disbursement_date
+            + relativedelta(months=installment)
+        )
 
-        total_due = monthly_principal + monthly_interest
+        # Final installment absorbs rounding differences.
+        if installment == term_months:
+            principal_due = money(
+                principal - principal_scheduled
+            )
 
-        balance -= monthly_principal
+            interest_due = money(
+                total_interest - interest_scheduled
+            )
+        else:
+            principal_due = monthly_principal
+            interest_due = monthly_interest
+
+        total_due = money(
+            principal_due + interest_due
+        )
+
+        balance -= principal_due
+
+        principal_scheduled += principal_due
+        interest_scheduled += interest_due
 
         schedule.append(
             {
                 "installment_no": installment,
                 "due_date": due_date,
-                "principal_due": round(monthly_principal, 2),
-                "interest_due": round(monthly_interest, 2),
-                "total_due": round(total_due, 2),
-                "balance_after": round(max(balance, 0), 2)
+                "principal_due": principal_due,
+                "interest_due": interest_due,
+                "total_due": total_due,
+                "balance_after": money(
+                    max(balance, Decimal("0.00"))
+                ),
             }
         )
 
@@ -48,45 +95,104 @@ def generate_declining_schedule(
     principal: float,
     annual_interest_rate: float,
     term_months: int,
-    disbursement_date: date
+    disbursement_date: date,
 ):
     principal = Decimal(str(principal))
     annual_rate = Decimal(str(annual_interest_rate))
 
-    monthly_rate = annual_rate / Decimal("12") / Decimal("100")
+    if principal <= 0:
+        raise ValueError("Principal must be greater than zero.")
 
-    payment = (
-        principal *
-        monthly_rate *
-        (1 + monthly_rate) ** term_months
-    ) / (
-        ((1 + monthly_rate) ** term_months) - 1
+    if term_months <= 0:
+        raise ValueError("Term must be greater than zero.")
+
+    monthly_rate = (
+        annual_rate
+        / Decimal("12")
+        / Decimal("100")
     )
 
+    if monthly_rate == 0:
+        payment = principal / Decimal(term_months)
+    else:
+        payment = (
+            principal
+            * monthly_rate
+            * (1 + monthly_rate) ** term_months
+        ) / (
+            ((1 + monthly_rate) ** term_months) - 1
+        )
+
+    rounded_payment = money(payment)
+
     balance = principal
+    principal_scheduled = Decimal("0.00")
+    interest_scheduled = Decimal("0.00")
 
     schedule = []
 
     for installment in range(1, term_months + 1):
 
-        interest = balance * monthly_rate
+        due_date = (
+            disbursement_date
+            + relativedelta(months=installment)
+        )
 
-        principal_component = payment - interest
+        if installment == term_months:
+            # Force the final principal component to reconcile
+            # exactly to the original loan principal.
+            principal_component = money(
+                principal - principal_scheduled
+            )
+
+            # Preserve the rounded installment payment where
+            # possible, with the final installment absorbing
+            # accumulated rounding.
+            interest = money(
+                rounded_payment - principal_component
+            )
+
+            if interest < Decimal("0.00"):
+                interest = Decimal("0.00")
+        else:
+            interest = money(
+                balance * monthly_rate
+            )
+
+            principal_component = money(
+                rounded_payment - interest
+            )
+
+            # Never allow a rounded installment to exceed
+            # the remaining principal.
+            remaining_principal = money(
+                principal - principal_scheduled
+            )
+
+            principal_component = min(
+                principal_component,
+                remaining_principal,
+            )
+
+        total_due = money(
+            principal_component + interest
+        )
 
         balance -= principal_component
 
-        due_date = disbursement_date + relativedelta(
-            months=installment
-        )
+        principal_scheduled += principal_component
+        interest_scheduled += interest
 
         schedule.append(
             {
                 "installment_no": installment,
                 "due_date": due_date,
-                "principal_due": round(principal_component, 2),
-                "interest_due": round(interest, 2),
-                "total_due": round(payment, 2),
-                "balance_after": round(max(balance, 0), 2)
+                "principal_due": principal_component,
+                "interest_due": interest,
+                "total_due": total_due,
+                "balance_after": money(
+                    max(balance, Decimal("0.00"))
+                ),
             }
         )
 

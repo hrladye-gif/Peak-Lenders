@@ -18,6 +18,15 @@ class LoanCreate(BaseModel):
     maturity_date: date | None = None
 
 
+class LoanUpdate(BaseModel):
+    borrower_id: str | None = None
+    loan_product_id: str | None = None
+    principal: float | None = None
+    interest_rate: float | None = None
+    term_months: int | None = None
+    maturity_date: date | None = None
+
+
 class LoanResponse(BaseModel):
     id: str
     loan_number: str
